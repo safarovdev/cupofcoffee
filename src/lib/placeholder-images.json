@@ -1,10 +1,10 @@
 {
   "placeholderImages": [
     {
-      "id": "hero-bg",
-      "description": "Premium cafe interior with green plants",
-      "imageUrl": "https://picsum.photos/seed/aromaflow-hero/1920/1080",
-      "imageHint": "cafe interior"
+      "id": "promo-sushi",
+      "description": "Promo banner for coffee discount",
+      "imageUrl": "https://picsum.photos/seed/promo1/1200/400",
+      "imageHint": "coffee beans"
     },
     {
       "id": "latte",

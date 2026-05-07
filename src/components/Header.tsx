@@ -1,29 +1,35 @@
 "use client";
 
-import { Coffee, ShoppingBag } from "lucide-react";
+import { ShoppingBag, Search, Menu as MenuIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b border-border/40">
+      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary rounded-xl shadow-lg shadow-primary/20">
-            <Coffee className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold font-headline tracking-tight text-primary">Cup Of Coffee</h1>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold leading-none hidden sm:block">Ремесленная обжарка</p>
-          </div>
+          <Button variant="ghost" size="icon" className="md:hidden rounded-full">
+            <MenuIcon className="w-6 h-6" />
+          </Button>
+          <h1 className="text-xl font-bold font-headline tracking-tight text-primary">Cup Of Coffee</h1>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-4">
-          <Button variant="ghost" className="hidden md:flex font-bold text-sm">
-            О нас
+        <div className="flex-1 max-w-md hidden md:flex relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input 
+            type="text" 
+            placeholder="Поиск по меню" 
+            className="w-full bg-muted/50 border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="icon" className="rounded-full bg-secondary/80 hover:bg-secondary">
+            <Search className="md:hidden w-5 h-5" />
           </Button>
-          <Button variant="default" className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-full px-4 sm:px-6">
+          <Button variant="default" className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 shadow-md rounded-full px-5 h-10 font-bold">
             <ShoppingBag className="w-4 h-4" />
-            <span className="text-sm">Заказать</span>
+            <span className="hidden sm:inline">0</span>
           </Button>
         </div>
       </div>
