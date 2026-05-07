@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Check, ShoppingBag } from "lucide-react";
+import { Check, ShoppingBag } from "lucide-react";
 import { MenuItem } from "./Menu";
 import {
   Dialog,
@@ -24,64 +24,62 @@ interface CustomizationModalProps {
 export function CustomizationModal({ isOpen, onClose, item }: CustomizationModalProps) {
   const [size, setSize] = useState("M");
   const [milk, setMilk] = useState("regular");
-  const [syrup, setSyrup] = useState("none");
 
   const isDrink = item.category === "coffee" || item.category === "tea";
 
   const handleOrder = () => {
-    // In a real app, this would add to cart
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl p-0 overflow-hidden bg-card border-border sm:rounded-3xl">
-        <div className="flex flex-col md:flex-row h-full max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <DialogContent className="max-w-2xl p-0 overflow-hidden bg-card border-none sm:rounded-[2rem]">
+        <div className="flex flex-col md:flex-row h-full max-h-[95vh] overflow-y-auto custom-scrollbar">
           {/* Left: Image Side */}
-          <div className="md:w-1/2 relative h-64 md:h-auto">
+          <div className="md:w-1/2 relative h-48 md:h-auto">
             <Image
               src={item.image}
               alt={item.name}
               fill
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent md:bg-gradient-to-r" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
             <div className="absolute bottom-6 left-6 right-6">
-              <DialogTitle className="text-3xl font-headline font-bold text-white drop-shadow-lg">
+              <DialogTitle className="text-2xl sm:text-3xl font-headline font-bold text-white">
                 {item.name}
               </DialogTitle>
-              <p className="text-white/90 text-sm mt-2 font-medium drop-shadow-md">
-                ${item.price.toFixed(2)}
+              <p className="text-white/90 text-sm mt-1 font-bold">
+                {item.price} ₽
               </p>
             </div>
           </div>
 
           {/* Right: Options Side */}
-          <div className="md:w-1/2 p-8 space-y-8">
-            <div className="space-y-4">
-              <h4 className="text-sm font-bold uppercase tracking-widest text-primary">Ingredients</h4>
+          <div className="md:w-1/2 p-6 sm:p-8 space-y-6 sm:space-y-8">
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-primary">Ингредиенты</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {item.ingredients.join(", ")}
               </p>
             </div>
 
-            <Separator className="bg-border/50" />
+            <Separator />
 
             {isDrink && (
               <>
                 {/* Size */}
                 <div className="space-y-4">
-                  <h4 className="text-sm font-bold uppercase tracking-widest text-primary">Volume</h4>
-                  <RadioGroup value={size} onValueChange={setSize} className="flex gap-4">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-primary">Объем</h4>
+                  <RadioGroup value={size} onValueChange={setSize} className="flex gap-3">
                     {["S", "M", "L"].map((v) => (
                       <div key={v} className="flex-1">
                         <RadioGroupItem value={v} id={`size-${v}`} className="sr-only" />
                         <Label
                           htmlFor={`size-${v}`}
-                          className={`flex items-center justify-center h-12 rounded-xl border-2 cursor-pointer transition-all ${
+                          className={`flex items-center justify-center h-10 rounded-xl border-2 cursor-pointer transition-all text-sm ${
                             size === v
-                              ? "border-accent bg-accent/10 text-accent font-bold"
-                              : "border-border text-muted-foreground hover:border-accent/50"
+                              ? "border-primary bg-primary/5 text-primary font-bold"
+                              : "border-border text-muted-foreground hover:border-primary/40"
                           }`}
                         >
                           {v}
@@ -93,25 +91,25 @@ export function CustomizationModal({ isOpen, onClose, item }: CustomizationModal
 
                 {/* Milk */}
                 <div className="space-y-4">
-                  <h4 className="text-sm font-bold uppercase tracking-widest text-primary">Milk Type</h4>
-                  <RadioGroup value={milk} onValueChange={setMilk} className="grid grid-cols-2 gap-3">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-primary">Тип молока</h4>
+                  <RadioGroup value={milk} onValueChange={setMilk} className="grid grid-cols-2 gap-2">
                     {[
-                      { id: "regular", name: "Whole Milk" },
-                      { id: "oat", name: "Oat Milk" },
-                      { id: "coconut", name: "Coconut Milk" },
-                      { id: "almond", name: "Almond Milk" },
+                      { id: "regular", name: "Обычное" },
+                      { id: "oat", name: "Овсяное" },
+                      { id: "coconut", name: "Кокосовое" },
+                      { id: "almond", name: "Миндальное" },
                     ].map((m) => (
                       <div key={m.id}>
                         <RadioGroupItem value={m.id} id={`milk-${m.id}`} className="sr-only" />
                         <Label
                           htmlFor={`milk-${m.id}`}
-                          className={`flex items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all text-sm ${
+                          className={`flex items-center gap-2 p-2 rounded-xl border-2 cursor-pointer transition-all text-xs ${
                             milk === m.id
-                              ? "border-accent bg-accent/10 text-accent font-bold"
-                              : "border-border text-muted-foreground hover:border-accent/50"
+                              ? "border-primary bg-primary/5 text-primary font-bold"
+                              : "border-border text-muted-foreground hover:border-primary/40"
                           }`}
                         >
-                          {milk === m.id && <Check className="w-4 h-4" />}
+                          {milk === m.id && <Check className="w-3 h-3" />}
                           {m.name}
                         </Label>
                       </div>
@@ -123,19 +121,19 @@ export function CustomizationModal({ isOpen, onClose, item }: CustomizationModal
 
             {!isDrink && (
               <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10">
-                <p className="text-xs text-muted-foreground italic text-center">
-                  Artisanal food items are prepared fresh to order. For specific modifications, please consult our baristas.
+                <p className="text-xs text-muted-foreground italic text-center leading-tight">
+                  Все блюда готовятся из свежих фермерских продуктов сразу после вашего заказа.
                 </p>
               </div>
             )}
 
-            <div className="pt-4">
+            <div className="pt-2">
               <Button 
                 onClick={handleOrder}
-                className="w-full bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl h-14 font-bold text-lg shadow-xl shadow-accent/20 gap-2"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl h-12 sm:h-14 font-bold text-base sm:text-lg shadow-lg shadow-primary/20 gap-2"
               >
                 <ShoppingBag className="w-5 h-5" />
-                Add to Order
+                Добавить в заказ
               </Button>
             </div>
           </div>

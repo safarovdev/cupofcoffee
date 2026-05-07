@@ -2,8 +2,8 @@ import type {Metadata} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'AromaFlow - Premium Cafe Experience',
-  description: 'Gourmet coffee, tea, and artisanal treats in a lush digital atmosphere.',
+  title: 'Cup Of Coffee - Идеальный кофе для вас',
+  description: 'Лучший кофе, чай и десерты в уютной атмосфере.',
 };
 
 export default function RootLayout({
@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ru">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

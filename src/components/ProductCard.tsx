@@ -23,9 +23,9 @@ export function ProductCard({ item }: ProductCardProps) {
 
   return (
     <>
-      <div className="group bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 flex flex-col h-full">
+      <div className="group bg-card rounded-3xl overflow-hidden border border-border hover:border-primary/30 transition-all duration-500 hover:shadow-xl flex flex-col h-full">
         {/* Image Container */}
-        <div className="relative h-64 w-full overflow-hidden">
+        <div className="relative h-56 sm:h-64 w-full overflow-hidden">
           <Image
             src={item.image}
             alt={item.name}
@@ -34,8 +34,8 @@ export function ProductCard({ item }: ProductCardProps) {
             data-ai-hint="food item"
           />
           <div className="absolute top-4 right-4">
-            <Badge variant="secondary" className="bg-background/80 backdrop-blur-md border-none text-primary font-bold px-3 py-1">
-              ${item.price.toFixed(2)}
+            <Badge variant="secondary" className="bg-white/90 backdrop-blur-md border-none text-primary font-bold px-3 py-1 shadow-sm">
+              {item.price} ₽
             </Badge>
           </div>
           {item.allergens.length > 0 && (
@@ -43,12 +43,12 @@ export function ProductCard({ item }: ProductCardProps) {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="p-2 bg-destructive/80 backdrop-blur-md rounded-full text-destructive-foreground cursor-help shadow-lg">
+                    <div className="p-2 bg-destructive/10 backdrop-blur-md rounded-full text-destructive cursor-help">
                       <Info className="w-4 h-4" />
                     </div>
                   </TooltipTrigger>
                   <TooltipContent className="bg-destructive text-destructive-foreground border-none">
-                    <p className="font-bold text-xs">Contains: {item.allergens.join(", ")}</p>
+                    <p className="font-bold text-xs">Содержит: {item.allergens.join(", ")}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -57,29 +57,26 @@ export function ProductCard({ item }: ProductCardProps) {
         </div>
 
         {/* Content */}
-        <div className="p-6 flex flex-col flex-1 gap-4">
+        <div className="p-5 flex flex-col flex-1 gap-4">
           <div className="space-y-2">
-            <h3 className="text-xl font-headline font-bold text-foreground group-hover:text-primary transition-colors">{item.name}</h3>
-            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{item.description}</p>
+            <h3 className="text-lg font-headline font-bold text-foreground group-hover:text-primary transition-colors leading-tight">{item.name}</h3>
+            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{item.description}</p>
           </div>
 
           <div className="flex flex-wrap gap-1 mt-auto">
-            {item.ingredients.slice(0, 3).map((ing) => (
-              <Badge key={ing} variant="outline" className="text-[10px] uppercase font-bold tracking-tighter opacity-70">
+            {item.ingredients.slice(0, 2).map((ing) => (
+              <span key={ing} className="text-[10px] bg-secondary px-2 py-1 rounded text-muted-foreground font-bold">
                 {ing}
-              </Badge>
+              </span>
             ))}
-            {item.ingredients.length > 3 && (
-              <span className="text-[10px] text-muted-foreground ml-1">+{item.ingredients.length - 3} more</span>
-            )}
           </div>
 
           <Button 
-            className="w-full mt-4 bg-secondary hover:bg-primary hover:text-primary-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 rounded-xl py-6 gap-2"
+            className="w-full bg-secondary hover:bg-primary hover:text-primary-foreground transition-all duration-300 rounded-2xl py-5 gap-2 font-bold text-sm"
             onClick={() => setIsModalOpen(true)}
           >
             <Plus className="w-4 h-4" />
-            <span>Customize & Order</span>
+            <span>Выбрать</span>
           </Button>
         </div>
       </div>
