@@ -1,3 +1,58 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-bg",
+      "description": "Premium cafe interior with green plants",
+      "imageUrl": "https://picsum.photos/seed/aromaflow-hero/1920/1080",
+      "imageHint": "cafe interior"
+    },
+    {
+      "id": "latte",
+      "description": "Beautiful latte art in a ceramic cup",
+      "imageUrl": "https://picsum.photos/seed/latte/600/600",
+      "imageHint": "latte art"
+    },
+    {
+      "id": "espresso",
+      "description": "Rich dark espresso shot",
+      "imageUrl": "https://picsum.photos/seed/espresso/600/600",
+      "imageHint": "espresso coffee"
+    },
+    {
+      "id": "matcha",
+      "description": "Vibrant green matcha latte",
+      "imageUrl": "https://picsum.photos/seed/matcha/600/600",
+      "imageHint": "matcha latte"
+    },
+    {
+      "id": "earl-grey",
+      "description": "Steaming earl grey tea",
+      "imageUrl": "https://picsum.photos/seed/earlgrey/600/600",
+      "imageHint": "tea cup"
+    },
+    {
+      "id": "croissant",
+      "description": "Golden flaky croissant",
+      "imageUrl": "https://picsum.photos/seed/croissant/600/600",
+      "imageHint": "croissant pastry"
+    },
+    {
+      "id": "tiramisu",
+      "description": "Decadent tiramisu slice",
+      "imageUrl": "https://picsum.photos/seed/tiramisu/600/600",
+      "imageHint": "tiramisu cake"
+    },
+    {
+      "id": "avocado-toast",
+      "description": "Artisan avocado toast with seeds",
+      "imageUrl": "https://picsum.photos/seed/avotoast/600/600",
+      "imageHint": "avocado toast"
+    },
+    {
+      "id": "acai-bowl",
+      "description": "Fresh berry acai bowl",
+      "imageUrl": "https://picsum.photos/seed/acaibowl/600/600",
+      "imageHint": "acai bowl"
+    }
+  ]
 }
