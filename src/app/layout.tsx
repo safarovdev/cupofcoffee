@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { CartProvider } from '@/context/CartContext';
 import { Toaster } from '@/components/ui/toaster';
+import { BottomNav } from '@/components/BottomNav';
 
 export const metadata: Metadata = {
   title: 'Cup Of Coffee - Идеальный кофе для вас',
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body className="font-body antialiased selection:bg-accent selection:text-accent-foreground">
         <CartProvider>
           {children}
+          <BottomNav />
           <Toaster />
         </CartProvider>
       </body>
