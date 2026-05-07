@@ -14,6 +14,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
+import { useCart } from "@/context/CartContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface CustomizationModalProps {
   isOpen: boolean;
@@ -22,12 +24,19 @@ interface CustomizationModalProps {
 }
 
 export function CustomizationModal({ isOpen, onClose, item }: CustomizationModalProps) {
+  const { addToCart } = useCart();
+  const { toast } = useToast();
   const [size, setSize] = useState("M");
   const [milk, setMilk] = useState("regular");
 
   const isDrink = item.category === "coffee" || item.category === "tea";
 
   const handleOrder = () => {
+    addToCart(item, isDrink ? size : undefined, isDrink ? milk : undefined);
+    toast({
+      title: "Добавлено!",
+      description: `${item.name} добавлен в ваш заказ.`,
+    });
     onClose();
   };
 

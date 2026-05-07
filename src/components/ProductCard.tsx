@@ -6,13 +6,28 @@ import { MenuItem } from "./Menu";
 import { Badge } from "@/components/ui/badge";
 import { CustomizationModal } from "./CustomizationModal";
 import { useState } from "react";
+import { useCart } from "@/context/CartContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductCardProps {
   item: MenuItem;
 }
 
 export function ProductCard({ item }: ProductCardProps) {
+  const { addToCart } = useCart();
+  const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleQuickAdd = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Quick add defaults for drinks or just adds food
+    const isDrink = item.category === "coffee" || item.category === "tea";
+    addToCart(item, isDrink ? "M" : undefined, isDrink ? "regular" : undefined);
+    toast({
+      title: "Добавлено!",
+      description: `${item.name} в корзине.`,
+    });
+  };
 
   return (
     <>
@@ -38,7 +53,10 @@ export function ProductCard({ item }: ProductCardProps) {
             </div>
           )}
           
-          <button className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm p-2.5 rounded-full shadow-lg text-primary hover:scale-110 transition-transform active:scale-90">
+          <button 
+            onClick={handleQuickAdd}
+            className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm p-2.5 rounded-full shadow-lg text-primary hover:scale-110 transition-transform active:scale-90"
+          >
             <Plus className="w-5 h-5 stroke-[3]" />
           </button>
         </div>
