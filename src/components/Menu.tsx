@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { SlidersHorizontal, Rocket, Star, Percent, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProductCard } from "./ProductCard";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -26,150 +26,66 @@ export type MenuItem = {
 };
 
 const MENU_DATA: MenuItem[] = [
-  // Кофе
-  {
-    id: "1",
-    name: "Классический Латте",
-    category: "coffee",
-    description: "Эспрессо в сочетании с нежным вспененным молоком.",
-    ingredients: ["Эспрессо", "Цельное молоко"],
-    allergens: ["Лактоза"],
-    price: 320,
-    image: PlaceHolderImages.find(img => img.id === 'latte')?.imageUrl || "",
-    isRecommended: true,
-    rating: 4.8,
-    time: "5-10 мин",
-  },
-  {
-    id: "2",
-    name: "Эспрессо Арома",
-    category: "coffee",
-    description: "Наш фирменный темный бленд с насыщенной пенкой крема.",
-    ingredients: ["Зерна темной обжарки"],
-    allergens: [],
-    price: 180,
-    image: PlaceHolderImages.find(img => img.id === 'espresso')?.imageUrl || "",
-    rating: 4.9,
-    time: "3-5 мин",
-  },
-  // Айс Кофе
-  {
-    id: "ic1",
-    name: "Айс Капучино",
-    category: "ice-coffee",
-    description: "Холодный кофе с густой молочной пеной и льдом.",
-    ingredients: ["Эспрессо", "Молоко", "Лед"],
-    allergens: ["Лактоза"],
-    price: 340,
-    image: "https://picsum.photos/seed/icecap/600/600",
-    rating: 4.7,
-    time: "5-7 мин",
-  },
-  // Мохито
-  {
-    id: "m1",
-    name: "Классический Мохито",
-    category: "mojito",
-    description: "Освежающий напиток с лаймом, мятой и газировкой.",
-    ingredients: ["Лайм", "Мята", "Тростниковый сахар", "Содовая"],
-    allergens: [],
-    price: 420,
-    image: PlaceHolderImages.find(img => img.id === 'mojito')?.imageUrl || "",
-    rating: 4.9,
-    time: "5 мин",
-  },
-  // АйсТи
-  {
-    id: "it1",
-    name: "Персиковый АйсТи",
-    category: "ice-tea",
-    description: "Домашний холодный чай с ароматом спелого персика.",
-    ingredients: ["Черный чай", "Персиковый сироп", "Лед", "Лимон"],
-    allergens: [],
-    price: 280,
-    image: "https://picsum.photos/seed/icetea/600/600",
-    rating: 4.6,
-    time: "5 мин",
-  },
-  // Чай
-  {
-    id: "3",
-    name: "Церемониальный Матча",
-    category: "tea",
-    description: "Взбитый японский зеленый чай с бархатистым молоком.",
-    ingredients: ["Порошок матча", "Молоко", "Мед"],
-    allergens: ["Лактоза"],
-    price: 380,
-    image: PlaceHolderImages.find(img => img.id === 'matcha')?.imageUrl || "",
-    isRecommended: true,
-    rating: 4.7,
-    time: "7-12 мин",
-  },
-  {
-    id: "tea2",
-    name: "Эрл Грей",
-    category: "tea",
-    description: "Классический черный чай с ароматом бергамота.",
-    ingredients: ["Черный чай", "Бергамот"],
-    allergens: [],
-    price: 250,
-    image: PlaceHolderImages.find(img => img.id === 'earl-grey')?.imageUrl || "",
-    rating: 4.5,
-    time: "5-7 мин",
-  },
-  // Милкшейки
-  {
-    id: "ms1",
-    name: "Клубничный Милкшейк",
-    category: "milkshakes",
-    description: "Густой коктейль из фермерского молока и свежей клубники.",
-    ingredients: ["Молоко", "Мороженое", "Клубника"],
-    allergens: ["Лактоза"],
-    price: 390,
-    image: PlaceHolderImages.find(img => img.id === 'milkshake')?.imageUrl || "",
-    rating: 4.8,
-    time: "7-10 мин",
-  },
-  // Мороженое
-  {
-    id: "icr1",
-    name: "Ванильное Мороженое",
-    category: "ice-cream",
-    description: "Натуральный пломбир с ванилью и топпингом на выбор.",
-    ingredients: ["Сливки", "Ваниль", "Сахар"],
-    allergens: ["Лактоза"],
-    price: 150,
-    image: PlaceHolderImages.find(img => img.id === 'ice-cream')?.imageUrl || "",
-    rating: 4.9,
-    time: "3 мин",
-  },
-  // Десерты
-  {
-    id: "5",
-    name: "Золотистый Круассан",
-    category: "desserts",
-    description: "Сливочная и хрустящая французская выпечка.",
-    ingredients: ["Мука", "Сливочное масло", "Дрожжи"],
-    allergens: ["Глютен", "Лактоза"],
-    price: 210,
-    image: PlaceHolderImages.find(img => img.id === 'croissant')?.imageUrl || "",
-    isRecommended: true,
-    rating: 4.9,
-    time: "5-10 мин",
-    discount: 15,
-  },
-  {
-    id: "6",
-    name: "Тирамису Делайт",
-    category: "desserts",
-    description: "Печенье савоярди в кофе с кремом маскарпоне.",
-    ingredients: ["Маскарпоне", "Кофе", "Яйца", "Какао"],
-    allergens: ["Лактоза", "Яйца", "Глютен"],
-    price: 450,
-    image: PlaceHolderImages.find(img => img.id === 'tiramisu')?.imageUrl || "",
-    rating: 4.6,
-    time: "5-10 мин",
-  },
+  // КОФЕ
+  { id: "c1", name: "Эспрессо", category: "coffee", description: "Классический крепкий кофе.", ingredients: ["Кофе"], allergens: [], price: 15, image: "https://picsum.photos/seed/espresso1/600/600", rating: 4.9, time: "3 мин" },
+  { id: "c2", name: "Американо", category: "coffee", description: "Эспрессо с добавлением горячей воды.", ingredients: ["Кофе", "Вода"], allergens: [], price: 20, image: "https://picsum.photos/seed/americano/600/600", rating: 4.7, time: "4 мин" },
+  { id: "c3", name: "Капучино", category: "coffee", description: "Кофе с пышной молочной пенкой.", ingredients: ["Кофе", "Молоко"], allergens: ["Лактоза"], price: 25, image: "https://picsum.photos/seed/cappuccino/600/600", rating: 4.8, time: "5 мин" },
+  { id: "c4", name: "Латте", category: "coffee", description: "Нежный кофейный напиток с большим количеством молока.", ingredients: ["Кофе", "Молоко"], allergens: ["Лактоза"], price: 25, image: PlaceHolderImages.find(img => img.id === 'latte')?.imageUrl || "", rating: 4.8, time: "5 мин" },
+  { id: "c5", name: "Флэт Уайт", category: "coffee", description: "Двойной эспрессо с тонким слоем молочной пены.", ingredients: ["Кофе", "Молоко"], allergens: ["Лактоза"], price: 30, image: "https://picsum.photos/seed/flatwhite/600/600", rating: 4.9, time: "5 мин" },
+  { id: "c6", name: "Лунго", category: "coffee", description: "Кофе более длительной экстракции.", ingredients: ["Кофе", "Вода"], allergens: [], price: 25, image: "https://picsum.photos/seed/lungo/600/600", rating: 4.6, time: "4 мин" },
+  { id: "c7", name: "Раф", category: "coffee", description: "Кофе со сливками и ванильным сахаром.", ingredients: ["Кофе", "Сливки", "Ванильный сахар"], allergens: ["Лактоза"], price: 35, image: "https://picsum.photos/seed/raf/600/600", rating: 5.0, time: "6 мин" },
+  { id: "c8", name: "Какао", category: "coffee", description: "Горячий шоколадный напиток на молоке.", ingredients: ["Какао-порошок", "Молоко"], allergens: ["Лактоза"], price: 20, image: "https://picsum.photos/seed/cocoa/600/600", rating: 4.8, time: "5 мин" },
+  { id: "c9", name: "Горячий шоколад", category: "coffee", description: "Густой и насыщенный десертный напиток.", ingredients: ["Шоколад", "Молоко"], allergens: ["Лактоза"], price: 25, image: "https://picsum.photos/seed/hotchoc/600/600", rating: 4.9, time: "6 мин" },
+
+  // АЙС КОФЕ
+  { id: "ic1", name: "Айс Американо", category: "ice-coffee", description: "Холодный американо со льдом.", ingredients: ["Кофе", "Лед"], allergens: [], price: 25, image: "https://picsum.photos/seed/iceam/600/600", rating: 4.7, time: "4 мин" },
+  { id: "ic2", name: "Айс Капучино", category: "ice-coffee", description: "Освежающий капучино со льдом.", ingredients: ["Кофе", "Молоко", "Лед"], allergens: ["Лактоза"], price: 35, image: "https://picsum.photos/seed/icecap/600/600", rating: 4.8, time: "5 мин" },
+  { id: "ic3", name: "Айс Латте", category: "ice-coffee", description: "Холодный латте со льдом.", ingredients: ["Кофе", "Молоко", "Лед"], allergens: ["Лактоза"], price: 35, image: "https://picsum.photos/seed/icelatte/600/600", rating: 4.8, time: "5 мин" },
+  { id: "ic4", name: "Гляссе", category: "ice-coffee", description: "Кофе с шариком мороженого.", ingredients: ["Кофе", "Мороженое"], allergens: ["Лактоза"], price: 25, image: "https://picsum.photos/seed/glace/600/600", rating: 4.9, time: "5 мин" },
+  { id: "ic5", name: "Фрапучино", category: "ice-coffee", description: "Густой кофейный коктейль с крошкой льда.", ingredients: ["Кофе", "Молоко", "Лед", "Сироп"], allergens: ["Лактоза"], price: 35, image: "https://picsum.photos/seed/frap/600/600", rating: 4.9, time: "7 мин" },
+  { id: "ic6", name: "Айс Раф", category: "ice-coffee", description: "Холодный раф со льдом.", ingredients: ["Кофе", "Сливки", "Лед", "Ваниль"], allergens: ["Лактоза"], price: 40, image: "https://picsum.photos/seed/iceraf/600/600", rating: 5.0, time: "6 мин" },
+
+  // МОХИТО
+  { id: "m1", name: "Мохито Классик", category: "mojito", description: "Лайм, мята, содовая.", ingredients: ["Лайм", "Мята", "Содовая"], allergens: [], price: 35, image: PlaceHolderImages.find(img => img.id === 'mojito')?.imageUrl || "", rating: 4.9, time: "5 мин" },
+  { id: "m2", name: "Мохито Клубника", category: "mojito", description: "Клубника, лайм, мята.", ingredients: ["Клубника", "Лайм", "Мята", "Содовая"], allergens: [], price: 35, image: "https://picsum.photos/seed/strawberrym/600/600", rating: 4.8, time: "5 мин" },
+  { id: "m3", name: "Мохито Океан", category: "mojito", description: "Тропический вкус и голубой цвет.", ingredients: ["Сироп Блю Кюрасао", "Лайм", "Мята"], allergens: [], price: 35, image: "https://picsum.photos/seed/oceanm/600/600", rating: 4.7, time: "5 мин" },
+
+  // АЙС ТИ
+  { id: "it1", name: "Айс Ти", category: "ice-tea", description: "Классический холодный чай.", ingredients: ["Чай", "Лимон", "Лед"], allergens: [], price: 35, image: "https://picsum.photos/seed/icetea/600/600", rating: 4.6, time: "3 мин" },
+
+  // ЧАЙ
+  { id: "t1", name: "Чай Манго Ананас", category: "tea", description: "Тропический фруктовый микс.", ingredients: ["Манго", "Ананас", "Чай"], allergens: [], price: 35, image: "https://picsum.photos/seed/mangotea/600/600", rating: 4.9, time: "5 мин" },
+  { id: "t2", name: "Чай Апельсин Мята", category: "tea", description: "Цитрусовая свежесть.", ingredients: ["Апельсин", "Мята", "Чай"], allergens: [], price: 35, image: "https://picsum.photos/seed/orangetea/600/600", rating: 4.8, time: "5 мин" },
+  { id: "t3", name: "Чай Фруктовый с Лимоном", category: "tea", description: "Насыщенный фруктовый вкус.", ingredients: ["Фрукты", "Лимон", "Чай"], allergens: [], price: 35, image: "https://picsum.photos/seed/fruittea/600/600", rating: 4.7, time: "5 мин" },
+  { id: "t4", name: "Чай Имбирь", category: "tea", description: "Согревающий и полезный.", ingredients: ["Имбирь", "Лимон", "Мед", "Чай"], allergens: [], price: 35, image: "https://picsum.photos/seed/gingertea/600/600", rating: 4.9, time: "5 мин" },
+  { id: "t5", name: "Чай Малина", category: "tea", description: "Сладкий ягодный вкус.", ingredients: ["Малина", "Чай"], allergens: [], price: 35, image: "https://picsum.photos/seed/raspbtea/600/600", rating: 4.8, time: "5 мин" },
+  { id: "t6", name: "Чай Персик с Лимоном", category: "tea", description: "Нежный персик и кислинка лимона.", ingredients: ["Персик", "Лимон", "Чай"], allergens: [], price: 35, image: "https://picsum.photos/seed/peachtea/600/600", rating: 4.8, time: "5 мин" },
+  { id: "t7", name: "Чай с лимоном", category: "tea", description: "Классический черный чай с лимоном.", ingredients: ["Черный чай", "Лимон"], allergens: [], price: 25, image: "https://picsum.photos/seed/lemontea/600/600", rating: 4.6, time: "3 мин" },
+  { id: "t8", name: "Чай каркадэ с наватом", category: "tea", description: "Красный чай с традиционной сладостью.", ingredients: ["Каркадэ", "Нават"], allergens: [], price: 30, image: "https://picsum.photos/seed/hibiscus/600/600", rating: 4.7, time: "5 мин" },
+  { id: "t9", name: "Чай чёрный", category: "tea", description: "Крепкий черный чай.", ingredients: ["Черный чай"], allergens: [], price: 20, image: "https://picsum.photos/seed/blacktea/600/600", rating: 4.5, time: "3 мин" },
+  { id: "t10", name: "Чай зелёный", category: "tea", description: "Полезный зеленый чай.", ingredients: ["Зеленый чай"], allergens: [], price: 20, image: "https://picsum.photos/seed/greentea/600/600", rating: 4.6, time: "3 мин" },
+  { id: "t11", name: "Чай Кийик Ути", category: "tea", description: "Традиционный горный чай.", ingredients: ["Трава Кийик Ути"], allergens: [], price: 20, image: "https://picsum.photos/seed/herbaltea/600/600", rating: 4.9, time: "5 мин" },
+
+  // МИЛКШЕЙК
+  { id: "ms1", name: "Ванильный милкшейк", category: "milkshakes", description: "Классический ванильный вкус.", ingredients: ["Молоко", "Мороженое", "Ваниль"], allergens: ["Лактоза"], price: 30, image: "https://picsum.photos/seed/vanillams/600/600", rating: 4.8, time: "7 мин" },
+  { id: "ms2", name: "Шоколадный милкшейк", category: "milkshakes", description: "Насыщенный шоколадный вкус.", ingredients: ["Молоко", "Мороженое", "Шоколад"], allergens: ["Лактоза"], price: 30, image: "https://picsum.photos/seed/chocms/600/600", rating: 4.9, time: "7 мин" },
+  { id: "ms3", name: "Банановый милкшейк", category: "milkshakes", description: "Свежий банан и нежное молоко.", ingredients: ["Молоко", "Мороженое", "Банан"], allergens: ["Лактоза"], price: 35, image: "https://picsum.photos/seed/bananams/600/600", rating: 4.7, time: "7 мин" },
+  { id: "ms4", name: "Клубничный милкшейк", category: "milkshakes", description: "Ягодный микс.", ingredients: ["Молоко", "Мороженое", "Клубника"], allergens: ["Лактоза"], price: 35, image: PlaceHolderImages.find(img => img.id === 'milkshake')?.imageUrl || "", rating: 4.8, time: "7 мин" },
+  { id: "ms5", name: "Милкшейк Oreo", category: "milkshakes", description: "С кусочками печенья Oreo.", ingredients: ["Молоко", "Мороженое", "Oreo"], allergens: ["Лактоза", "Глютен"], price: 35, image: "https://picsum.photos/seed/oreoms/600/600", rating: 5.0, time: "8 мин" },
+  { id: "ms6", name: "Милкшейк Вишня", category: "milkshakes", description: "Вишневая сладость с кислинкой.", ingredients: ["Молоко", "Мороженое", "Вишня"], allergens: ["Лактоза"], price: 35, image: "https://picsum.photos/seed/cherryms/600/600", rating: 4.8, time: "7 мин" },
+
+  // МОХИТО (ГРАФИН)
+  { id: "mg1", name: "Классический (1л)", category: "mojito-carafe", description: "Большой объем для компании.", ingredients: ["Лайм", "Мята", "Содовая"], allergens: [], price: 45, image: "https://picsum.photos/seed/classiccarafe/600/600", rating: 4.9, time: "10 мин" },
+  { id: "mg2", name: "Клубничный (1л)", category: "mojito-carafe", description: "Сладкий ягодный графин.", ingredients: ["Клубника", "Лайм", "Мята", "Содовая"], allergens: [], price: 50, image: "https://picsum.photos/seed/strawcarafe/600/600", rating: 4.8, time: "10 мин" },
+  { id: "mg3", name: "Апельсиновый (1л)", category: "mojito-carafe", description: "Цитрусовый заряд.", ingredients: ["Апельсин", "Лайм", "Мята", "Содовая"], allergens: [], price: 50, image: "https://picsum.photos/seed/orangecarafe/600/600", rating: 4.7, time: "10 мин" },
+  { id: "mg4", name: "Киви (1л)", category: "mojito-carafe", description: "Экзотический вкус киви.", ingredients: ["Киви", "Лайм", "Мята", "Содовая"], allergens: [], price: 50, image: "https://picsum.photos/seed/kiwicarafe/600/600", rating: 4.8, time: "10 мин" },
+
+  // МОРОЖЕНОЕ
+  { id: "icr1", name: "Ванильное", category: "ice-cream", description: "Классический пломбир.", ingredients: ["Сливки", "Ваниль"], allergens: ["Лактоза"], price: 20, image: PlaceHolderImages.find(img => img.id === 'ice-cream')?.imageUrl || "", rating: 4.8, time: "3 мин" },
+  { id: "icr2", name: "Шоколадное", category: "ice-cream", description: "Насыщенный шоколадный пломбир.", ingredients: ["Сливки", "Какао"], allergens: ["Лактоза"], price: 20, image: "https://picsum.photos/seed/chocic/600/600", rating: 4.9, time: "3 мин" },
+  { id: "icr3", name: "Клубничное", category: "ice-cream", description: "С нежным вкусом клубники.", ingredients: ["Сливки", "Клубника"], allergens: ["Лактоза"], price: 25, image: "https://picsum.photos/seed/strawic/600/600", rating: 4.7, time: "3 мин" },
+  { id: "icr4", name: "Банановое", category: "ice-cream", description: "Спелый банан в мороженом.", ingredients: ["Сливки", "Банан"], allergens: ["Лактоза"], price: 25, image: "https://picsum.photos/seed/bananaic/600/600", rating: 4.8, time: "3 мин" },
+  { id: "icr5", name: "Мороженое Oreo", category: "ice-cream", description: "С хрустящим печеньем Oreo.", ingredients: ["Сливки", "Oreo"], allergens: ["Лактоза", "Глютен"], price: 30, image: "https://picsum.photos/seed/oreoic/600/600", rating: 5.0, time: "4 мин" },
 ];
 
 const CATEGORIES = [
@@ -179,13 +95,12 @@ const CATEGORIES = [
   { id: "ice-tea", name: "АйсТи" },
   { id: "tea", name: "Чай" },
   { id: "milkshakes", name: "Милкшейки" },
+  { id: "mojito-carafe", name: "Мохито (Графин)" },
   { id: "ice-cream", name: "Мороженое" },
-  { id: "desserts", name: "Десерты" },
 ];
 
 export function Menu() {
   const { searchQuery } = useCart();
-  const [activeFilter, setActiveFilter] = useState("all");
 
   const applyFilters = (items: MenuItem[]) => {
     return items.filter(item => {
@@ -194,9 +109,6 @@ export function Menu() {
         return item.name.toLowerCase().includes(q) || 
                item.ingredients.some(i => i.toLowerCase().includes(q));
       }
-      if (activeFilter === "fast") return parseInt(item.time) <= 15;
-      if (activeFilter === "rating") return item.rating >= 4.8;
-      if (activeFilter === "promo") return item.discount !== undefined;
       return true;
     });
   };
@@ -226,23 +138,6 @@ export function Menu() {
         </section>
       ) : (
         <div className="space-y-12">
-          {/* Promo Banner */}
-          <div className="relative w-full aspect-[3/1] rounded-[2.5rem] overflow-hidden group cursor-pointer shadow-lg">
-            <Image 
-              src={PlaceHolderImages.find(img => img.id === 'promo-sushi')?.imageUrl || ""} 
-              alt="Promotion"
-              fill
-              className="object-cover transition-transform duration-1000 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent flex flex-col justify-center p-8 text-white">
-              <h3 className="text-2xl md:text-4xl font-bold font-headline mb-2 leading-tight uppercase">Скидка -30% на завтраки</h3>
-              <p className="text-sm md:text-lg opacity-90 mb-4 font-medium">Ваша бодрость — наша забота</p>
-              <div className="flex items-center gap-1 text-xs font-bold group-hover:gap-2 transition-all uppercase tracking-widest">
-                В меню <ChevronRight className="w-4 h-4" />
-              </div>
-            </div>
-          </div>
-
           {/* Categories Sections */}
           {CATEGORIES.map((cat) => {
             const items = applyFilters(MENU_DATA.filter(i => i.category === cat.id));
@@ -258,7 +153,7 @@ export function Menu() {
                     Все <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
-                <div className="flex gap-6 overflow-x-auto no-scrollbar py-4 -mx-4 px-4 sm:mx-0 sm:px-1">
+                <div className="flex gap-6 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 sm:mx-0 sm:px-1">
                   {items.map((item) => (
                     <div key={item.id} className="min-w-[280px] md:min-w-[320px]">
                       <ProductCard item={item} />
