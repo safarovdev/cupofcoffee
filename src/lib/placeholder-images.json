@@ -2,141 +2,141 @@
   "placeholderImages": [
     {
       "id": "espresso",
-      "description": "Rich dark espresso shot with crema",
-      "imageUrl": "https://picsum.photos/seed/espresso/600/600",
-      "imageHint": "espresso coffee"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "americano",
-      "description": "Black americano coffee in a ceramic cup",
-      "imageUrl": "https://picsum.photos/seed/americano/600/600",
-      "imageHint": "black coffee"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "cappuccino",
-      "description": "Cappuccino with thick milk foam and cocoa dusting",
-      "imageUrl": "https://picsum.photos/seed/cappuccino/600/600",
-      "imageHint": "cappuccino cup"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "latte",
-      "description": "Creamy latte art in a large glass",
-      "imageUrl": "https://picsum.photos/seed/latte/600/600",
-      "imageHint": "latte art"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "flat-white",
-      "description": "Flat white coffee with smooth microfoam",
-      "imageUrl": "https://picsum.photos/seed/flatwhite/600/600",
-      "imageHint": "flat white"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "lungo",
-      "description": "Long extraction espresso lungo",
-      "imageUrl": "https://picsum.photos/seed/lungo/600/600",
-      "imageHint": "lungo coffee"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "raf",
-      "description": "Creamy raf coffee with vanilla",
-      "imageUrl": "https://picsum.photos/seed/raf/600/600",
-      "imageHint": "creamy coffee"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "cocoa",
-      "description": "Hot cocoa with marshmallows on top",
-      "imageUrl": "https://picsum.photos/seed/cocoa/600/600",
-      "imageHint": "hot cocoa"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "hot-chocolate",
-      "description": "Thick molten hot chocolate",
-      "imageUrl": "https://picsum.photos/seed/hotchoc/600/600",
-      "imageHint": "hot chocolate"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "ice-americano",
-      "description": "Iced americano with floating ice cubes",
-      "imageUrl": "https://picsum.photos/seed/iceam/600/600",
-      "imageHint": "iced coffee"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "ice-latte",
-      "description": "Cold iced latte with milk layers",
-      "imageUrl": "https://picsum.photos/seed/icelatte/600/600",
-      "imageHint": "iced latte"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "glace",
-      "description": "Coffee with a scoop of vanilla ice cream",
-      "imageUrl": "https://picsum.photos/seed/glace/600/600",
-      "imageHint": "affogato coffee"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "frappuccino",
-      "description": "Blended coffee frappuccino with whipped cream",
-      "imageUrl": "https://picsum.photos/seed/frap/600/600",
-      "imageHint": "frappuccino drink"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "mojito",
-      "description": "Refreshing lime and mint mojito",
-      "imageUrl": "https://picsum.photos/seed/mojito/600/600",
-      "imageHint": "mojito cocktail"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "strawberry-mojito",
-      "description": "Iced strawberry mojito with fresh berries",
-      "imageUrl": "https://picsum.photos/seed/strawmojito/600/600",
-      "imageHint": "strawberry mojito"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "ocean-mojito",
-      "description": "Blue tropical ocean mojito",
-      "imageUrl": "https://picsum.photos/seed/oceanmojito/600/600",
-      "imageHint": "blue drink"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "ice-tea",
-      "description": "Lemon iced tea with ice cubes",
-      "imageUrl": "https://picsum.photos/seed/icetea/600/600",
-      "imageHint": "iced tea"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "mango-tea",
-      "description": "Tropical mango and pineapple tea",
-      "imageUrl": "https://picsum.photos/seed/mangotea/600/600",
-      "imageHint": "fruit tea"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "raspberry-tea",
-      "description": "Red raspberry fruit tea",
-      "imageUrl": "https://picsum.photos/seed/rasptea/600/600",
-      "imageHint": "raspberry tea"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "milkshake",
-      "description": "Creamy strawberry milkshake",
-      "imageUrl": "https://picsum.photos/seed/shake/600/600",
-      "imageHint": "milkshake"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "oreo-shake",
-      "description": "Chocolate oreo cookie milkshake",
-      "imageUrl": "https://picsum.photos/seed/oreoshake/600/600",
-      "imageHint": "oreo shake"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "ice-cream",
-      "description": "Vanilla ice cream scoops in a bowl",
-      "imageUrl": "https://picsum.photos/seed/icecream/600/600",
-      "imageHint": "ice cream"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/600x600/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     },
     {
       "id": "carafe",
-      "description": "Large glass carafe with cold drink and fruits",
-      "imageUrl": "https://picsum.photos/seed/carafe/1200/800",
-      "imageHint": "drink carafe"
+      "description": "Placeholder",
+      "imageUrl": "https://placehold.co/1200/800/eeeeee/999999?text=PLACEHOLDER",
+      "imageHint": "placeholder"
     }
   ]
 }
