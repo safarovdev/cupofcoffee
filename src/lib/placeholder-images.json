@@ -53,6 +53,24 @@
       "description": "Fresh berry acai bowl",
       "imageUrl": "https://picsum.photos/seed/acaibowl/600/600",
       "imageHint": "acai bowl"
+    },
+    {
+      "id": "mojito",
+      "description": "Refreshing lime mojito",
+      "imageUrl": "https://picsum.photos/seed/mojito/600/600",
+      "imageHint": "mojito drink"
+    },
+    {
+      "id": "milkshake",
+      "description": "Creamy strawberry milkshake",
+      "imageUrl": "https://picsum.photos/seed/shake/600/600",
+      "imageHint": "milkshake"
+    },
+    {
+      "id": "ice-cream",
+      "description": "Vanilla ice cream scoops",
+      "imageUrl": "https://picsum.photos/seed/icecream/600/600",
+      "imageHint": "ice cream"
     }
   ]
 }

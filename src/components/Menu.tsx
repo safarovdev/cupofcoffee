@@ -26,6 +26,7 @@ export type MenuItem = {
 };
 
 const MENU_DATA: MenuItem[] = [
+  // Кофе
   {
     id: "1",
     name: "Классический Латте",
@@ -51,6 +52,46 @@ const MENU_DATA: MenuItem[] = [
     rating: 4.9,
     time: "3-5 мин",
   },
+  // Айс Кофе
+  {
+    id: "ic1",
+    name: "Айс Капучино",
+    category: "ice-coffee",
+    description: "Холодный кофе с густой молочной пеной и льдом.",
+    ingredients: ["Эспрессо", "Молоко", "Лед"],
+    allergens: ["Лактоза"],
+    price: 340,
+    image: "https://picsum.photos/seed/icecap/600/600",
+    rating: 4.7,
+    time: "5-7 мин",
+  },
+  // Мохито
+  {
+    id: "m1",
+    name: "Классический Мохито",
+    category: "mojito",
+    description: "Освежающий напиток с лаймом, мятой и газировкой.",
+    ingredients: ["Лайм", "Мята", "Тростниковый сахар", "Содовая"],
+    allergens: [],
+    price: 420,
+    image: PlaceHolderImages.find(img => img.id === 'mojito')?.imageUrl || "",
+    rating: 4.9,
+    time: "5 мин",
+  },
+  // АйсТи
+  {
+    id: "it1",
+    name: "Персиковый АйсТи",
+    category: "ice-tea",
+    description: "Домашний холодный чай с ароматом спелого персика.",
+    ingredients: ["Черный чай", "Персиковый сироп", "Лед", "Лимон"],
+    allergens: [],
+    price: 280,
+    image: "https://picsum.photos/seed/icetea/600/600",
+    rating: 4.6,
+    time: "5 мин",
+  },
+  // Чай
   {
     id: "3",
     name: "Церемониальный Матча",
@@ -64,6 +105,45 @@ const MENU_DATA: MenuItem[] = [
     rating: 4.7,
     time: "7-12 мин",
   },
+  {
+    id: "tea2",
+    name: "Эрл Грей",
+    category: "tea",
+    description: "Классический черный чай с ароматом бергамота.",
+    ingredients: ["Черный чай", "Бергамот"],
+    allergens: [],
+    price: 250,
+    image: PlaceHolderImages.find(img => img.id === 'earl-grey')?.imageUrl || "",
+    rating: 4.5,
+    time: "5-7 мин",
+  },
+  // Милкшейки
+  {
+    id: "ms1",
+    name: "Клубничный Милкшейк",
+    category: "milkshakes",
+    description: "Густой коктейль из фермерского молока и свежей клубники.",
+    ingredients: ["Молоко", "Мороженое", "Клубника"],
+    allergens: ["Лактоза"],
+    price: 390,
+    image: PlaceHolderImages.find(img => img.id === 'milkshake')?.imageUrl || "",
+    rating: 4.8,
+    time: "7-10 мин",
+  },
+  // Мороженое
+  {
+    id: "icr1",
+    name: "Ванильное Мороженое",
+    category: "ice-cream",
+    description: "Натуральный пломбир с ванилью и топпингом на выбор.",
+    ingredients: ["Сливки", "Ваниль", "Сахар"],
+    allergens: ["Лактоза"],
+    price: 150,
+    image: PlaceHolderImages.find(img => img.id === 'ice-cream')?.imageUrl || "",
+    rating: 4.9,
+    time: "3 мин",
+  },
+  // Десерты
   {
     id: "5",
     name: "Золотистый Круассан",
@@ -90,188 +170,107 @@ const MENU_DATA: MenuItem[] = [
     rating: 4.6,
     time: "5-10 мин",
   },
-  {
-    id: "7",
-    name: "Тост с Авокадо",
-    category: "breakfasts",
-    description: "Хлеб на закваске с нежным авокадо и семенами.",
-    ingredients: ["Сурдо", "Авокадо", "Семена тыквы", "Чили"],
-    allergens: ["Глютен"],
-    price: 650,
-    image: PlaceHolderImages.find(img => img.id === 'avocado-toast')?.imageUrl || "",
-    isRecommended: true,
-    rating: 4.8,
-    time: "10-15 мин",
-  },
-  {
-    id: "8",
-    name: "Ягодный Асаи Боул",
-    category: "breakfasts",
-    description: "Органический асаи с ягодами, гранолой и фруктами.",
-    ingredients: ["Асаи", "Черника", "Банан", "Гранола"],
-    allergens: ["Глютен"],
-    price: 580,
-    image: PlaceHolderImages.find(img => img.id === 'acai-bowl')?.imageUrl || "",
-    rating: 4.5,
-    time: "10-15 мин",
-    discount: 20,
-  },
 ];
 
 const CATEGORIES = [
-  { id: "coffee", name: "Кофе", image: PlaceHolderImages.find(img => img.id === 'latte')?.imageUrl },
-  { id: "tea", name: "Чай", image: PlaceHolderImages.find(img => img.id === 'matcha')?.imageUrl },
-  { id: "desserts", name: "Десерты", image: PlaceHolderImages.find(img => img.id === 'croissant')?.imageUrl },
-  { id: "breakfasts", name: "Завтраки", image: PlaceHolderImages.find(img => img.id === 'avocado-toast')?.imageUrl },
-];
-
-const FILTERS = [
-  { id: "all", name: "Все", icon: SlidersHorizontal },
-  { id: "fast", name: "До 15 мин", icon: Rocket },
-  { id: "rating", name: "Рейтинг 4.8+", icon: Star },
-  { id: "promo", name: "Акции", icon: Percent },
+  { id: "coffee", name: "Кофе" },
+  { id: "ice-coffee", name: "Айс Кофе" },
+  { id: "mojito", name: "Мохито" },
+  { id: "ice-tea", name: "АйсТи" },
+  { id: "tea", name: "Чай" },
+  { id: "milkshakes", name: "Милкшейки" },
+  { id: "ice-cream", name: "Мороженое" },
+  { id: "desserts", name: "Десерты" },
 ];
 
 export function Menu() {
   const { searchQuery } = useCart();
-  const [activeCategory, setActiveCategory] = useState("coffee");
   const [activeFilter, setActiveFilter] = useState("all");
 
-  const filteredItems = MENU_DATA.filter(item => {
-    // Search filter
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const matchesSearch = item.name.toLowerCase().includes(q) || 
-                          item.ingredients.some(i => i.toLowerCase().includes(q));
-      if (!matchesSearch) return false;
-    } else {
-      // If no search, use category
-      if (item.category !== activeCategory) return false;
-    }
-    
-    // Quick filters
-    if (activeFilter === "fast") return parseInt(item.time) <= 15;
-    if (activeFilter === "rating") return item.rating >= 4.8;
-    if (activeFilter === "promo") return item.discount !== undefined;
-    return true;
-  });
+  const applyFilters = (items: MenuItem[]) => {
+    return items.filter(item => {
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        return item.name.toLowerCase().includes(q) || 
+               item.ingredients.some(i => i.toLowerCase().includes(q));
+      }
+      if (activeFilter === "fast") return parseInt(item.time) <= 15;
+      if (activeFilter === "rating") return item.rating >= 4.8;
+      if (activeFilter === "promo") return item.discount !== undefined;
+      return true;
+    });
+  };
 
   return (
     <div className="space-y-8">
-      {/* Category Icons Row */}
-      {!searchQuery && (
-        <div className="flex flex-col gap-4">
-          <h2 className="text-2xl font-bold font-headline px-1">Что заказать</h2>
-          <div className="flex items-start gap-6 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 sm:mx-0 sm:px-1">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className="flex flex-col items-center gap-2 group min-w-[72px]"
-              >
-                <div className={cn(
-                  "w-16 h-16 rounded-2xl overflow-hidden transition-all duration-300 ring-2 ring-transparent group-active:scale-95",
-                  activeCategory === cat.id ? "ring-primary scale-105 shadow-lg shadow-primary/10" : "grayscale-[20%] group-hover:grayscale-0"
-                )}>
-                  <Image 
-                    src={cat.image || ""} 
-                    alt={cat.name} 
-                    width={64} 
-                    height={64} 
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <span className={cn(
-                  "text-xs font-bold transition-colors whitespace-nowrap",
-                  activeCategory === cat.id ? "text-primary" : "text-muted-foreground"
-                )}>{cat.name}</span>
-              </button>
-            ))}
-            {/* Spacer for horizontal scroll padding on the right */}
-            <div className="min-w-[32px] h-1" />
-          </div>
-        </div>
-      )}
-
-      {/* Filter Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-        {FILTERS.map((filter) => {
-          const Icon = filter.icon;
-          return (
-            <button
-              key={filter.id}
-              onClick={() => setActiveFilter(filter.id)}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-full border transition-all whitespace-nowrap text-sm font-bold",
-                activeFilter === filter.id
-                  ? "bg-secondary text-foreground border-secondary"
-                  : "bg-white border-border text-foreground hover:bg-secondary/50"
-              )}
-            >
-              <Icon className="w-4 h-4" />
-              {filter.name}
-            </button>
-          );
-        })}
-        <div className="min-w-[32px] h-1" />
-      </div>
-
-      {/* Promo Banner */}
-      {!searchQuery && (
-        <div className="relative w-full aspect-[3/1] rounded-[2.5rem] overflow-hidden group cursor-pointer">
-          <Image 
-            src={PlaceHolderImages.find(img => img.id === 'promo-sushi')?.imageUrl || ""} 
-            alt="Promotion"
-            fill
-            className="object-cover transition-transform duration-1000 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent flex flex-col justify-center p-8 text-white">
-            <h3 className="text-2xl md:text-4xl font-bold font-headline mb-2 leading-tight">Скидка -30% на завтраки</h3>
-            <p className="text-sm md:text-lg opacity-90 mb-4 font-medium">Ваша бодрость — наша забота</p>
-            <div className="flex items-center gap-1 text-sm font-bold group-hover:gap-2 transition-all">
-              Посмотреть меню <ChevronRight className="w-4 h-4" />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Popular Section */}
-      {!searchQuery && (
-        <section className="space-y-4">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-2xl font-bold font-headline">Популярное сейчас</h2>
-            <Button variant="ghost" className="text-primary font-bold gap-1 hover:bg-transparent p-0">
-              Все <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-          <div className="flex gap-4 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 sm:mx-0 sm:px-1">
-            {MENU_DATA.filter(i => i.isRecommended).map((item) => (
-              <div key={`pop-${item.id}`} className="min-w-[280px] md:min-w-[320px]">
-                <ProductCard item={item} />
-              </div>
-            ))}
-            <div className="min-w-[32px] h-1" />
-          </div>
-        </section>
-      )}
-
-      {/* Main Grid */}
-      <section className="space-y-6 pt-4">
+      {/* Search Header Info */}
+      {searchQuery && (
         <h2 className="text-2xl font-bold font-headline px-1">
-          {searchQuery ? `Результаты поиска: ${searchQuery}` : `Меню: ${CATEGORIES.find(c => c.id === activeCategory)?.name}`}
+          Результаты поиска: {searchQuery}
         </h2>
-        {filteredItems.length > 0 ? (
+      )}
+
+      {/* Main Content */}
+      {searchQuery ? (
+        <section className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-1">
-            {filteredItems.map((item) => (
+            {applyFilters(MENU_DATA).map((item) => (
               <ProductCard key={item.id} item={item} />
             ))}
           </div>
-        ) : (
-          <div className="text-center py-20 bg-muted/20 rounded-[2rem] border-2 border-dashed">
-            <p className="text-muted-foreground font-bold">Ничего не найдено. Попробуйте другой запрос.</p>
+          {applyFilters(MENU_DATA).length === 0 && (
+            <div className="text-center py-20 bg-muted/20 rounded-[2rem] border-2 border-dashed">
+              <p className="text-muted-foreground font-bold">Ничего не найдено.</p>
+            </div>
+          )}
+        </section>
+      ) : (
+        <div className="space-y-12">
+          {/* Promo Banner */}
+          <div className="relative w-full aspect-[3/1] rounded-[2.5rem] overflow-hidden group cursor-pointer shadow-lg">
+            <Image 
+              src={PlaceHolderImages.find(img => img.id === 'promo-sushi')?.imageUrl || ""} 
+              alt="Promotion"
+              fill
+              className="object-cover transition-transform duration-1000 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent flex flex-col justify-center p-8 text-white">
+              <h3 className="text-2xl md:text-4xl font-bold font-headline mb-2 leading-tight uppercase">Скидка -30% на завтраки</h3>
+              <p className="text-sm md:text-lg opacity-90 mb-4 font-medium">Ваша бодрость — наша забота</p>
+              <div className="flex items-center gap-1 text-xs font-bold group-hover:gap-2 transition-all uppercase tracking-widest">
+                В меню <ChevronRight className="w-4 h-4" />
+              </div>
+            </div>
           </div>
-        )}
-      </section>
+
+          {/* Categories Sections */}
+          {CATEGORIES.map((cat) => {
+            const items = applyFilters(MENU_DATA.filter(i => i.category === cat.id));
+            if (items.length === 0) return null;
+
+            return (
+              <section key={cat.id} className="space-y-5">
+                <div className="flex items-center justify-between px-1">
+                  <h2 className="text-2xl font-black font-headline text-primary uppercase tracking-tighter">
+                    {cat.name}
+                  </h2>
+                  <Button variant="ghost" className="text-muted-foreground font-bold gap-1 hover:bg-transparent p-0 text-xs uppercase tracking-widest">
+                    Все <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="flex gap-6 overflow-x-auto no-scrollbar py-4 -mx-4 px-4 sm:mx-0 sm:px-1">
+                  {items.map((item) => (
+                    <div key={item.id} className="min-w-[280px] md:min-w-[320px]">
+                      <ProductCard item={item} />
+                    </div>
+                  ))}
+                  <div className="min-w-[40px] h-1" />
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
