@@ -1,76 +1,142 @@
 {
   "placeholderImages": [
     {
-      "id": "promo-sushi",
-      "description": "Promo banner for coffee discount",
-      "imageUrl": "https://picsum.photos/seed/promo1/1200/400",
-      "imageHint": "coffee beans"
-    },
-    {
-      "id": "latte",
-      "description": "Beautiful latte art in a ceramic cup",
-      "imageUrl": "https://picsum.photos/seed/latte/600/600",
-      "imageHint": "latte art"
-    },
-    {
       "id": "espresso",
-      "description": "Rich dark espresso shot",
-      "imageUrl": "https://picsum.photos/seed/espresso/600/600",
+      "description": "Rich dark espresso shot with crema",
+      "imageUrl": "https://picsum.photos/seed/espresso_real/600/600",
       "imageHint": "espresso coffee"
     },
     {
-      "id": "matcha",
-      "description": "Vibrant green matcha latte",
-      "imageUrl": "https://picsum.photos/seed/matcha/600/600",
-      "imageHint": "matcha latte"
+      "id": "americano",
+      "description": "Black americano coffee in a ceramic cup",
+      "imageUrl": "https://picsum.photos/seed/americano_real/600/600",
+      "imageHint": "black coffee"
     },
     {
-      "id": "earl-grey",
-      "description": "Steaming earl grey tea",
-      "imageUrl": "https://picsum.photos/seed/earlgrey/600/600",
-      "imageHint": "tea cup"
+      "id": "cappuccino",
+      "description": "Cappuccino with thick milk foam and cocoa dusting",
+      "imageUrl": "https://picsum.photos/seed/cappuccino_real/600/600",
+      "imageHint": "cappuccino cup"
     },
     {
-      "id": "croissant",
-      "description": "Golden flaky croissant",
-      "imageUrl": "https://picsum.photos/seed/croissant/600/600",
-      "imageHint": "croissant pastry"
+      "id": "latte",
+      "description": "Creamy latte art in a large glass",
+      "imageUrl": "https://picsum.photos/seed/latte_real/600/600",
+      "imageHint": "latte art"
     },
     {
-      "id": "tiramisu",
-      "description": "Decadent tiramisu slice",
-      "imageUrl": "https://picsum.photos/seed/tiramisu/600/600",
-      "imageHint": "tiramisu cake"
+      "id": "flat-white",
+      "description": "Flat white coffee with smooth microfoam",
+      "imageUrl": "https://picsum.photos/seed/flatwhite_real/600/600",
+      "imageHint": "flat white"
     },
     {
-      "id": "avocado-toast",
-      "description": "Artisan avocado toast with seeds",
-      "imageUrl": "https://picsum.photos/seed/avotoast/600/600",
-      "imageHint": "avocado toast"
+      "id": "lungo",
+      "description": "Long extraction espresso lungo",
+      "imageUrl": "https://picsum.photos/seed/lungo_real/600/600",
+      "imageHint": "lungo coffee"
     },
     {
-      "id": "acai-bowl",
-      "description": "Fresh berry acai bowl",
-      "imageUrl": "https://picsum.photos/seed/acaibowl/600/600",
-      "imageHint": "acai bowl"
+      "id": "raf",
+      "description": "Creamy raf coffee with vanilla",
+      "imageUrl": "https://picsum.photos/seed/raf_real/600/600",
+      "imageHint": "creamy coffee"
+    },
+    {
+      "id": "cocoa",
+      "description": "Hot cocoa with marshmallows on top",
+      "imageUrl": "https://picsum.photos/seed/cocoa_real/600/600",
+      "imageHint": "hot cocoa"
+    },
+    {
+      "id": "hot-chocolate",
+      "description": "Thick molten hot chocolate",
+      "imageUrl": "https://picsum.photos/seed/hotchoc_real/600/600",
+      "imageHint": "hot chocolate"
+    },
+    {
+      "id": "ice-americano",
+      "description": "Iced americano with floating ice cubes",
+      "imageUrl": "https://picsum.photos/seed/iceam_real/600/600",
+      "imageHint": "iced coffee"
+    },
+    {
+      "id": "ice-latte",
+      "description": "Cold iced latte with milk layers",
+      "imageUrl": "https://picsum.photos/seed/icelatte_real/600/600",
+      "imageHint": "iced latte"
+    },
+    {
+      "id": "glace",
+      "description": "Coffee with a scoop of vanilla ice cream",
+      "imageUrl": "https://picsum.photos/seed/glace_real/600/600",
+      "imageHint": "affogato coffee"
+    },
+    {
+      "id": "frappuccino",
+      "description": "Blended coffee frappuccino with whipped cream",
+      "imageUrl": "https://picsum.photos/seed/frap_real/600/600",
+      "imageHint": "frappuccino drink"
     },
     {
       "id": "mojito",
-      "description": "Refreshing lime mojito",
-      "imageUrl": "https://picsum.photos/seed/mojito/600/600",
-      "imageHint": "mojito drink"
+      "description": "Refreshing lime and mint mojito",
+      "imageUrl": "https://picsum.photos/seed/mojito_real/600/600",
+      "imageHint": "mojito cocktail"
+    },
+    {
+      "id": "strawberry-mojito",
+      "description": "Iced strawberry mojito with fresh berries",
+      "imageUrl": "https://picsum.photos/seed/strawmojito_real/600/600",
+      "imageHint": "strawberry mojito"
+    },
+    {
+      "id": "ocean-mojito",
+      "description": "Blue tropical ocean mojito",
+      "imageUrl": "https://picsum.photos/seed/oceanmojito_real/600/600",
+      "imageHint": "blue drink"
+    },
+    {
+      "id": "ice-tea",
+      "description": "Lemon iced tea with ice cubes",
+      "imageUrl": "https://picsum.photos/seed/icetea_real/600/600",
+      "imageHint": "iced tea"
+    },
+    {
+      "id": "mango-tea",
+      "description": "Tropical mango and pineapple tea",
+      "imageUrl": "https://picsum.photos/seed/mangotea_real/600/600",
+      "imageHint": "fruit tea"
+    },
+    {
+      "id": "raspberry-tea",
+      "description": "Red raspberry fruit tea",
+      "imageUrl": "https://picsum.photos/seed/rasptea_real/600/600",
+      "imageHint": "raspberry tea"
     },
     {
       "id": "milkshake",
       "description": "Creamy strawberry milkshake",
-      "imageUrl": "https://picsum.photos/seed/shake/600/600",
+      "imageUrl": "https://picsum.photos/seed/shake_real/600/600",
       "imageHint": "milkshake"
     },
     {
+      "id": "oreo-shake",
+      "description": "Chocolate oreo cookie milkshake",
+      "imageUrl": "https://picsum.photos/seed/oreoshake_real/600/600",
+      "imageHint": "oreo shake"
+    },
+    {
       "id": "ice-cream",
-      "description": "Vanilla ice cream scoops",
-      "imageUrl": "https://picsum.photos/seed/icecream/600/600",
+      "description": "Vanilla ice cream scoops in a bowl",
+      "imageUrl": "https://picsum.photos/seed/icecream_real/600/600",
       "imageHint": "ice cream"
+    },
+    {
+      "id": "carafe",
+      "description": "Large glass carafe with cold drink and fruits",
+      "imageUrl": "https://picsum.photos/seed/carafe_real/1200/800",
+      "imageHint": "drink carafe"
     }
   ]
 }

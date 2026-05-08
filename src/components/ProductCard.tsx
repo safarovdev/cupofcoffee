@@ -46,7 +46,7 @@ export function ProductCard({ item }: ProductCardProps) {
             alt={item.name}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105"
-            data-ai-hint="coffee or drink"
+            data-ai-hint={item.hint || "coffee or drink"}
           />
           
           <button 
