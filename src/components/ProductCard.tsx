@@ -20,7 +20,6 @@ export function ProductCard({ item }: ProductCardProps) {
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Если есть варианты размеров, всегда открываем модалку для уточнения
     if (item.sizes) {
       setIsModalOpen(true);
       return;
@@ -45,6 +44,7 @@ export function ProductCard({ item }: ProductCardProps) {
             src={item.image}
             alt={item.name}
             fill
+            unoptimized
             className="object-cover transition-transform duration-700 group-hover:scale-105"
             data-ai-hint={item.hint || "coffee or drink"}
           />

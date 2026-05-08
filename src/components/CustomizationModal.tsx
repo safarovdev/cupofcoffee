@@ -61,6 +61,7 @@ export function CustomizationModal({ isOpen, onClose, item }: CustomizationModal
               src={item.image}
               alt={item.name}
               fill
+              unoptimized
               className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
