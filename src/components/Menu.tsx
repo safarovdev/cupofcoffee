@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -152,7 +153,7 @@ export function Menu() {
 
             return (
               <section key={cat.id} className="space-y-4 md:space-y-6">
-                <div className="flex items-end justify-between px-1">
+                <div className="flex items-end justify-between px-4 sm:px-1">
                   <div className="space-y-1">
                     <h2 className="text-lg sm:text-2xl md:text-3xl font-black font-headline text-primary uppercase tracking-tighter leading-none">
                       {cat.name}
@@ -165,15 +166,18 @@ export function Menu() {
                 </div>
                 
                 <div className="relative overflow-visible">
-                  {/* Container for horizontal scroll with edge fading or padding */}
-                  <div className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 sm:mx-0 sm:px-1 scroll-smooth">
+                  {/* Container for horizontal scroll with snapping */}
+                  <div className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar py-4 px-4 sm:px-1 scroll-smooth">
                     {items.map((item) => (
-                      <div key={item.id} className="w-[260px] sm:w-[320px] md:w-[340px] flex-shrink-0">
+                      <div 
+                        key={item.id} 
+                        className="w-[calc(100vw-64px)] sm:w-[320px] md:w-[340px] flex-shrink-0 snap-center"
+                      >
                         <ProductCard item={item} />
                       </div>
                     ))}
                     {/* Extra space at the end of the scroll */}
-                    <div className="min-w-[10px] flex-shrink-0" />
+                    <div className="min-w-[16px] sm:min-w-[24px] flex-shrink-0" />
                   </div>
                 </div>
               </section>
