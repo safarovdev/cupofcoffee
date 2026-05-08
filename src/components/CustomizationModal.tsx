@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check, ShoppingBag } from "lucide-react";
+import { Check, ShoppingBag, Coffee, Wine, IceCream, Beaker, Cookie } from "lucide-react";
 import { MenuItem } from "./Menu";
 import {
   Dialog,
@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,6 +21,28 @@ interface CustomizationModalProps {
   isOpen: boolean;
   onClose: () => void;
   item: MenuItem;
+}
+
+function LargePlaceholder({ category }: { category: string }) {
+  const getIcon = () => {
+    switch (category) {
+      case 'coffee': return <Coffee className="w-20 h-20" />;
+      case 'ice-coffee': return <Coffee className="w-20 h-20" />;
+      case 'mojito': return <Wine className="w-20 h-20" />;
+      case 'mojito-carafe': return <Beaker className="w-20 h-20" />;
+      case 'tea': return <Coffee className="w-20 h-20 rotate-12" />;
+      case 'ice-tea': return <Wine className="w-20 h-20" />;
+      case 'milkshakes': return <Wine className="w-20 h-20" />;
+      case 'ice-cream': return <IceCream className="w-20 h-20" />;
+      default: return <Cookie className="w-20 h-20" />;
+    }
+  };
+
+  return (
+    <div className="w-full h-full bg-gradient-to-br from-accent/30 to-accent/10 flex items-center justify-center text-primary/10">
+      {getIcon()}
+    </div>
+  );
 }
 
 export function CustomizationModal({ isOpen, onClose, item }: CustomizationModalProps) {
@@ -56,20 +77,14 @@ export function CustomizationModal({ isOpen, onClose, item }: CustomizationModal
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl p-0 overflow-hidden bg-card border-none sm:rounded-[2rem]">
         <div className="flex flex-col md:flex-row h-full max-h-[95vh] overflow-y-auto custom-scrollbar">
-          <div className="md:w-1/2 relative h-48 md:h-auto">
-            <Image
-              src={item.image}
-              alt={item.name}
-              fill
-              unoptimized
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="md:w-1/2 relative h-48 md:h-auto bg-muted">
+            <LargePlaceholder category={item.category} />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             <div className="absolute bottom-6 left-6 right-6">
-              <DialogTitle className="text-2xl sm:text-3xl font-headline font-bold text-white">
+              <DialogTitle className="text-2xl sm:text-3xl font-headline font-bold text-primary">
                 {item.name}
               </DialogTitle>
-              <p className="text-white/90 text-sm mt-1 font-bold">
+              <p className="text-primary/70 text-sm mt-1 font-bold">
                 {currentPrice} сум
               </p>
             </div>

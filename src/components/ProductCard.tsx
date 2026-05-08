@@ -1,8 +1,7 @@
 
 "use client";
 
-import Image from "next/image";
-import { Star, Clock, Plus } from "lucide-react";
+import { Star, Clock, Plus, Coffee, Wine, IceCream, Cookie, Beaker } from "lucide-react";
 import { MenuItem } from "./Menu";
 import { CustomizationModal } from "./CustomizationModal";
 import { useState } from "react";
@@ -11,6 +10,28 @@ import { useToast } from "@/hooks/use-toast";
 
 interface ProductCardProps {
   item: MenuItem;
+}
+
+function ItemPlaceholder({ category }: { category: string }) {
+  const getIcon = () => {
+    switch (category) {
+      case 'coffee': return <Coffee className="w-10 h-10" />;
+      case 'ice-coffee': return <Coffee className="w-10 h-10" />;
+      case 'mojito': return <Wine className="w-10 h-10" />;
+      case 'mojito-carafe': return <Beaker className="w-10 h-10" />;
+      case 'tea': return <Coffee className="w-10 h-10 rotate-12" />;
+      case 'ice-tea': return <Wine className="w-10 h-10" />;
+      case 'milkshakes': return <Wine className="w-10 h-10" />;
+      case 'ice-cream': return <IceCream className="w-10 h-10" />;
+      default: return <Cookie className="w-10 h-10" />;
+    }
+  };
+
+  return (
+    <div className="w-full h-full bg-gradient-to-br from-accent/20 to-accent/5 flex items-center justify-center text-primary/20">
+      {getIcon()}
+    </div>
+  );
 }
 
 export function ProductCard({ item }: ProductCardProps) {
@@ -39,15 +60,8 @@ export function ProductCard({ item }: ProductCardProps) {
         onClick={() => setIsModalOpen(true)}
         className="group relative flex flex-col gap-3 cursor-pointer select-none active:scale-[0.98] transition-transform"
       >
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[2rem] bg-muted">
-          <Image
-            src={item.image}
-            alt={item.name}
-            fill
-            unoptimized
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            data-ai-hint={item.hint || "coffee or drink"}
-          />
+        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[2rem] bg-muted shadow-inner">
+          <ItemPlaceholder category={item.category} />
           
           <button 
             onClick={handleQuickAdd}

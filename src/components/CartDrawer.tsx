@@ -10,11 +10,32 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus, Minus, ShoppingCart } from "lucide-react";
-import Image from "next/image";
+import { Trash2, Plus, Minus, ShoppingCart, Coffee, Wine, IceCream, Beaker, Cookie } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+
+function TinyPlaceholder({ category }: { category: string }) {
+  const getIcon = () => {
+    switch (category) {
+      case 'coffee': return <Coffee className="w-4 h-4" />;
+      case 'ice-coffee': return <Coffee className="w-4 h-4" />;
+      case 'mojito': return <Wine className="w-4 h-4" />;
+      case 'mojito-carafe': return <Beaker className="w-4 h-4" />;
+      case 'tea': return <Coffee className="w-4 h-4 rotate-12" />;
+      case 'ice-tea': return <Wine className="w-4 h-4" />;
+      case 'milkshakes': return <Wine className="w-4 h-4" />;
+      case 'ice-cream': return <IceCream className="w-4 h-4" />;
+      default: return <Cookie className="w-4 h-4" />;
+    }
+  };
+
+  return (
+    <div className="w-full h-full bg-accent/20 flex items-center justify-center text-primary/30">
+      {getIcon()}
+    </div>
+  );
+}
 
 export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { cart, removeFromCart, updateQuantity, totalPrice, clearCart } = useCart();
@@ -54,8 +75,8 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
               <div className="space-y-6">
                 {cart.map((item) => (
                   <div key={item.cartId} className="flex gap-4">
-                    <div className="relative w-20 h-20 rounded-2xl overflow-hidden shrink-0">
-                      <Image src={item.item.image} alt={item.item.name} fill className="object-cover" />
+                    <div className="relative w-20 h-20 rounded-2xl overflow-hidden shrink-0 bg-muted">
+                      <TinyPlaceholder category={item.item.category} />
                     </div>
                     <div className="flex-1 space-y-1">
                       <div className="flex justify-between items-start">

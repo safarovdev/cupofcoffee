@@ -3,12 +3,33 @@
 
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus, Minus, ChevronLeft, ShoppingCart, CreditCard } from "lucide-react";
-import Image from "next/image";
+import { Trash2, Plus, Minus, ChevronLeft, ShoppingCart, CreditCard, Coffee, Wine, IceCream, Beaker, Cookie } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+
+function SmallPlaceholder({ category }: { category: string }) {
+  const getIcon = () => {
+    switch (category) {
+      case 'coffee': return <Coffee className="w-6 h-6" />;
+      case 'ice-coffee': return <Coffee className="w-6 h-6" />;
+      case 'mojito': return <Wine className="w-6 h-6" />;
+      case 'mojito-carafe': return <Beaker className="w-6 h-6" />;
+      case 'tea': return <Coffee className="w-6 h-6 rotate-12" />;
+      case 'ice-tea': return <Wine className="w-6 h-6" />;
+      case 'milkshakes': return <Wine className="w-6 h-6" />;
+      case 'ice-cream': return <IceCream className="w-6 h-6" />;
+      default: return <Cookie className="w-6 h-6" />;
+    }
+  };
+
+  return (
+    <div className="w-full h-full bg-accent/20 flex items-center justify-center text-primary/30">
+      {getIcon()}
+    </div>
+  );
+}
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, totalPrice, clearCart } = useCart();
@@ -56,8 +77,8 @@ export default function CartPage() {
               <div className="bg-card rounded-[2rem] border p-6 space-y-6 shadow-sm">
                 {cart.map((item) => (
                   <div key={item.cartId} className="flex gap-4 sm:gap-6">
-                    <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shrink-0">
-                      <Image src={item.item.image} alt={item.item.name} fill unoptimized className="object-cover" />
+                    <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-2xl overflow-hidden shrink-0 bg-muted">
+                      <SmallPlaceholder category={item.item.category} />
                     </div>
                     <div className="flex-1 flex flex-col justify-between">
                       <div className="space-y-1">
