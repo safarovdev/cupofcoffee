@@ -6,24 +6,24 @@ import Link from "next/link";
 export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b border-border/10">
-      <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col items-center justify-center">
+      <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col items-center justify-center">
         <Link href="/" className="flex flex-col items-center group transition-transform active:scale-95">
           {/* Welcome To Line */}
-          <div className="flex items-center gap-3 mb-1">
-            <div className="h-[2px] w-6 md:w-10 bg-primary/30" />
-            <span className="text-[10px] md:text-xs font-bold tracking-[0.3em] text-primary uppercase">
+          <div className="flex items-center gap-2 mb-0.5">
+            <div className="h-[1.5px] w-4 md:w-6 bg-primary/30" />
+            <span className="text-[8px] md:text-[10px] font-bold tracking-[0.2em] text-primary uppercase">
               Welcome to
             </span>
-            <div className="h-[2px] w-6 md:w-10 bg-primary/30" />
+            <div className="h-[1.5px] w-4 md:w-6 bg-primary/30" />
           </div>
           
           {/* Main Title */}
-          <h1 className="text-4xl md:text-5xl font-black font-headline tracking-tighter text-primary uppercase leading-none drop-shadow-sm">
+          <h1 className="text-2xl md:text-3xl font-black font-headline tracking-tighter text-primary uppercase leading-none drop-shadow-sm">
             Cup <span className="text-primary/80">Of</span> Coffee
           </h1>
           
           {/* Decorative Glowing Bar */}
-          <div className="w-full max-w-[280px] md:max-w-[360px] h-2 bg-primary rounded-full mt-3 shadow-[0_4px_12px_rgba(var(--primary),0.4)] opacity-90" />
+          <div className="w-full max-w-[180px] md:max-w-[240px] h-1.5 bg-primary rounded-full mt-2 shadow-[0_2px_8px_rgba(var(--primary),0.3)] opacity-90" />
         </Link>
       </div>
     </header>
