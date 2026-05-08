@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ArrowLeft, ShoppingBasket } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Button } from "@/components/ui/button";
@@ -100,6 +100,7 @@ const CATEGORIES = [
 
 export function Menu() {
   const { searchQuery } = useCart();
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   const applyFilters = (items: MenuItem[]) => {
     return items.filter(item => {
@@ -111,6 +112,47 @@ export function Menu() {
       return true;
     });
   };
+
+  // Детальный вид категории (вертикальный список)
+  if (activeCategory && !searchQuery) {
+    const categoryName = CATEGORIES.find(c => c.id === activeCategory)?.name || "";
+    const items = MENU_DATA.filter(i => i.category === activeCategory);
+
+    return (
+      <div className="space-y-6 pb-12 animate-in fade-in slide-in-from-right-4 duration-300">
+        <div className="flex items-center gap-4 px-4 sm:px-1">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="rounded-full bg-muted/50"
+            onClick={() => setActiveCategory(null)}
+          >
+            <ArrowLeft className="w-5 h-5 text-primary" />
+          </Button>
+          <div className="space-y-0.5">
+            <h2 className="text-xl sm:text-3xl font-black font-headline text-primary uppercase tracking-tighter leading-none">
+              {categoryName}
+            </h2>
+            <div className="h-1 w-12 bg-primary/20 rounded-full" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4 sm:px-1">
+          {items.map((item) => (
+            <div key={item.id} className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <ProductCard item={item} />
+            </div>
+          ))}
+        </div>
+
+        {items.length === 0 && (
+          <div className="text-center py-20 bg-muted/20 rounded-[2rem] border-2 border-dashed border-muted/50 mx-4">
+            <p className="text-muted-foreground font-bold uppercase tracking-widest text-sm">В этой категории пока пусто.</p>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 md:space-y-12 pb-12">
@@ -160,13 +202,16 @@ export function Menu() {
                     </h2>
                     <div className="h-0.5 sm:h-1 w-8 sm:w-12 bg-primary/20 rounded-full" />
                   </div>
-                  <Button variant="ghost" className="text-muted-foreground font-bold gap-1 hover:bg-muted/50 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] uppercase tracking-widest h-auto">
+                  <Button 
+                    variant="ghost" 
+                    className="text-muted-foreground font-bold gap-1 hover:bg-muted/50 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] uppercase tracking-widest h-auto"
+                    onClick={() => setActiveCategory(cat.id)}
+                  >
                     Смотреть все <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                   </Button>
                 </div>
                 
                 <div className="relative overflow-visible">
-                  {/* Container for horizontal scroll with snapping */}
                   <div className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar py-4 px-4 sm:px-1 scroll-smooth">
                     {items.map((item) => (
                       <div 
@@ -176,7 +221,6 @@ export function Menu() {
                         <ProductCard item={item} />
                       </div>
                     ))}
-                    {/* Extra space at the end of the scroll */}
                     <div className="min-w-[16px] sm:min-w-[24px] flex-shrink-0" />
                   </div>
                 </div>
