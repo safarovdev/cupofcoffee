@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -7,6 +6,7 @@ import { ProductCard } from "./ProductCard";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
+import { Separator } from "@/components/ui/separator";
 
 export type MenuItem = {
   id: string;
@@ -112,11 +112,11 @@ export function Menu() {
   };
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8 md:space-y-12 pb-12">
       {/* Search Header Info */}
       {searchQuery && (
         <div className="px-1">
-          <h2 className="text-2xl sm:text-3xl font-black font-headline text-primary uppercase tracking-tighter">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black font-headline text-primary uppercase tracking-tighter">
             Результаты поиска: <span className="text-muted-foreground">{searchQuery}</span>
           </h2>
           <Separator className="mt-4" />
@@ -125,19 +125,18 @@ export function Menu() {
 
       {/* Main Content */}
       {searchQuery ? (
-        <section className="space-y-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10 px-1">
+        <section className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 px-1">
             {applyFilters(MENU_DATA).map((item) => (
               <ProductCard key={item.id} item={item} />
             ))}
           </div>
           {applyFilters(MENU_DATA).length === 0 && (
-            <div className="text-center py-24 bg-muted/20 rounded-[3rem] border-2 border-dashed border-muted/50">
-              <p className="text-muted-foreground font-bold text-lg uppercase tracking-widest">Ничего не найдено.</p>
+            <div className="text-center py-16 sm:py-24 bg-muted/20 rounded-[2rem] sm:rounded-[3rem] border-2 border-dashed border-muted/50">
+              <p className="text-muted-foreground font-bold text-sm sm:text-lg uppercase tracking-widest px-4">Ничего не найдено.</p>
               <Button 
                 variant="link" 
-                className="mt-2 text-primary uppercase font-bold text-xs tracking-widest"
-                onClick={() => {}} // Could clear search here
+                className="mt-2 text-primary uppercase font-bold text-[10px] tracking-widest"
               >
                 Попробовать другой запрос
               </Button>
@@ -145,36 +144,36 @@ export function Menu() {
           )}
         </section>
       ) : (
-        <div className="space-y-16">
+        <div className="space-y-12 md:space-y-16">
           {/* Categories Sections */}
           {CATEGORIES.map((cat) => {
             const items = applyFilters(MENU_DATA.filter(i => i.category === cat.id));
             if (items.length === 0) return null;
 
             return (
-              <section key={cat.id} className="space-y-6">
+              <section key={cat.id} className="space-y-4 md:space-y-6">
                 <div className="flex items-end justify-between px-1">
                   <div className="space-y-1">
-                    <h2 className="text-2xl sm:text-3xl font-black font-headline text-primary uppercase tracking-tighter leading-none">
+                    <h2 className="text-lg sm:text-2xl md:text-3xl font-black font-headline text-primary uppercase tracking-tighter leading-none">
                       {cat.name}
                     </h2>
-                    <div className="h-1 w-12 bg-primary/20 rounded-full" />
+                    <div className="h-0.5 sm:h-1 w-8 sm:w-12 bg-primary/20 rounded-full" />
                   </div>
-                  <Button variant="ghost" className="text-muted-foreground font-bold gap-1 hover:bg-muted/50 px-3 py-1 rounded-full text-[10px] uppercase tracking-widest">
-                    Смотреть все <ChevronRight className="w-4 h-4" />
+                  <Button variant="ghost" className="text-muted-foreground font-bold gap-1 hover:bg-muted/50 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] uppercase tracking-widest h-auto">
+                    Смотреть все <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                   </Button>
                 </div>
                 
-                <div className="relative group">
+                <div className="relative overflow-visible">
                   {/* Container for horizontal scroll with edge fading or padding */}
-                  <div className="flex gap-6 overflow-x-auto no-scrollbar py-4 -mx-4 px-4 sm:mx-0 sm:px-1 scroll-smooth">
+                  <div className="flex gap-4 sm:gap-6 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 sm:mx-0 sm:px-1 scroll-smooth">
                     {items.map((item) => (
-                      <div key={item.id} className="min-w-[280px] sm:min-w-[320px] lg:min-w-[340px]">
+                      <div key={item.id} className="w-[260px] sm:w-[320px] md:w-[340px] flex-shrink-0">
                         <ProductCard item={item} />
                       </div>
                     ))}
                     {/* Extra space at the end of the scroll */}
-                    <div className="min-w-[20px] sm:hidden" />
+                    <div className="min-w-[10px] flex-shrink-0" />
                   </div>
                 </div>
               </section>
