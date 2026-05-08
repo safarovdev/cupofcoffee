@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -157,20 +158,20 @@ export function Menu() {
 
   return (
     <div className="space-y-8">
-      {/* Category Icons Row - Hide when searching for better UX */}
+      {/* Category Icons Row */}
       {!searchQuery && (
         <div className="flex flex-col gap-6">
           <h2 className="text-2xl font-bold font-headline px-1">Что заказать</h2>
-          <div className="flex items-start gap-6 overflow-x-auto no-scrollbar pb-2 px-1">
+          <div className="flex items-start gap-6 overflow-x-auto no-scrollbar pb-4 -mx-4 px-4 sm:mx-0 sm:px-1">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className="flex flex-col items-center gap-2 group min-w-[70px]"
+                className="flex flex-col items-center gap-2 group min-w-[72px]"
               >
                 <div className={cn(
                   "w-16 h-16 rounded-2xl overflow-hidden transition-all duration-300 ring-2 ring-transparent group-active:scale-95",
-                  activeCategory === cat.id ? "ring-primary scale-105 shadow-lg" : "grayscale-[20%] group-hover:grayscale-0"
+                  activeCategory === cat.id ? "ring-primary scale-105 shadow-lg shadow-primary/10" : "grayscale-[20%] group-hover:grayscale-0"
                 )}>
                   <Image 
                     src={cat.image || ""} 
@@ -181,17 +182,19 @@ export function Menu() {
                   />
                 </div>
                 <span className={cn(
-                  "text-xs font-bold transition-colors",
+                  "text-xs font-bold transition-colors whitespace-nowrap",
                   activeCategory === cat.id ? "text-primary" : "text-muted-foreground"
                 )}>{cat.name}</span>
               </button>
             ))}
+            {/* Spacer for horizontal scroll padding on the right */}
+            <div className="min-w-[32px] h-1" />
           </div>
         </div>
       )}
 
       {/* Filter Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-4 px-4 sm:mx-0 sm:px-0">
         {FILTERS.map((filter) => {
           const Icon = filter.icon;
           return (
@@ -210,9 +213,10 @@ export function Menu() {
             </button>
           );
         })}
+        <div className="min-w-[32px] h-1" />
       </div>
 
-      {/* Promo Banner - Hide when searching */}
+      {/* Promo Banner */}
       {!searchQuery && (
         <div className="relative w-full aspect-[3/1] rounded-[2.5rem] overflow-hidden group cursor-pointer">
           <Image 
@@ -231,7 +235,7 @@ export function Menu() {
         </div>
       )}
 
-      {/* Popular Section - Hide when searching */}
+      {/* Popular Section */}
       {!searchQuery && (
         <section className="space-y-4">
           <div className="flex items-center justify-between px-1">
@@ -240,12 +244,13 @@ export function Menu() {
               Все <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
-          <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-1 px-1">
+          <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-4 px-4 sm:mx-0 sm:px-1">
             {MENU_DATA.filter(i => i.isRecommended).map((item) => (
               <div key={`pop-${item.id}`} className="min-w-[280px] md:min-w-[320px]">
                 <ProductCard item={item} />
               </div>
             ))}
+            <div className="min-w-[32px] h-1" />
           </div>
         </section>
       )}
