@@ -160,9 +160,9 @@ export function Menu() {
     <div className="space-y-8">
       {/* Category Icons Row */}
       {!searchQuery && (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           <h2 className="text-2xl font-bold font-headline px-1">Что заказать</h2>
-          <div className="flex items-start gap-6 overflow-x-auto no-scrollbar pb-4 -mx-4 px-4 sm:mx-0 sm:px-1">
+          <div className="flex items-start gap-6 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 sm:mx-0 sm:px-1">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
@@ -194,7 +194,7 @@ export function Menu() {
       )}
 
       {/* Filter Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 sm:mx-0 sm:px-0">
         {FILTERS.map((filter) => {
           const Icon = filter.icon;
           return (
@@ -244,7 +244,7 @@ export function Menu() {
               Все <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
-          <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-4 px-4 sm:mx-0 sm:px-1">
+          <div className="flex gap-4 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 sm:mx-0 sm:px-1">
             {MENU_DATA.filter(i => i.isRecommended).map((item) => (
               <div key={`pop-${item.id}`} className="min-w-[280px] md:min-w-[320px]">
                 <ProductCard item={item} />
