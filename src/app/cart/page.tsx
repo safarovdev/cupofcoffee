@@ -18,7 +18,7 @@ export default function CartPage() {
   const handleCheckout = () => {
     toast({
       title: "Заказ оформлен!",
-      description: "Мы уже начали готовить ваш вкусный кофе.",
+      description: "Мы уже начали готовить ваш вкусный напиток.",
     });
     clearCart();
     router.push("/");
@@ -26,13 +26,12 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-12">
-      {/* Header */}
       <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b px-4 h-16 flex items-center justify-between">
         <Link href="/" className="p-2 -ml-2 hover:bg-muted rounded-full transition-colors">
           <ChevronLeft className="w-6 h-6 text-primary" />
         </Link>
         <h1 className="text-lg font-bold font-headline uppercase tracking-tighter">Ваш заказ</h1>
-        <div className="w-10" /> {/* Spacer */}
+        <div className="w-10" />
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
@@ -44,7 +43,7 @@ export default function CartPage() {
             <div className="space-y-2">
               <h3 className="text-2xl font-bold font-headline">Корзина пуста</h3>
               <p className="text-muted-foreground max-w-xs mx-auto text-sm">
-                Похоже, вы еще ничего не выбрали. Время побаловать себя чашечкой кофе!
+                Похоже, вы еще ничего не выбрали. Время побаловать себя!
               </p>
             </div>
             <Button asChild className="rounded-2xl px-8 h-12 font-bold shadow-lg">
@@ -53,7 +52,6 @@ export default function CartPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            {/* Items List */}
             <div className="lg:col-span-2 space-y-4">
               <div className="bg-card rounded-[2rem] border p-6 space-y-6 shadow-sm">
                 {cart.map((item) => (
@@ -65,7 +63,7 @@ export default function CartPage() {
                       <div className="space-y-1">
                         <div className="flex justify-between items-start gap-2">
                           <h4 className="font-bold text-base sm:text-lg leading-tight">{item.item.name}</h4>
-                          <span className="font-bold text-base sm:text-lg">{item.item.price * item.quantity} ₽</span>
+                          <span className="font-bold text-base sm:text-lg whitespace-nowrap">{item.item.price * item.quantity} сум</span>
                         </div>
                         <p className="text-xs sm:text-sm text-muted-foreground">
                           {item.size && `Объем: ${item.size}`}
@@ -109,14 +107,13 @@ export default function CartPage() {
               </div>
             </div>
 
-            {/* Order Summary */}
             <div className="lg:col-span-1 space-y-4 sticky top-24">
               <div className="bg-card rounded-[2rem] border p-6 sm:p-8 space-y-6 shadow-sm">
                 <h3 className="font-bold text-xl uppercase tracking-tighter">Итог заказа</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm sm:text-base text-muted-foreground">
                     <span>Сумма</span>
-                    <span>{totalPrice} ₽</span>
+                    <span>{totalPrice} сум</span>
                   </div>
                   <div className="flex justify-between text-sm sm:text-base text-muted-foreground">
                     <span>Доставка</span>
@@ -125,16 +122,13 @@ export default function CartPage() {
                   <Separator />
                   <div className="flex justify-between text-2xl font-black pt-2">
                     <span>Всего</span>
-                    <span>{totalPrice} ₽</span>
+                    <span>{totalPrice} сум</span>
                   </div>
                 </div>
                 <Button onClick={handleCheckout} className="w-full rounded-2xl h-14 font-bold text-lg shadow-lg shadow-primary/20 mt-4 gap-3">
                   <CreditCard className="w-5 h-5" />
-                  Оплатить {totalPrice} ₽
+                  Оплатить {totalPrice} сум
                 </Button>
-                <p className="text-[10px] text-center text-muted-foreground px-4 uppercase tracking-widest leading-relaxed">
-                  Приятного аппетита и отличного дня!
-                </p>
               </div>
             </div>
           </div>

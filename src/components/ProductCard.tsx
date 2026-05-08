@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -20,8 +21,7 @@ export function ProductCard({ item }: ProductCardProps) {
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Quick add defaults for drinks or just adds food
-    const isDrink = item.category === "coffee" || item.category === "tea";
+    const isDrink = item.category === "coffee" || item.category === "tea" || item.category === "ice-coffee";
     addToCart(item, isDrink ? "M" : undefined, isDrink ? "regular" : undefined);
     toast({
       title: "Добавлено!",
@@ -35,23 +35,14 @@ export function ProductCard({ item }: ProductCardProps) {
         onClick={() => setIsModalOpen(true)}
         className="group relative flex flex-col gap-3 cursor-pointer select-none active:scale-[0.98] transition-transform"
       >
-        {/* Image Container */}
         <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[2rem] bg-muted">
           <Image
             src={item.image}
             alt={item.name}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105"
-            data-ai-hint="coffee or dessert"
+            data-ai-hint="coffee or drink"
           />
-          
-          {item.discount && (
-            <div className="absolute top-3 left-3">
-              <Badge className="bg-destructive text-white border-none font-bold px-2 py-1 rounded-lg">
-                -{item.discount}%
-              </Badge>
-            </div>
-          )}
           
           <button 
             onClick={handleQuickAdd}
@@ -61,14 +52,13 @@ export function ProductCard({ item }: ProductCardProps) {
           </button>
         </div>
 
-        {/* Content Info */}
         <div className="px-1 space-y-1">
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-base font-bold text-foreground leading-tight truncate">
               {item.name}
             </h3>
-            <span className="text-base font-bold whitespace-nowrap">
-              {item.price} ₽
+            <span className="text-base font-bold whitespace-nowrap text-primary">
+              {item.price} сум
             </span>
           </div>
 
@@ -82,14 +72,6 @@ export function ProductCard({ item }: ProductCardProps) {
               <span>{item.time}</span>
             </div>
           </div>
-          
-          {item.discount && (
-            <div className="mt-1">
-              <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary text-[10px] font-bold py-0 h-5">
-                Бесплатная доставка
-              </Badge>
-            </div>
-          )}
         </div>
       </div>
 

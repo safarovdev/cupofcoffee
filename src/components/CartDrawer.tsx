@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useCart } from "@/context/CartContext";
@@ -22,7 +23,7 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
   const handleCheckout = () => {
     toast({
       title: "Заказ оформлен!",
-      description: "Мы уже начали готовить ваш вкусный кофе.",
+      description: "Мы уже начали готовить ваш заказ.",
     });
     clearCart();
     onClose();
@@ -44,7 +45,7 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
               <ShoppingCart className="w-10 h-10 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-bold font-headline">Корзина пуста</h3>
-            <p className="text-muted-foreground text-sm">Похоже, вы еще ничего не выбрали. Время побаловать себя!</p>
+            <p className="text-muted-foreground text-sm">Похоже, вы еще ничего не выбрали.</p>
             <Button onClick={onClose} variant="outline" className="rounded-full">Перейти в меню</Button>
           </div>
         ) : (
@@ -59,7 +60,7 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                     <div className="flex-1 space-y-1">
                       <div className="flex justify-between items-start">
                         <h4 className="font-bold text-sm leading-tight">{item.item.name}</h4>
-                        <span className="font-bold text-sm">{item.item.price * item.quantity} ₽</span>
+                        <span className="font-bold text-sm whitespace-nowrap">{item.item.price * item.quantity} сум</span>
                       </div>
                       <p className="text-xs text-muted-foreground">
                         {item.size && `Объем: ${item.size}`}
@@ -105,7 +106,7 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
               <div className="space-y-2 w-full">
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Сумма заказа</span>
-                  <span>{totalPrice} ₽</span>
+                  <span>{totalPrice} сум</span>
                 </div>
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Доставка</span>
@@ -114,7 +115,7 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                 <Separator />
                 <div className="flex justify-between text-lg font-bold">
                   <span>Итого</span>
-                  <span>{totalPrice} ₽</span>
+                  <span>{totalPrice} сум</span>
                 </div>
               </div>
               <Button onClick={handleCheckout} className="w-full rounded-2xl h-14 font-bold text-lg shadow-lg">
