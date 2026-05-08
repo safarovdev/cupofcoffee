@@ -3,139 +3,139 @@
     {
       "id": "espresso",
       "description": "Rich dark espresso shot with crema",
-      "imageUrl": "https://i.ibb.co/tMC3By56/espresso.jpg",
+      "imageUrl": "https://picsum.photos/seed/espresso/600/600",
       "imageHint": "espresso coffee"
     },
     {
       "id": "americano",
       "description": "Black americano coffee in a ceramic cup",
-      "imageUrl": "https://picsum.photos/seed/americano_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/americano/600/600",
       "imageHint": "black coffee"
     },
     {
       "id": "cappuccino",
       "description": "Cappuccino with thick milk foam and cocoa dusting",
-      "imageUrl": "https://picsum.photos/seed/cappuccino_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/cappuccino/600/600",
       "imageHint": "cappuccino cup"
     },
     {
       "id": "latte",
       "description": "Creamy latte art in a large glass",
-      "imageUrl": "https://picsum.photos/seed/latte_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/latte/600/600",
       "imageHint": "latte art"
     },
     {
       "id": "flat-white",
       "description": "Flat white coffee with smooth microfoam",
-      "imageUrl": "https://picsum.photos/seed/flatwhite_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/flatwhite/600/600",
       "imageHint": "flat white"
     },
     {
       "id": "lungo",
       "description": "Long extraction espresso lungo",
-      "imageUrl": "https://picsum.photos/seed/lungo_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/lungo/600/600",
       "imageHint": "lungo coffee"
     },
     {
       "id": "raf",
       "description": "Creamy raf coffee with vanilla",
-      "imageUrl": "https://picsum.photos/seed/raf_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/raf/600/600",
       "imageHint": "creamy coffee"
     },
     {
       "id": "cocoa",
       "description": "Hot cocoa with marshmallows on top",
-      "imageUrl": "https://picsum.photos/seed/cocoa_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/cocoa/600/600",
       "imageHint": "hot cocoa"
     },
     {
       "id": "hot-chocolate",
       "description": "Thick molten hot chocolate",
-      "imageUrl": "https://picsum.photos/seed/hotchoc_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/hotchoc/600/600",
       "imageHint": "hot chocolate"
     },
     {
       "id": "ice-americano",
       "description": "Iced americano with floating ice cubes",
-      "imageUrl": "https://picsum.photos/seed/iceam_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/iceam/600/600",
       "imageHint": "iced coffee"
     },
     {
       "id": "ice-latte",
       "description": "Cold iced latte with milk layers",
-      "imageUrl": "https://picsum.photos/seed/icelatte_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/icelatte/600/600",
       "imageHint": "iced latte"
     },
     {
       "id": "glace",
       "description": "Coffee with a scoop of vanilla ice cream",
-      "imageUrl": "https://picsum.photos/seed/glace_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/glace/600/600",
       "imageHint": "affogato coffee"
     },
     {
       "id": "frappuccino",
       "description": "Blended coffee frappuccino with whipped cream",
-      "imageUrl": "https://picsum.photos/seed/frap_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/frap/600/600",
       "imageHint": "frappuccino drink"
     },
     {
       "id": "mojito",
       "description": "Refreshing lime and mint mojito",
-      "imageUrl": "https://picsum.photos/seed/mojito_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/mojito/600/600",
       "imageHint": "mojito cocktail"
     },
     {
       "id": "strawberry-mojito",
       "description": "Iced strawberry mojito with fresh berries",
-      "imageUrl": "https://picsum.photos/seed/strawmojito_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/strawmojito/600/600",
       "imageHint": "strawberry mojito"
     },
     {
       "id": "ocean-mojito",
       "description": "Blue tropical ocean mojito",
-      "imageUrl": "https://picsum.photos/seed/oceanmojito_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/oceanmojito/600/600",
       "imageHint": "blue drink"
     },
     {
       "id": "ice-tea",
       "description": "Lemon iced tea with ice cubes",
-      "imageUrl": "https://picsum.photos/seed/icetea_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/icetea/600/600",
       "imageHint": "iced tea"
     },
     {
       "id": "mango-tea",
       "description": "Tropical mango and pineapple tea",
-      "imageUrl": "https://picsum.photos/seed/mangotea_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/mangotea/600/600",
       "imageHint": "fruit tea"
     },
     {
       "id": "raspberry-tea",
       "description": "Red raspberry fruit tea",
-      "imageUrl": "https://picsum.photos/seed/rasptea_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/rasptea/600/600",
       "imageHint": "raspberry tea"
     },
     {
       "id": "milkshake",
       "description": "Creamy strawberry milkshake",
-      "imageUrl": "https://picsum.photos/seed/shake_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/shake/600/600",
       "imageHint": "milkshake"
     },
     {
       "id": "oreo-shake",
       "description": "Chocolate oreo cookie milkshake",
-      "imageUrl": "https://picsum.photos/seed/oreoshake_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/oreoshake/600/600",
       "imageHint": "oreo shake"
     },
     {
       "id": "ice-cream",
       "description": "Vanilla ice cream scoops in a bowl",
-      "imageUrl": "https://picsum.photos/seed/icecream_real/600/600",
+      "imageUrl": "https://picsum.photos/seed/icecream/600/600",
       "imageHint": "ice cream"
     },
     {
       "id": "carafe",
       "description": "Large glass carafe with cold drink and fruits",
-      "imageUrl": "https://picsum.photos/seed/carafe_real/1200/800",
+      "imageUrl": "https://picsum.photos/seed/carafe/1200/800",
       "imageHint": "drink carafe"
     }
   ]
