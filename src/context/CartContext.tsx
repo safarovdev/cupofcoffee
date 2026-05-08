@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
@@ -9,11 +10,12 @@ export type CartItem = {
   size?: string;
   milk?: string;
   quantity: number;
+  priceAtSelection: number;
 };
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (item: MenuItem, size?: string, milk?: string) => void;
+  addToCart: (item: MenuItem, size?: string, milk?: string, price?: number) => void;
   removeFromCart: (cartId: string) => void;
   updateQuantity: (cartId: string, delta: number) => void;
   clearCart: () => void;
@@ -29,8 +31,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const addToCart = (item: MenuItem, size?: string, milk?: string) => {
-    const cartId = `${item.id}-${size || ""}-${milk || ""}`;
+  const addToCart = (item: MenuItem, size?: string, milk?: string, price?: number) => {
+    const finalPrice = price || item.price;
+    const cartId = `${item.id}-${size || "default"}-${milk || "none"}`;
+    
     setCart((prev) => {
       const existing = prev.find((i) => i.cartId === cartId);
       if (existing) {
@@ -38,7 +42,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           i.cartId === cartId ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
-      return [...prev, { cartId, item, size, milk, quantity: 1 }];
+      return [...prev, { cartId, item, size, milk, quantity: 1, priceAtSelection: finalPrice }];
     });
   };
 
@@ -61,7 +65,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = () => setCart([]);
 
   const totalItems = cart.reduce((acc, curr) => acc + curr.quantity, 0);
-  const totalPrice = cart.reduce((acc, curr) => acc + curr.item.price * curr.quantity, 0);
+  const totalPrice = cart.reduce((acc, curr) => acc + curr.priceAtSelection * curr.quantity, 0);
 
   return (
     <CartContext.Provider

@@ -4,7 +4,6 @@
 import Image from "next/image";
 import { Star, Clock, Plus } from "lucide-react";
 import { MenuItem } from "./Menu";
-import { Badge } from "@/components/ui/badge";
 import { CustomizationModal } from "./CustomizationModal";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
@@ -21,8 +20,14 @@ export function ProductCard({ item }: ProductCardProps) {
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
+    // Если есть варианты размеров, всегда открываем модалку для уточнения
+    if (item.sizes) {
+      setIsModalOpen(true);
+      return;
+    }
+    
     const isDrink = item.category === "coffee" || item.category === "tea" || item.category === "ice-coffee";
-    addToCart(item, isDrink ? "M" : undefined, isDrink ? "regular" : undefined);
+    addToCart(item, undefined, isDrink ? "regular" : undefined);
     toast({
       title: "Добавлено!",
       description: `${item.name} в корзине.`,
@@ -58,7 +63,7 @@ export function ProductCard({ item }: ProductCardProps) {
               {item.name}
             </h3>
             <span className="text-base font-bold whitespace-nowrap text-primary">
-              {item.price} сум
+              {item.sizes ? `от ${item.price}` : item.price} сум
             </span>
           </div>
 
@@ -72,6 +77,11 @@ export function ProductCard({ item }: ProductCardProps) {
               <span>{item.time}</span>
             </div>
           </div>
+          {item.sizes && (
+            <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest pt-1">
+              Доступны разные объемы
+            </div>
+          )}
         </div>
       </div>
 

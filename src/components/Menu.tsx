@@ -7,7 +7,6 @@ import { ProductCard } from "./ProductCard";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
-import { Separator } from "@/components/ui/separator";
 
 export type MenuItem = {
   id: string;
@@ -18,36 +17,112 @@ export type MenuItem = {
   price: number;
   image: string;
   category: string;
-  isRecommended?: boolean;
   rating: number;
   time: string;
-  discount?: number;
+  sizes?: { [key: string]: number };
 };
 
 const MENU_DATA: MenuItem[] = [
   // КОФЕ
-  { id: "c1", name: "Эспрессо (простой)", category: "coffee", description: "Классический крепкий кофе.", ingredients: ["Кофе"], allergens: [], price: 15000, image: "https://picsum.photos/seed/espresso1/600/600", rating: 4.9, time: "3 мин" },
-  { id: "c1-2", name: "Эспрессо (двойной)", category: "coffee", description: "Двойная порция крепкого кофе.", ingredients: ["Кофе"], allergens: [], price: 25000, image: "https://picsum.photos/seed/espresso2/600/600", rating: 4.9, time: "4 мин" },
-  { id: "c2", name: "Американо (простой)", category: "coffee", description: "Эспрессо с горячей водой.", ingredients: ["Кофе", "Вода"], allergens: [], price: 20000, image: "https://picsum.photos/seed/americano/600/600", rating: 4.7, time: "4 мин" },
-  { id: "c2-2", name: "Американо (двойной)", category: "coffee", description: "Двойной эспрессо с горячей водой.", ingredients: ["Кофе", "Вода"], allergens: [], price: 30000, image: "https://picsum.photos/seed/americano2/600/600", rating: 4.7, time: "5 мин" },
-  { id: "c3", name: "Капучино (простой)", category: "coffee", description: "Кофе с молочной пенкой.", ingredients: ["Кофе", "Молоко"], allergens: ["Лактоза"], price: 25000, image: "https://picsum.photos/seed/cappuccino/600/600", rating: 4.8, time: "5 мин" },
-  { id: "c3-2", name: "Капучино (двойной)", category: "coffee", description: "Насыщенный капучино с двойным эспрессо.", ingredients: ["Кофе", "Молоко"], allergens: ["Лактоза"], price: 35000, image: "https://picsum.photos/seed/cappuccino2/600/600", rating: 4.8, time: "6 мин" },
-  { id: "c4", name: "Латте (простой)", category: "coffee", description: "Мягкий кофейно-молочный напиток.", ingredients: ["Кофе", "Молоко"], allergens: ["Лактоза"], price: 25000, image: PlaceHolderImages.find(img => img.id === 'latte')?.imageUrl || "", rating: 4.8, time: "5 мин" },
-  { id: "c4-2", name: "Латте (двойной)", category: "coffee", description: "Латте с двойным эспрессо.", ingredients: ["Кофе", "Молоко"], allergens: ["Лактоза"], price: 35000, image: "https://picsum.photos/seed/latte2/600/600", rating: 4.8, time: "6 мин" },
+  { 
+    id: "c1", 
+    name: "Эспрессо", 
+    category: "coffee", 
+    description: "Классический крепкий кофе.", 
+    ingredients: ["Кофе"], 
+    allergens: [], 
+    price: 15000, 
+    sizes: { "Простой": 15000, "Двойной": 25000 },
+    image: "https://picsum.photos/seed/espresso1/600/600", 
+    rating: 4.9, 
+    time: "3 мин" 
+  },
+  { 
+    id: "c2", 
+    name: "Американо", 
+    category: "coffee", 
+    description: "Эспрессо с горячей водой.", 
+    ingredients: ["Кофе", "Вода"], 
+    allergens: [], 
+    price: 20000, 
+    sizes: { "Простой": 20000, "Двойной": 30000 },
+    image: "https://picsum.photos/seed/americano/600/600", 
+    rating: 4.7, 
+    time: "4 мин" 
+  },
+  { 
+    id: "c3", 
+    name: "Капучино", 
+    category: "coffee", 
+    description: "Кофе с молочной пенкой.", 
+    ingredients: ["Кофе", "Молоко"], 
+    allergens: ["Лактоза"], 
+    price: 25000, 
+    sizes: { "Простой": 25000, "Двойной": 35000 },
+    image: "https://picsum.photos/seed/cappuccino/600/600", 
+    rating: 4.8, 
+    time: "5 мин" 
+  },
+  { 
+    id: "c4", 
+    name: "Латте", 
+    category: "coffee", 
+    description: "Мягкий кофейно-молочный напиток.", 
+    ingredients: ["Кофе", "Молоко"], 
+    allergens: ["Лактоза"], 
+    price: 25000, 
+    sizes: { "Простой": 25000, "Двойной": 35000 },
+    image: PlaceHolderImages.find(img => img.id === 'latte')?.imageUrl || "", 
+    rating: 4.8, 
+    time: "5 мин" 
+  },
   { id: "c5", name: "Флэт Уайт", category: "coffee", description: "Двойной эспрессо с тонким слоем пены.", ingredients: ["Кофе", "Молоко"], allergens: ["Лактоза"], price: 30000, image: "https://picsum.photos/seed/flatwhite/600/600", rating: 4.9, time: "5 мин" },
   { id: "c6", name: "Лунго", category: "coffee", description: "Кофе длительной экстракции.", ingredients: ["Кофе", "Вода"], allergens: [], price: 25000, image: "https://picsum.photos/seed/lungo/600/600", rating: 4.6, time: "4 мин" },
   { id: "c7", name: "Раф", category: "coffee", description: "Кофе со сливками и ванилью.", ingredients: ["Кофе", "Сливки", "Ванильный сахар"], allergens: ["Лактоза"], price: 35000, image: "https://picsum.photos/seed/raf/600/600", rating: 5.0, time: "6 мин" },
-  { id: "c8", name: "Какао (простой)", category: "coffee", description: "Классический какао на молоке.", ingredients: ["Какао-порошок", "Молоко"], allergens: ["Лактоза"], price: 20000, image: "https://picsum.photos/seed/cocoa/600/600", rating: 4.8, time: "5 мин" },
-  { id: "c8-2", name: "Какао (двойной)", category: "coffee", description: "Насыщенный какао.", ingredients: ["Какао-порошок", "Молоко"], allergens: ["Лактоза"], price: 30000, image: "https://picsum.photos/seed/cocoa2/600/600", rating: 4.8, time: "6 мин" },
-  { id: "c9", name: "Горячий шоколад (простой)", category: "coffee", description: "Густой шоколадный десерт.", ingredients: ["Шоколад", "Молоко"], allergens: ["Лактоза"], price: 25000, image: "https://picsum.photos/seed/hotchoc/600/600", rating: 4.9, time: "6 мин" },
-  { id: "c9-2", name: "Горячий шоколад (двойной)", category: "coffee", description: "Максимально шоколадный вкус.", ingredients: ["Шоколад", "Молоко"], allergens: ["Лактоза"], price: 35000, image: "https://picsum.photos/seed/hotchoc2/600/600", rating: 4.9, time: "7 мин" },
+  { 
+    id: "c8", 
+    name: "Какао", 
+    category: "coffee", 
+    description: "Классический какао на молоке.", 
+    ingredients: ["Какао-порошок", "Молоко"], 
+    allergens: ["Лактоза"], 
+    price: 20000, 
+    sizes: { "Простой": 20000, "Двойной": 30000 },
+    image: "https://picsum.photos/seed/cocoa/600/600", 
+    rating: 4.8, 
+    time: "5 мин" 
+  },
+  { 
+    id: "c9", 
+    name: "Горячий шоколад", 
+    category: "coffee", 
+    description: "Густой шоколадный десерт.", 
+    ingredients: ["Шоколад", "Молоко"], 
+    allergens: ["Лактоза"], 
+    price: 25000, 
+    sizes: { "Простой": 25000, "Двойной": 35000 },
+    image: "https://picsum.photos/seed/hotchoc/600/600", 
+    rating: 4.9, 
+    time: "6 мин" 
+  },
 
   // АЙС КОФЕ
   { id: "ic1", name: "Айс Американо", category: "ice-coffee", description: "Холодный кофе со льдом.", ingredients: ["Кофе", "Лед"], allergens: [], price: 25000, image: "https://picsum.photos/seed/iceam/600/600", rating: 4.7, time: "4 мин" },
   { id: "ic2", name: "Айс Капучино", category: "ice-coffee", description: "Освежающий капучино со льдом.", ingredients: ["Кофе", "Молоко", "Лед"], allergens: ["Лактоза"], price: 35000, image: "https://picsum.photos/seed/icecap/600/600", rating: 4.8, time: "5 мин" },
   { id: "ic3", name: "Айс Латте", category: "ice-coffee", description: "Холодный латте со льдом.", ingredients: ["Кофе", "Молоко", "Лед"], allergens: ["Лактоза"], price: 35000, image: "https://picsum.photos/seed/icelatte/600/600", rating: 4.8, time: "5 мин" },
-  { id: "ic4", name: "Гляссе (простой)", category: "ice-coffee", description: "Кофе с мороженым.", ingredients: ["Кофе", "Мороженое"], allergens: ["Лактоза"], price: 25000, image: "https://picsum.photos/seed/glace/600/600", rating: 4.9, time: "5 мин" },
-  { id: "ic4-2", name: "Гляссе (двойной)", category: "ice-coffee", description: "Кофе с двойной порцией мороженого.", ingredients: ["Кофе", "Мороженое"], allergens: ["Лактоза"], price: 35000, image: "https://picsum.photos/seed/glace2/600/600", rating: 4.9, time: "6 мин" },
+  { 
+    id: "ic4", 
+    name: "Гляссе", 
+    category: "ice-coffee", 
+    description: "Кофе с мороженым.", 
+    ingredients: ["Кофе", "Мороженое"], 
+    allergens: ["Лактоза"], 
+    price: 25000, 
+    sizes: { "Простой": 25000, "Двойной": 35000 },
+    image: "https://picsum.photos/seed/glace/600/600", 
+    rating: 4.9, 
+    time: "5 мин" 
+  },
   { id: "ic5", name: "Фрапучино", category: "ice-coffee", description: "Кофейный шейк со льдом.", ingredients: ["Кофе", "Молоко", "Лед", "Сироп"], allergens: ["Лактоза"], price: 35000, image: "https://picsum.photos/seed/frap/600/600", rating: 4.9, time: "7 мин" },
   { id: "ic6", name: "Айс Раф", category: "ice-coffee", description: "Холодный раф со льдом.", ingredients: ["Кофе", "Сливки", "Лед", "Ваниль"], allergens: ["Лактоза"], price: 40000, image: "https://picsum.photos/seed/iceraf/600/600", rating: 5.0, time: "6 мин" },
 
@@ -81,14 +156,58 @@ const MENU_DATA: MenuItem[] = [
   { id: "ms6", name: "Милкшейк Вишня", category: "milkshakes", description: "Вишневая сладость.", ingredients: ["Молоко", "Мороженое", "Вишня"], allergens: ["Лактоза"], price: 35000, image: "https://picsum.photos/seed/cherryms/600/600", rating: 4.8, time: "7 мин" },
 
   // МОХИТО (ГРАФИН)
-  { id: "mg1", name: "Мохито Классический (1л)", category: "mojito-carafe", description: "Большой объем для компании.", ingredients: ["Лайм", "Мята", "Содовая"], allergens: [], price: 45000, image: "https://picsum.photos/seed/classiccarafe/600/600", rating: 4.9, time: "10 мин" },
-  { id: "mg1-2", name: "Мохито Классический (1.5л)", category: "mojito-carafe", description: "Максимальный объем.", ingredients: ["Лайм", "Мята", "Содовая"], allergens: [], price: 60000, image: "https://picsum.photos/seed/classiccarafe2/600/600", rating: 4.9, time: "12 мин" },
-  { id: "mg2", name: "Мохито Клубничный (1л)", category: "mojito-carafe", description: "Ягодный графин.", ingredients: ["Клубника", "Лайм", "Мята", "Содовая"], allergens: [], price: 50000, image: "https://picsum.photos/seed/strawcarafe/600/600", rating: 4.8, time: "10 мин" },
-  { id: "mg2-2", name: "Мохито Клубничный (1.5л)", category: "mojito-carafe", description: "Ягодный графин XL.", ingredients: ["Клубника", "Лайм", "Мята", "Содовая"], allergens: [], price: 65000, image: "https://picsum.photos/seed/strawcarafe2/600/600", rating: 4.8, time: "12 мин" },
-  { id: "mg3", name: "Мохито Апельсиновый (1л)", category: "mojito-carafe", description: "Цитрусовый микс.", ingredients: ["Апельсин", "Лайм", "Мята", "Содовая"], allergens: [], price: 50000, image: "https://picsum.photos/seed/orangecarafe/600/600", rating: 4.7, time: "10 мин" },
-  { id: "mg3-2", name: "Мохито Апельсиновый (1.5л)", category: "mojito-carafe", description: "Цитрусовый микс XL.", ingredients: ["Апельсин", "Лайм", "Мята", "Содовая"], allergens: [], price: 65000, image: "https://picsum.photos/seed/orangecarafe2/600/600", rating: 4.7, time: "12 мин" },
-  { id: "mg4", name: "Мохито Киви (1л)", category: "mojito-carafe", description: "Экзотический вкус.", ingredients: ["Киви", "Лайм", "Мята", "Содовая"], allergens: [], price: 50000, image: "https://picsum.photos/seed/kiwicarafe/600/600", rating: 4.8, time: "10 мин" },
-  { id: "mg4-2", name: "Мохито Киви (1.5л)", category: "mojito-carafe", description: "Экзотический вкус XL.", ingredients: ["Киви", "Лайм", "Мята", "Содовая"], allergens: [], price: 65000, image: "https://picsum.photos/seed/kiwicarafe2/600/600", rating: 4.8, time: "12 мин" },
+  { 
+    id: "mg1", 
+    name: "Мохито Классический", 
+    category: "mojito-carafe", 
+    description: "Освежающий напиток с мятой, лаймом и льдом.", 
+    ingredients: ["Лайм", "Мята", "Содовая"], 
+    allergens: [], 
+    price: 45000, 
+    sizes: { "1 литр": 45000, "1.5 литра": 60000 },
+    image: "https://picsum.photos/seed/classiccarafe/600/600", 
+    rating: 4.9, 
+    time: "10 мин" 
+  },
+  { 
+    id: "mg2", 
+    name: "Мохито Клубничный", 
+    category: "mojito-carafe", 
+    description: "Ягодная свежесть в большом объеме.", 
+    ingredients: ["Клубника", "Лайм", "Мята", "Содовая"], 
+    allergens: [], 
+    price: 50000, 
+    sizes: { "1 литр": 50000, "1.5 литра": 65000 },
+    image: "https://picsum.photos/seed/strawcarafe/600/600", 
+    rating: 4.8, 
+    time: "10 мин" 
+  },
+  { 
+    id: "mg3", 
+    name: "Мохито Апельсиновый", 
+    category: "mojito-carafe", 
+    description: "Цитрусовый микс для всей компании.", 
+    ingredients: ["Апельсин", "Лайм", "Мята", "Содовая"], 
+    allergens: [], 
+    price: 50000, 
+    sizes: { "1 литр": 50000, "1.5 литра": 65000 },
+    image: "https://picsum.photos/seed/orangecarafe/600/600", 
+    rating: 4.7, 
+    time: "10 мин" 
+  },
+  { 
+    id: "mg4", 
+    name: "Мохито Киви", 
+    category: "mojito-carafe", 
+    description: "Экзотический вкус в графине.", 
+    ingredients: ["Киви", "Лайм", "Мята", "Содовая"], 
+    allergens: [], 
+    price: 50000, 
+    sizes: { "1 литр": 50000, "1.5 литра": 65000 },
+    image: "https://picsum.photos/seed/kiwicarafe/600/600", 
+    rating: 4.8, 
+    time: "10 мин" 
+  },
 
   // МОРОЖЕНОЕ
   { id: "icr1", name: "Мороженое Ванильное", category: "ice-cream", description: "Классический пломбир.", ingredients: ["Сливки", "Ваниль"], allergens: ["Лактоза"], price: 20000, image: PlaceHolderImages.find(img => img.id === 'ice-cream')?.imageUrl || "", rating: 4.8, time: "3 мин" },

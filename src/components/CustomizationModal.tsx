@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, ShoppingBag } from "lucide-react";
 import { MenuItem } from "./Menu";
 import {
@@ -27,16 +27,27 @@ interface CustomizationModalProps {
 export function CustomizationModal({ isOpen, onClose, item }: CustomizationModalProps) {
   const { addToCart } = useCart();
   const { toast } = useToast();
-  const [size, setSize] = useState("M");
+  
+  const defaultSize = item.sizes ? Object.keys(item.sizes)[0] : "Стандарт";
+  const [selectedSize, setSelectedSize] = useState(defaultSize);
   const [milk, setMilk] = useState("regular");
 
+  useEffect(() => {
+    if (item.sizes) {
+      setSelectedSize(Object.keys(item.sizes)[0]);
+    } else {
+      setSelectedSize("Стандарт");
+    }
+  }, [item]);
+
   const isDrink = item.category === "coffee" || item.category === "tea" || item.category === "ice-coffee";
+  const currentPrice = item.sizes ? item.sizes[selectedSize] : item.price;
 
   const handleOrder = () => {
-    addToCart(item, isDrink ? size : undefined, isDrink ? milk : undefined);
+    addToCart(item, selectedSize !== "Стандарт" ? selectedSize : undefined, isDrink ? milk : undefined, currentPrice);
     toast({
       title: "Добавлено!",
-      description: `${item.name} добавлен в ваш заказ.`,
+      description: `${item.name} (${selectedSize}) добавлен в ваш заказ.`,
     });
     onClose();
   };
@@ -58,7 +69,7 @@ export function CustomizationModal({ isOpen, onClose, item }: CustomizationModal
                 {item.name}
               </DialogTitle>
               <p className="text-white/90 text-sm mt-1 font-bold">
-                {item.price} сум
+                {currentPrice} сум
               </p>
             </div>
           </div>
@@ -76,58 +87,60 @@ export function CustomizationModal({ isOpen, onClose, item }: CustomizationModal
 
             <Separator />
 
-            {isDrink && (
-              <>
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold uppercase tracking-widest text-primary">Объем</h4>
-                  <RadioGroup value={size} onValueChange={setSize} className="flex gap-3">
-                    {["S", "M", "L"].map((v) => (
-                      <div key={v} className="flex-1">
-                        <RadioGroupItem value={v} id={`size-${v}`} className="sr-only" />
-                        <Label
-                          htmlFor={`size-${v}`}
-                          className={`flex items-center justify-center h-10 rounded-xl border-2 cursor-pointer transition-all text-sm ${
-                            size === v
-                              ? "border-primary bg-primary/5 text-primary font-bold"
-                              : "border-border text-muted-foreground hover:border-primary/40"
-                          }`}
-                        >
-                          {v}
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                </div>
-
-                {item.category === "coffee" && (
-                  <div className="space-y-4">
-                    <h4 className="text-xs font-bold uppercase tracking-widest text-primary">Тип молока</h4>
-                    <RadioGroup value={milk} onValueChange={setMilk} className="grid grid-cols-2 gap-2">
-                      {[
-                        { id: "regular", name: "Обычное" },
-                        { id: "oat", name: "Овсяное" },
-                        { id: "coconut", name: "Кокосовое" },
-                        { id: "almond", name: "Миндальное" },
-                      ].map((m) => (
-                        <div key={m.id}>
-                          <RadioGroupItem value={m.id} id={`milk-${m.id}`} className="sr-only" />
-                          <Label
-                            htmlFor={`milk-${m.id}`}
-                            className={`flex items-center gap-2 p-2 rounded-xl border-2 cursor-pointer transition-all text-xs ${
-                              milk === m.id
-                                ? "border-primary bg-primary/5 text-primary font-bold"
-                                : "border-border text-muted-foreground hover:border-primary/40"
-                            }`}
-                          >
-                            {milk === m.id && <Check className="w-3 h-3" />}
-                            {m.name}
-                          </Label>
+            {item.sizes && (
+              <div className="space-y-4">
+                <h4 className="text-xs font-bold uppercase tracking-widest text-primary">Выберите объем / тип</h4>
+                <RadioGroup value={selectedSize} onValueChange={setSelectedSize} className="flex flex-col gap-2">
+                  {Object.keys(item.sizes).map((s) => (
+                    <div key={s} className="flex items-center">
+                      <RadioGroupItem value={s} id={`size-${s}`} className="sr-only" />
+                      <Label
+                        htmlFor={`size-${s}`}
+                        className={`flex items-center justify-between w-full p-3 rounded-xl border-2 cursor-pointer transition-all text-sm ${
+                          selectedSize === s
+                            ? "border-primary bg-primary/5 text-primary font-bold"
+                            : "border-border text-muted-foreground hover:border-primary/40"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {selectedSize === s && <Check className="w-4 h-4" />}
+                          {s}
                         </div>
-                      ))}
-                    </RadioGroup>
-                  </div>
-                )}
-              </>
+                        <span className="text-xs">{item.sizes![s]} сум</span>
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+            )}
+
+            {item.category === "coffee" && (
+              <div className="space-y-4">
+                <h4 className="text-xs font-bold uppercase tracking-widest text-primary">Тип молока</h4>
+                <RadioGroup value={milk} onValueChange={setMilk} className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: "regular", name: "Обычное" },
+                    { id: "oat", name: "Овсяное" },
+                    { id: "coconut", name: "Кокосовое" },
+                    { id: "almond", name: "Миндальное" },
+                  ].map((m) => (
+                    <div key={m.id}>
+                      <RadioGroupItem value={m.id} id={`milk-${m.id}`} className="sr-only" />
+                      <Label
+                        htmlFor={`milk-${m.id}`}
+                        className={`flex items-center gap-2 p-2 rounded-xl border-2 cursor-pointer transition-all text-xs ${
+                          milk === m.id
+                            ? "border-primary bg-primary/5 text-primary font-bold"
+                            : "border-border text-muted-foreground hover:border-primary/40"
+                        }`}
+                      >
+                        {milk === m.id && <Check className="w-3 h-3" />}
+                        {m.name}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
             )}
 
             <div className="pt-2">
@@ -136,7 +149,7 @@ export function CustomizationModal({ isOpen, onClose, item }: CustomizationModal
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl h-12 sm:h-14 font-bold text-base sm:text-lg shadow-lg shadow-primary/20 gap-2"
               >
                 <ShoppingBag className="w-5 h-5" />
-                В корзину — {item.price} сум
+                В корзину — {currentPrice} сум
               </Button>
             </div>
           </div>

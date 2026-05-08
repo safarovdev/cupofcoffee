@@ -63,7 +63,7 @@ export default function CartPage() {
                       <div className="space-y-1">
                         <div className="flex justify-between items-start gap-2">
                           <h4 className="font-bold text-base sm:text-lg leading-tight">{item.item.name}</h4>
-                          <span className="font-bold text-base sm:text-lg whitespace-nowrap">{item.item.price * item.quantity} сум</span>
+                          <span className="font-bold text-base sm:text-lg whitespace-nowrap">{item.priceAtSelection * item.quantity} сум</span>
                         </div>
                         <p className="text-xs sm:text-sm text-muted-foreground">
                           {item.size && `Объем: ${item.size}`}

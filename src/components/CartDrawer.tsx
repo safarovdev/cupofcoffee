@@ -60,7 +60,7 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                     <div className="flex-1 space-y-1">
                       <div className="flex justify-between items-start">
                         <h4 className="font-bold text-sm leading-tight">{item.item.name}</h4>
-                        <span className="font-bold text-sm whitespace-nowrap">{item.item.price * item.quantity} сум</span>
+                        <span className="font-bold text-sm whitespace-nowrap">{item.priceAtSelection * item.quantity} сум</span>
                       </div>
                       <p className="text-xs text-muted-foreground">
                         {item.size && `Объем: ${item.size}`}
