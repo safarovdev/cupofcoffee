@@ -6,6 +6,7 @@
       "description": "Элемент меню кафе (напиток или десерт).",
       "type": "object",
       "properties": {
+        "id": { "type": "string" },
         "name": { "type": "string" },
         "description": { "type": "string" },
         "category": { "type": "string" },
@@ -29,7 +30,7 @@
     }
   },
   "auth": {
-    "providers": ["google", "password"]
+    "providers": ["password"]
   },
   "firestore": {
     "/menu": {
@@ -38,7 +39,7 @@
     },
     "/admins/{adminId}": {
       "schema": "AdminUser",
-      "description": "Список разрешенных администраторов."
+      "description": "Список разрешенных администраторов. Документ должен иметь ID равный UID пользователя."
     }
   }
 }
