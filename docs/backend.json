@@ -1,0 +1,44 @@
+
+{
+  "entities": {
+    "MenuItem": {
+      "title": "Menu Item",
+      "description": "Элемент меню кафе (напиток или десерт).",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "price": { "type": "number" },
+        "sizes": { "type": "object" },
+        "ingredients": { "type": "array", "items": { "type": "string" } },
+        "rating": { "type": "number" },
+        "time": { "type": "string" }
+      },
+      "required": ["name", "category", "price"]
+    },
+    "AdminUser": {
+      "title": "Admin User",
+      "description": "Пользователь с правами администратора.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "uid": { "type": "string" }
+      },
+      "required": ["email", "uid"]
+    }
+  },
+  "auth": {
+    "providers": ["google", "password"]
+  },
+  "firestore": {
+    "/menu": {
+      "schema": "MenuItem",
+      "description": "Коллекция всех товаров в меню."
+    },
+    "/admins/{adminId}": {
+      "schema": "AdminUser",
+      "description": "Список разрешенных администраторов."
+    }
+  }
+}
