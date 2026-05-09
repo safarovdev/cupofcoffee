@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,11 @@ export function Menu() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const { firestore } = useFirestore();
 
-  const menuQuery = collection(firestore!, 'menu');
+  const menuQuery = useMemo(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'menu');
+  }, [firestore]);
+
   const { data: menuItems, loading } = useCollection(menuQuery);
 
   const applyFilters = (items: MenuItem[]) => {
