@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ChevronRight, ArrowLeft, Loader2, Database } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { Button } from "@/components/ui/button";
@@ -21,39 +21,98 @@ export type MenuItem = {
   sizes?: { [key: string]: number };
 };
 
-const CATEGORIES = [
-  { id: "coffee", name: "Кофе" },
-  { id: "ice-coffee", name: "Айс Кофе" },
-  { id: "mojito", name: "Мохито" },
-  { id: "ice-tea", name: "АйсТи" },
-  { id: "tea", name: "Чай" },
-  { id: "milkshakes", name: "Милкшейки" },
-  { id: "mojito-carafe", name: "Мохито (Графин)" },
-  { id: "ice-cream", name: "Мороженое" },
-];
-
-const FALLBACK_MENU: MenuItem[] = [
-  { id: "c1", name: "Эспрессо", category: "coffee", description: "Классический крепкий кофе.", ingredients: ["Кофе"], price: 15000, rating: 4.9, time: "3 мин" },
-  { id: "c2", name: "Американо", category: "coffee", description: "Эспрессо с горячей водой.", ingredients: ["Кофе", "Вода"], price: 20000, rating: 4.7, time: "4 мин" },
-  { id: "c3", name: "Капучино", category: "coffee", description: "Кофе с молочной пенкой.", ingredients: ["Кофе", "Молоко"], price: 25000, rating: 4.8, time: "5 мин" },
-  { id: "m1", name: "Мохито", category: "mojito", description: "Лайм, мята и содовая.", ingredients: ["Лайм", "Мята", "Содовая"], price: 35000, rating: 4.9, time: "5 мин" },
-];
-
 export function Menu() {
   const { searchQuery } = useCart();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const { firestore } = useFirestore();
+  const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const menuQuery = useMemo(() => {
-    if (!firestore) return null;
-    return collection(firestore, 'menu');
-  }, [firestore]);
+  useEffect(() => {
+    const loadMenu = async () => {
+      try {
+        const { initializeApp, getApps, getApp } = await import('firebase/app');
+        const { getFirestore, collection, getDocs } = await import('firebase/firestore');
+        
+        const config = {
+          apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
+          authDomain: "coffee-f4bc1.firebaseapp.com",
+          projectId: "coffee-f4bc1",
+          storageBucket: "coffee-f4bc1.firebasestorage.app",
+          messagingSenderId: "847730890494",
+          appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
+          measurementId: "G-3XN7LXDTJJ"
+        };
+        
+        const app = getApps().length > 0 ? getApp() : initializeApp(config);
+        const firestore = getFirestore(app);
+        
+        const querySnapshot = await getDocs(collection(firestore, 'menu'));
+        const items = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        setMenuItems(items);
+        
+        // Извлекаем уникальные категории из товаров
+        const uniqueCategories = new Map();
+        items.forEach((item: any) => {
+          if (item.category && !uniqueCategories.has(item.category)) {
+            uniqueCategories.set(item.category, item.category);
+          }
+        });
+        
+        // Определенный порядок категорий
+        const categoryOrder = ['coffee', 'tea', 'mojito', 'mojito-carafe', 'milkshakes', 'ice-cream', 'desserts', 'bakery'];
+        
+        // Названия категорий на русском
+        const categoryNames: Record<string, string> = {
+          'coffee': 'Кофе',
+          'tea': 'Чай',
+          'mojito': 'Мохито',
+          'mojito-carafe': 'Мохито (Графин)',
+          'milkshakes': 'Милкшейки',
+          'ice-cream': 'Мороженое',
+          'desserts': 'Десерты',
+          'bakery': 'Выпечка'
+        };
+        
+        // Создаем массив категорий в правильном порядке
+        const categoriesArray = Array.from(uniqueCategories.keys())
+          .map(catId => ({
+            id: catId,
+            name: categoryNames[catId] || catId
+          }))
+          .sort((a, b) => {
+            const aIndex = categoryOrder.indexOf(a.id);
+            const bIndex = categoryOrder.indexOf(b.id);
+            
+            // Если обе категории в списке порядка, сортируем по порядку
+            if (aIndex !== -1 && bIndex !== -1) {
+              return aIndex - bIndex;
+            }
+            
+            // Если только одна категория в списке порядка, она идет первой
+            if (aIndex !== -1) return -1;
+            if (bIndex !== -1) return 1;
+            
+            // Если обе категории не в списке порядка, сортируем по имени
+            return a.name.localeCompare(b.name);
+          });
+        
+        setCategories(categoriesArray);
+        console.log(`Loaded ${items.length} menu items and ${categoriesArray.length} categories`);
+      } catch (error) {
+        console.error('Error loading menu:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const { data: menuItems, loading } = useCollection(menuQuery);
+    loadMenu();
+  }, []);
 
   const items = useMemo(() => {
     if (loading) return [];
-    if (!menuItems || menuItems.length === 0) return FALLBACK_MENU;
+    if (!menuItems || menuItems.length === 0) return [];
     return menuItems as MenuItem[];
   }, [menuItems, loading]);
 
@@ -78,16 +137,16 @@ export function Menu() {
   if (items.length === 0) {
     return (
       <div className="text-center py-20 space-y-4">
-        <p className="text-muted-foreground">Меню пока пусто.</p>
-        <Button asChild variant="outline" className="rounded-full">
-          <Link href="/admin">Перейти в админку</Link>
-        </Button>
+        <p className="text-muted-foreground">Меню загружается...</p>
+        <div className="flex justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
       </div>
     );
   }
 
   if (activeCategory && !searchQuery) {
-    const categoryName = CATEGORIES.find(c => c.id === activeCategory)?.name || "";
+    const categoryName = categories.find((c: any) => c.id === activeCategory)?.name || "";
     const filteredItems = items.filter(i => i.category === activeCategory);
 
     return (
@@ -142,7 +201,7 @@ export function Menu() {
         </section>
       ) : (
         <div className="space-y-12 md:space-y-16">
-          {CATEGORIES.map((cat) => {
+          {categories.map((cat: any) => {
             const catItems = applyFilters(items.filter(i => i.category === cat.id));
             if (catItems.length === 0) return null;
 

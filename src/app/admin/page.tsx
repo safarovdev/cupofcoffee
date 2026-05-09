@@ -10,15 +10,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ShieldAlert, Plus, Trash2, LogOut, Loader2, Database, AlertCircle, KeyRound, Mail, AlertTriangle } from 'lucide-react';
+import { ShieldAlert, Plus, Trash2, LogOut, Loader2, Database, AlertCircle, KeyRound, Mail, AlertTriangle, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { CategorySelector } from '@/components/CategorySelector';
+import { EditableProductCard } from '@/components/EditableProductCard';
+import { AddProductForm } from '@/components/AddProductForm';
 
-const INITIAL_MENU = [
-  { id: "c1", name: "Эспрессо", category: "coffee", description: "Классический крепкий кофе с плотной пенкой.", ingredients: ["Кофе"], price: 15000, rating: 4.9, time: "3 мин" },
-  { id: "c2", name: "Американо", category: "coffee", description: "Эспрессо с добавлением горячей воды.", ingredients: ["Кофе", "Вода"], price: 20000, rating: 4.7, time: "4 мин" },
-  { id: "c3", name: "Капучино", category: "coffee", description: "Кофе с воздушной молочной пенкой.", ingredients: ["Кофе", "Молоко"], price: 25000, rating: 4.8, time: "5 мин" },
-  { id: "m1", name: "Мохито Классик", category: "mojito", description: "Лайм, свежая мята и содовая.", ingredients: ["Лайм", "Мята", "Содовая"], price: 35000, rating: 4.9, time: "5 мин" },
-];
 
 export default function AdminPage() {
   const { user, loading: authLoading } = useUser();
@@ -32,9 +29,76 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
 
-  const { data: menuItems, loading: menuLoading } = useCollection(
-    firestore ? collection(firestore, 'menu') : null
-  );
+  const [menuItems, setMenuItems] = useState<any[]>([]);
+  const [menuLoading, setMenuLoading] = useState(true);
+  const [editingItem, setEditingItem] = useState<any>(null);
+
+  useEffect(() => {
+    const loadMenuItems = async () => {
+      try {
+        const { initializeApp, getApps, getApp } = await import('firebase/app');
+        const { getFirestore, collection, getDocs } = await import('firebase/firestore');
+        
+        const config = {
+          apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
+          authDomain: "coffee-f4bc1.firebaseapp.com",
+          projectId: "coffee-f4bc1",
+          storageBucket: "coffee-f4bc1.firebasestorage.app",
+          messagingSenderId: "847730890494",
+          appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
+          measurementId: "G-3XN7LXDTJJ"
+        };
+        
+        const app = getApps().length > 0 ? getApp() : initializeApp(config);
+        const firestore = getFirestore(app);
+        
+        const querySnapshot = await getDocs(collection(firestore, 'menu'));
+        const items = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        setMenuItems(items);
+        console.log(`Admin: Loaded ${items.length} menu items`);
+      } catch (error) {
+        console.error('Admin: Error loading menu items:', error);
+      } finally {
+        setMenuLoading(false);
+      }
+    };
+
+    loadMenuItems();
+  }, []);
+
+  useEffect(() => {
+    if (editingItem) {
+      // Небольшая задержка, чтобы форма успела отрендериться
+      const timer = setTimeout(() => {
+        const form = document.querySelector('form') as HTMLFormElement;
+        if (form) {
+          const nameInput = form.querySelector('input[name="name"]') as HTMLInputElement;
+          const categoryInput = form.querySelector('select[name="category"]') as HTMLSelectElement;
+          const priceInput = form.querySelector('input[name="price"]') as HTMLInputElement;
+          const descriptionInput = form.querySelector('input[name="description"]') as HTMLInputElement;
+          const ingredientsInput = form.querySelector('input[name="ingredients"]') as HTMLInputElement;
+          const sizesInput = form.querySelector('input[name="sizes"]') as HTMLInputElement;
+          
+          if (nameInput) nameInput.value = editingItem.name || '';
+          if (categoryInput) categoryInput.value = editingItem.category || '';
+          if (priceInput) priceInput.value = editingItem.price || '';
+          if (descriptionInput) descriptionInput.value = editingItem.description || '';
+          if (ingredientsInput) ingredientsInput.value = editingItem.ingredients ? editingItem.ingredients.join(', ') : '';
+          
+          // Формируем строку размеров
+          if (editingItem.sizes && Object.keys(editingItem.sizes).length > 0 && sizesInput) {
+            const sizesString = Object.entries(editingItem.sizes)
+              .map(([size, price]) => `${size}:${price}`)
+              .join(', ');
+            sizesInput.value = sizesString;
+          }
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [editingItem]);
 
   useEffect(() => {
     async function checkAdmin() {
@@ -56,24 +120,36 @@ export default function AdminPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth) {
-      toast({ 
-        variant: 'destructive', 
-        title: 'Ошибка конфигурации', 
-        description: 'Firebase не инициализирован. Проверьте настройки проекта.' 
-      });
-      return;
-    }
-    
     setIsSigningIn(true);
+    
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      // Initialize Firebase directly
+      const { initializeApp, getApps, getApp } = await import('firebase/app');
+      const { getAuth, signInWithEmailAndPassword } = await import('firebase/auth');
+      
+      const firebaseConfig = {
+        apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
+        authDomain: "coffee-f4bc1.firebaseapp.com",
+        projectId: "coffee-f4bc1",
+        storageBucket: "coffee-f4bc1.firebasestorage.app",
+        messagingSenderId: "847730890494",
+        appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
+        measurementId: "G-3XN7LXDTJJ"
+      };
+      
+      const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+      const authInstance = getAuth(app);
+      
+      await signInWithEmailAndPassword(authInstance, email, password);
       toast({ title: 'Вход выполнен', description: 'Добро пожаловать в AromaFlow Admin.' });
     } catch (error: any) {
       console.error("Login error:", error.code, error.message);
       let message = "Неверный логин или пароль.";
       if (error.code === 'auth/invalid-api-key') message = "Недействительный API ключ Firebase.";
       if (error.code === 'auth/network-request-failed') message = "Ошибка сети. Проверьте соединение.";
+      if (error.code === 'auth/configuration-not-found') message = "Firebase Auth не настроен. Включите Email/Password в Firebase Console.";
+      if (error.code === 'auth/user-not-found') message = "Пользователь не найден. Сначала создайте администратора.";
+      if (error.code === 'auth/wrong-password') message = "Неверный пароль.";
       
       toast({ 
         variant: 'destructive', 
@@ -85,31 +161,118 @@ export default function AdminPage() {
     }
   };
 
-  const handleLogout = () => signOut(auth!);
-
-  const handleMigrate = async () => {
-    if (!firestore) return;
-    setIsMigrating(true);
+  const handleLogout = async () => {
     try {
-      const batch = writeBatch(firestore);
-      INITIAL_MENU.forEach((item) => {
-        const docRef = doc(firestore, 'menu', item.id);
-        batch.set(docRef, item);
-      });
-      await batch.commit();
-      toast({ title: 'Успех', description: 'База данных заполнена начальными данными.' });
+      const { getApps, getApp } = await import('firebase/app');
+      const { getAuth, signOut } = await import('firebase/auth');
+      
+      const app = getApps().length > 0 ? getApp() : null;
+      if (app) {
+        const authInstance = getAuth(app);
+        await signOut(authInstance);
+        toast({ title: 'Выход выполнен', description: 'Вы успешно вышли из системы.' });
+      }
     } catch (error: any) {
-      toast({ variant: 'destructive', title: 'Ошибка доступа', description: 'У вас нет прав на запись в базу данных.' });
-    } finally {
-      setIsMigrating(false);
+      console.error("Logout error:", error);
+      toast({ 
+        variant: 'destructive', 
+        title: 'Ошибка выхода', 
+        description: 'Не удалось выйти из системы.' 
+      });
     }
   };
 
-  const handleDeleteItem = (id: string) => {
-    if (!firestore) return;
-    deleteDoc(doc(firestore, 'menu', id)).catch(() => {
+  
+  const handleDeleteItem = async (id: string) => {
+    try {
+      const { initializeApp, getApps, getApp } = await import('firebase/app');
+      const { getFirestore, doc, deleteDoc } = await import('firebase/firestore');
+      
+      const config = {
+        apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
+        authDomain: "coffee-f4bc1.firebaseapp.com",
+        projectId: "coffee-f4bc1",
+        storageBucket: "coffee-f4bc1.firebasestorage.app",
+        messagingSenderId: "847730890494",
+        appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
+        measurementId: "G-3XN7LXDTJJ"
+      };
+      
+      const app = getApps().length > 0 ? getApp() : initializeApp(config);
+      const firestore = getFirestore(app);
+      
+      await deleteDoc(doc(firestore, 'menu', id));
+      
+      // Обновляем локальный список
+      setMenuItems(prev => prev.filter(item => item.id !== id));
+      toast({ title: 'Удалено', description: 'Товар успешно удален.' });
+    } catch (error) {
       toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось удалить товар.' });
+    }
+  };
+
+  const handleEditItem = (item: any) => {
+    console.log('Edit button clicked for item:', item);
+    setEditingItem(item);
+    
+    // Переключаем на вкладку редактирования
+    setTimeout(() => {
+      const editTab = document.querySelector('[value="edit"]') as HTMLElement;
+      if (editTab && !editTab.disabled) {
+        editTab.click();
+        console.log('Switched to edit tab');
+      }
+    }, 100);
+  };
+
+  const handleUpdateItem = async (id: string, data: any) => {
+    try {
+      const { initializeApp, getApps, getApp } = await import('firebase/app');
+      const { getFirestore, doc, updateDoc } = await import('firebase/firestore');
+      
+      const config = {
+        apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
+        authDomain: "coffee-f4bc1.firebaseapp.com",
+        projectId: "coffee-f4bc1",
+        storageBucket: "coffee-f4bc1.firebasestorage.app",
+        messagingSenderId: "847730890494",
+        appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
+        measurementId: "G-3XN7LXDTJJ"
+      };
+      
+      const app = getApps().length > 0 ? getApp() : initializeApp(config);
+      const firestore = getFirestore(app);
+      
+      const updatedItem = {
+        ...data,
+        rating: 5.0,
+        time: "5 мин"
+      };
+      
+      await updateDoc(doc(firestore, 'menu', id), updatedItem);
+      
+      // Обновляем локальный список
+      setMenuItems(prev => prev.map(item => 
+        item.id === id ? { ...item, ...updatedItem } : item
+      ));
+      
+      toast({ title: 'Обновлено', description: 'Товар успешно обновлен.' });
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось обновить товар.' });
+    }
+  };
+
+  const parseSizes = (sizesString: string): { [key: string]: number } => {
+    if (!sizesString) return {};
+    
+    const sizes: { [key: string]: number } = {};
+    sizesString.split(',').forEach(size => {
+      const [name, price] = size.trim().split(':');
+      if (name && price) {
+        sizes[name.trim()] = Number(price.trim());
+      }
     });
+    return sizes;
   };
 
   if (authLoading) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>;
@@ -126,15 +289,7 @@ export default function AdminPage() {
             <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">Используется Firebase Auth</p>
           </CardHeader>
 
-          {!auth && (
-             <div className="bg-destructive/10 p-3 rounded-xl flex gap-2 items-start border border-destructive/20">
-               <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-               <p className="text-[10px] text-destructive leading-tight font-medium">
-                 Внимание: Firebase не настроен. Пожалуйста, убедитесь, что вы добавили ключи в src/firebase/config.ts.
-               </p>
-             </div>
-          )}
-
+          
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-1.5">
               <Label className="text-[10px] font-bold uppercase tracking-widest ml-1">Email (Firebase)</Label>
@@ -166,7 +321,7 @@ export default function AdminPage() {
             </div>
             <Button 
               type="submit" 
-              disabled={isSigningIn || !auth}
+              disabled={isSigningIn}
               className="w-full h-12 rounded-xl font-bold transition-all active:scale-95 shadow-lg shadow-primary/20"
             >
               {isSigningIn ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : "Войти"}
@@ -223,9 +378,6 @@ export default function AdminPage() {
             <h2 className="text-xl font-bold">Управление меню</h2>
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Активных позиций в облаке: {menuItems?.length || 0}</p>
           </div>
-          <Button onClick={handleMigrate} disabled={isMigrating} size="sm" className="rounded-xl h-10 px-5 gap-2 shadow-sm">
-            <Database className="w-4 h-4" /> {isMigrating ? 'Загрузка...' : 'Наполнить базу данных'}
-          </Button>
         </div>
 
         <Tabs defaultValue="items" className="w-full">
@@ -238,25 +390,17 @@ export default function AdminPage() {
             {menuLoading ? (
               <div className="flex flex-col items-center justify-center py-20"><Loader2 className="animate-spin text-primary" /></div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-3">
                 {menuItems?.map(item => (
-                  <div key={item.id} className="flex items-center justify-between p-4 rounded-2xl bg-card border shadow-sm group hover:border-primary/20 transition-all">
-                    <div className="flex gap-3 items-center">
-                      <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center text-primary font-bold text-[10px] uppercase">
-                        {item.category.substring(0, 3)}
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-sm leading-tight">{item.name}</h4>
-                        <p className="text-xs font-bold text-primary">{item.price} сум</p>
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive h-8 w-8" onClick={() => handleDeleteItem(item.id)}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
+                  <EditableProductCard
+                    key={item.id}
+                    item={item}
+                    onUpdate={handleUpdateItem}
+                    onDelete={handleDeleteItem}
+                  />
                 ))}
                 {menuItems?.length === 0 && (
-                  <div className="col-span-full py-12 text-center text-muted-foreground">
+                  <div className="py-12 text-center text-muted-foreground">
                     База данных пуста. Нажмите кнопку выше, чтобы добавить базовые товары.
                   </div>
                 )}
@@ -265,53 +409,39 @@ export default function AdminPage() {
           </TabsContent>
 
           <TabsContent value="add" className="mt-6">
-            <Card className="p-6 sm:p-8 rounded-3xl border shadow-lg bg-card">
-              <form className="space-y-5" onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
+            <AddProductForm onAdd={async (data) => {
+              try {
+                const { initializeApp, getApps, getApp } = await import('firebase/app');
+                const { getFirestore, doc, setDoc } = await import('firebase/firestore');
+                
+                const config = {
+                  apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
+                  authDomain: "coffee-f4bc1.firebaseapp.com",
+                  projectId: "coffee-f4bc1",
+                  storageBucket: "coffee-f4bc1.firebasestorage.app",
+                  messagingSenderId: "847730890494",
+                  appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
+                  measurementId: "G-3XN7LXDTJJ"
+                };
+                
+                const app = getApps().length > 0 ? getApp() : initializeApp(config);
+                const firestore = getFirestore(app);
+                
                 const newItem = {
                   id: `item-${Date.now()}`,
-                  name: formData.get('name') as string,
-                  category: formData.get('category') as string,
-                  price: Number(formData.get('price')),
-                  description: formData.get('description') as string,
-                  ingredients: (formData.get('ingredients') as string).split(',').map(i => i.trim()),
+                  ...data,
                   rating: 5.0,
                   time: "5 мин"
                 };
-                if (firestore) {
-                  setDoc(doc(firestore, 'menu', newItem.id), newItem);
-                  toast({ title: 'Добавлено', description: 'Новый товар успешно создан в облаке.' });
-                  (e.target as HTMLFormElement).reset();
-                }
-              }}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] font-bold uppercase tracking-widest ml-1">Название</Label>
-                    <Input name="name" required className="rounded-xl h-11 bg-muted/50 border-none" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] font-bold uppercase tracking-widest ml-1">Категория</Label>
-                    <Input name="category" placeholder="coffee, mojito, tea..." required className="rounded-xl h-11 bg-muted/50 border-none" />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest ml-1">Цена (сум)</Label>
-                  <Input name="price" type="number" required className="rounded-xl h-11 bg-muted/50 border-none" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest ml-1">Описание</Label>
-                  <Input name="description" className="rounded-xl h-11 bg-muted/50 border-none" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest ml-1">Ингредиенты (через запятую)</Label>
-                  <Input name="ingredients" placeholder="Молоко, Кофе, Сахар" className="rounded-xl h-11 bg-muted/50 border-none" />
-                </div>
-                <Button type="submit" className="w-full rounded-xl h-12 font-bold gap-2 shadow-lg shadow-primary/10">
-                  <Plus className="w-4 h-4" /> СОЗДАТЬ ТОВАР
-                </Button>
-              </form>
-            </Card>
+                
+                await setDoc(doc(firestore, 'menu', newItem.id), newItem);
+                
+                setMenuItems(prev => [...prev, newItem]);
+                toast({ title: 'Добавлено', description: 'Новый товар успешно создан.' });
+              } catch (error) {
+                toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось создать товар.' });
+              }
+            }} />
           </TabsContent>
         </Tabs>
       </main>
