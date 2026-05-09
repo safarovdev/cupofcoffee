@@ -1,13 +1,13 @@
-
 "use client";
 
 import { useState, useMemo } from "react";
-import { ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
+import { ChevronRight, ArrowLeft, Loader2, Database } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { useFirestore, useCollection } from "@/firebase";
 import { collection } from "firebase/firestore";
+import Link from "next/link";
 
 export type MenuItem = {
   id: string;
@@ -32,6 +32,13 @@ const CATEGORIES = [
   { id: "ice-cream", name: "Мороженое" },
 ];
 
+const FALLBACK_MENU: MenuItem[] = [
+  { id: "c1", name: "Эспрессо", category: "coffee", description: "Классический крепкий кофе.", ingredients: ["Кофе"], price: 15000, rating: 4.9, time: "3 мин" },
+  { id: "c2", name: "Американо", category: "coffee", description: "Эспрессо с горячей водой.", ingredients: ["Кофе", "Вода"], price: 20000, rating: 4.7, time: "4 мин" },
+  { id: "c3", name: "Капучино", category: "coffee", description: "Кофе с молочной пенкой.", ingredients: ["Кофе", "Молоко"], price: 25000, rating: 4.8, time: "5 мин" },
+  { id: "m1", name: "Мохито", category: "mojito", description: "Лайм, мята и содовая.", ingredients: ["Лайм", "Мята", "Содовая"], price: 35000, rating: 4.9, time: "5 мин" },
+];
+
 export function Menu() {
   const { searchQuery } = useCart();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -44,8 +51,14 @@ export function Menu() {
 
   const { data: menuItems, loading } = useCollection(menuQuery);
 
-  const applyFilters = (items: MenuItem[]) => {
-    return items.filter(item => {
+  const items = useMemo(() => {
+    if (loading) return [];
+    if (!menuItems || menuItems.length === 0) return FALLBACK_MENU;
+    return menuItems as MenuItem[];
+  }, [menuItems, loading]);
+
+  const applyFilters = (itemList: MenuItem[]) => {
+    return itemList.filter(item => {
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         return item.name.toLowerCase().includes(q) || 
@@ -55,14 +68,23 @@ export function Menu() {
     });
   };
 
-  if (loading) return (
+  if (loading && !menuItems) return (
     <div className="h-64 flex flex-col items-center justify-center space-y-4 text-muted-foreground">
       <Loader2 className="w-8 h-8 animate-spin" />
       <p className="text-sm font-bold uppercase tracking-widest">Загрузка меню...</p>
     </div>
   );
 
-  const items = menuItems || [];
+  if (items.length === 0) {
+    return (
+      <div className="text-center py-20 space-y-4">
+        <p className="text-muted-foreground">Меню пока пусто.</p>
+        <Button asChild variant="outline" className="rounded-full">
+          <Link href="/admin">Перейти в админку</Link>
+        </Button>
+      </div>
+    );
+  }
 
   if (activeCategory && !searchQuery) {
     const categoryName = CATEGORIES.find(c => c.id === activeCategory)?.name || "";
@@ -100,6 +122,16 @@ export function Menu() {
 
   return (
     <div className="space-y-8 md:space-y-12 pb-12">
+      {!menuItems || menuItems.length === 0 ? (
+        <div className="bg-accent/10 border border-accent/20 p-4 rounded-2xl flex items-center justify-between gap-4 mx-4">
+          <div className="flex items-center gap-3">
+            <Database className="w-5 h-5 text-accent" />
+            <p className="text-xs font-medium">Вы видите демо-меню. Подключите базу данных в админке.</p>
+          </div>
+          <Link href="/admin" className="text-xs font-bold underline text-primary">Перейти</Link>
+        </div>
+      ) : null}
+
       {searchQuery ? (
         <section className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 px-1">
