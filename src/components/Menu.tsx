@@ -130,14 +130,14 @@ export function Menu() {
   if (loading && !menuItems) return (
     <div className="h-64 flex flex-col items-center justify-center space-y-4 text-muted-foreground">
       <Loader2 className="w-8 h-8 animate-spin" />
-      <p className="text-sm font-bold uppercase tracking-widest">Загрузка меню...</p>
+      <p className="text-sm font-bold uppercase tracking-widest">Загрузка cupofcoffee...</p>
     </div>
   );
 
   if (items.length === 0) {
     return (
       <div className="text-center py-20 space-y-4">
-        <p className="text-muted-foreground">Меню загружается...</p>
+        <p className="text-muted-foreground">cupofcoffee загружается...</p>
         <div className="flex justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
@@ -168,7 +168,7 @@ export function Menu() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4 sm:px-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 px-4 sm:px-6">
           {filteredItems.map((item) => (
             <div key={item.id} className="animate-in fade-in slide-in-from-bottom-2 duration-500">
               <ProductCard item={item} />
@@ -185,7 +185,7 @@ export function Menu() {
         <div className="bg-accent/10 border border-accent/20 p-4 rounded-2xl flex items-center justify-between gap-4 mx-4">
           <div className="flex items-center gap-3">
             <Database className="w-5 h-5 text-accent" />
-            <p className="text-xs font-medium">Вы видите демо-меню. Подключите базу данных в админке.</p>
+            <p className="text-xs font-medium">Вы видите демо-меню cupofcoffee. Подключите базу данных в админке.</p>
           </div>
           <Link href="/admin" className="text-xs font-bold underline text-primary">Перейти</Link>
         </div>
@@ -224,16 +224,16 @@ export function Menu() {
                 </div>
                 
                 <div className="relative overflow-visible">
-                  <div className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar py-4 px-4 sm:px-1 scroll-smooth">
+                  <div className="flex gap-3 sm:gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar py-3 px-4 sm:px-6 scroll-smooth">
                     {catItems.map((item) => (
                       <div 
                         key={item.id} 
-                        className="w-[calc(100vw-64px)] sm:w-[320px] md:w-[340px] flex-shrink-0 snap-center"
+                        className="w-[280px] sm:w-[300px] md:w-[320px] flex-shrink-0 snap-center"
                       >
                         <ProductCard item={item} />
                       </div>
                     ))}
-                    <div className="min-w-[16px] sm:min-w-[24px] flex-shrink-0" />
+                    <div className="min-w-[12px] sm:min-w-[16px] flex-shrink-0" />
                   </div>
                 </div>
               </section>

@@ -14,6 +14,7 @@ import { Trash2, Plus, Minus, ShoppingCart, Coffee, Wine, IceCream, Beaker, Cook
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 function TinyPlaceholder({ category }: { category: string }) {
   const getIcon = () => {
@@ -40,13 +41,20 @@ function TinyPlaceholder({ category }: { category: string }) {
 export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { cart, removeFromCart, updateQuantity, totalPrice, clearCart } = useCart();
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleCheckout = () => {
-    toast({
-      title: "Заказ оформлен!",
-      description: "Мы уже начали готовить ваш заказ.",
-    });
-    clearCart();
+    if (cart.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Корзина пуста",
+        description: "Добавьте товары перед оформлением заказа",
+      });
+      return;
+    }
+    
+    // Переходим на страницу оформления заказа
+    router.push('/checkout');
     onClose();
   };
 

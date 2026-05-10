@@ -146,10 +146,14 @@ export default function CartPage() {
                     <span>{totalPrice} сум</span>
                   </div>
                 </div>
-                <Button onClick={handleCheckout} className="w-full rounded-2xl h-14 font-bold text-lg shadow-lg shadow-primary/20 mt-4 gap-3">
-                  <CreditCard className="w-5 h-5" />
-                  Оплатить {totalPrice} сум
-                </Button>
+                <div className="text-center text-muted-foreground">
+                  <p className="text-sm">Для оформления заказа вернитесь в главное меню</p>
+                  <Button asChild className="mt-4">
+                    <Link href="/" className="rounded-2xl h-12 font-bold text-base">
+                      Вернуться в меню
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

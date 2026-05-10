@@ -3,10 +3,11 @@ import './globals.css';
 import { CartProvider } from '@/context/CartContext';
 import { Toaster } from '@/components/ui/toaster';
 import { BottomNav } from '@/components/BottomNav';
+import { AdminBottomNav } from '@/components/AdminBottomNav';
 import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
-  title: 'Cup Of Coffee - Идеальный кофе для вас',
+  title: 'cupofcoffee - Идеальный кофе для вас',
   description: 'Лучший кофе, чай и десерты в уютной атмосфере.',
 };
 
@@ -27,6 +28,7 @@ export default function RootLayout({
           <CartProvider>
             {children}
             <BottomNav />
+            <AdminBottomNav />
             <Toaster />
           </CartProvider>
         </FirebaseClientProvider>

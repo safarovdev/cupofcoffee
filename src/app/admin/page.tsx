@@ -5,16 +5,18 @@ import { useState, useEffect } from 'react';
 import { useAuth, useFirestore, useUser, useCollection } from '@/firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { collection, doc, setDoc, deleteDoc, getDoc, writeBatch } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ShieldAlert, Plus, Trash2, LogOut, Loader2, Database, AlertCircle, KeyRound, Mail, AlertTriangle, Edit } from 'lucide-react';
+import { ShieldAlert, Plus, Trash2, LogOut, Loader2, Database, AlertCircle, KeyRound, Mail, AlertTriangle, Edit, ShoppingCart, Users, Settings, Home, Clock, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CategorySelector } from '@/components/CategorySelector';
 import { EditableProductCard } from '@/components/EditableProductCard';
 import { AddProductForm } from '@/components/AddProductForm';
+import Link from 'next/link';
 
 
 export default function AdminPage() {
@@ -32,6 +34,71 @@ export default function AdminPage() {
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [menuLoading, setMenuLoading] = useState(true);
   const [editingItem, setEditingItem] = useState<any>(null);
+
+  // Статистика для дашборда - упрощенная
+  const [stats, setStats] = useState({
+    newOrders: 0,
+    totalOrders: 0,
+    staffCount: 0
+  });
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      console.log('Loading admin stats...');
+      try {
+        const { initializeApp, getApps, getApp } = await import('firebase/app');
+        const { getFirestore, collection, getDocs } = await import('firebase/firestore');
+        
+        const config = {
+          apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
+          authDomain: "coffee-f4bc1.firebaseapp.com",
+          projectId: "coffee-f4bc1",
+          storageBucket: "coffee-f4bc1.firebasestorage.app",
+          messagingSenderId: "847730890494",
+          appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
+          measurementId: "G-3XN7LXDTJJ"
+        };
+        
+        const app = getApps().length > 0 ? getApp() : initializeApp(config);
+        const firestore = getFirestore(app);
+
+        // Загружаем заказы
+        console.log('Fetching orders...');
+        const ordersSnapshot = await getDocs(collection(firestore, 'orders'));
+        console.log('Orders fetched:', ordersSnapshot.size);
+        const orders = ordersSnapshot.docs.map(doc => doc.data());
+        const newOrders = orders.filter(o => o.status === 'pending').length;
+        const totalOrders = orders.length;
+
+        // Загружаем персонал
+        console.log('Fetching staff...');
+        const staffSnapshot = await getDocs(collection(firestore, 'staff'));
+        console.log('Staff fetched:', staffSnapshot.size);
+        const staffCount = staffSnapshot.docs.length;
+
+        console.log('Stats loaded:', { newOrders, totalOrders, staffCount });
+
+        setStats({
+          newOrders,
+          totalOrders,
+          staffCount
+        });
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      } finally {
+        // Всегда сбрасываем загрузку, даже при ошибке
+        setStatsLoading(false);
+      }
+    };
+
+    // Загружаем статистику сразу
+    loadStats();
+    
+    // Обновляем статистику каждые 10 секунд
+    const interval = setInterval(loadStats, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const loadMenuItems = async () => {
@@ -137,27 +204,42 @@ export default function AdminPage() {
         measurementId: "G-3XN7LXDTJJ"
       };
       
-      const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-      const authInstance = getAuth(app);
+      const app = getApps().length > 0 ? getApp() : initializeApp(config);
+      const auth = getAuth(app);
       
-      await signInWithEmailAndPassword(authInstance, email, password);
-      toast({ title: 'Вход выполнен', description: 'Добро пожаловать в AromaFlow Admin.' });
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Проверяем, является ли пользователь администратором
+      const { getFirestore, doc, getDoc } = await import('firebase/firestore');
+      const firestore = getFirestore(app);
+      const adminDocRef = doc(firestore, 'admins', userCredential.user.uid);
+      const adminDoc = await getDoc(adminDocRef);
+      setIsAdmin(adminDoc.exists());
+      
+      toast({ title: 'Успешный вход', description: 'Добро пожаловать в админ-панель!' });
     } catch (error: any) {
-      console.error("Login error:", error.code, error.message);
-      let message = "Неверный логин или пароль.";
-      if (error.code === 'auth/invalid-api-key') message = "Недействительный API ключ Firebase.";
-      if (error.code === 'auth/network-request-failed') message = "Ошибка сети. Проверьте соединение.";
-      if (error.code === 'auth/configuration-not-found') message = "Firebase Auth не настроен. Включите Email/Password в Firebase Console.";
-      if (error.code === 'auth/user-not-found') message = "Пользователь не найден. Сначала создайте администратора.";
-      if (error.code === 'auth/wrong-password') message = "Неверный пароль.";
-      
-      toast({ 
-        variant: 'destructive', 
-        title: 'Ошибка входа', 
-        description: message 
-      });
-    } finally {
+      console.error('Login error:', error);
       setIsSigningIn(false);
+      
+      if (error.code === 'auth/configuration-not-found') {
+        toast({ 
+          variant: 'destructive', 
+          title: 'Ошибка конфигурации Firebase', 
+          description: 'Email/password authentication не включена в Firebase Console. Включите в разделе Authentication → Sign-in method.' 
+        });
+      } else if (error.code === 'auth/invalid-credential') {
+        toast({ 
+          variant: 'destructive', 
+          title: 'Неверные данные', 
+          description: 'Проверьте email и пароль.' 
+        });
+      } else {
+        toast({ 
+          variant: 'destructive', 
+          title: 'Ошибка входа', 
+          description: error.message || 'Произошла ошибка при входе.' 
+        });
+      }
     }
   };
 
@@ -361,89 +443,153 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-20">
       <header className="bg-card/80 backdrop-blur-md border-b p-4 sticky top-0 z-50 flex justify-between items-center px-6">
         <div className="flex items-center gap-2">
           <ShieldAlert className="w-5 h-5 text-primary" />
-          <h1 className="font-bold text-lg uppercase tracking-tight">AromaFlow <span className="text-primary">Admin</span></h1>
+          <h1 className="font-bold text-lg uppercase tracking-tight">cupofcoffee <span className="text-primary">Admin</span></h1>
         </div>
         <Button onClick={handleLogout} variant="ghost" size="sm" className="rounded-full h-9 px-4 text-muted-foreground hover:text-destructive gap-2">
           <LogOut className="w-4 h-4" /> Выход
         </Button>
       </header>
 
-      <main className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-accent/5 p-6 rounded-3xl border border-accent/10">
-          <div>
-            <h2 className="text-xl font-bold">Управление меню</h2>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Активных позиций в облаке: {menuItems?.length || 0}</p>
-          </div>
-        </div>
-
-        <Tabs defaultValue="items" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 rounded-2xl p-1 bg-muted h-12">
-            <TabsTrigger value="items" className="rounded-xl font-bold text-xs">Все товары</TabsTrigger>
-            <TabsTrigger value="add" className="rounded-xl font-bold text-xs">Добавить новый</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="items" className="mt-6 space-y-3">
-            {menuLoading ? (
-              <div className="flex flex-col items-center justify-center py-20"><Loader2 className="animate-spin text-primary" /></div>
-            ) : (
-              <div className="space-y-3">
-                {menuItems?.map(item => (
-                  <EditableProductCard
-                    key={item.id}
-                    item={item}
-                    onUpdate={handleUpdateItem}
-                    onDelete={handleDeleteItem}
-                  />
-                ))}
-                {menuItems?.length === 0 && (
-                  <div className="py-12 text-center text-muted-foreground">
-                    База данных пуста. Нажмите кнопку выше, чтобы добавить базовые товары.
+      <main className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
+        {/* Статистика */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <Card className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Новые заказы</p>
+                {statsLoading ? (
+                  <div className="h-8 flex items-center">
+                    <Loader2 className="w-5 h-5 text-yellow-600 animate-spin" />
                   </div>
+                ) : (
+                  <p className="text-2xl font-bold text-yellow-600">{stats.newOrders}</p>
                 )}
               </div>
-            )}
-          </TabsContent>
+              <div className="bg-yellow-100 p-2 rounded-full">
+                <Clock className="w-5 h-5 text-yellow-600" />
+              </div>
+            </div>
+          </Card>
+          
+          <Card className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Всего заказов</p>
+                {statsLoading ? (
+                  <div className="h-8 flex items-center">
+                    <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                  </div>
+                ) : (
+                  <p className="text-2xl font-bold text-blue-600">{stats.totalOrders}</p>
+                )}
+              </div>
+              <div className="bg-blue-100 p-2 rounded-full">
+                <ShoppingCart className="w-5 h-5 text-blue-600" />
+              </div>
+            </div>
+          </Card>
+          
+          <Card className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Сотрудники</p>
+                {statsLoading ? (
+                  <div className="h-8 flex items-center">
+                    <Loader2 className="w-5 h-5 text-purple-600 animate-spin" />
+                  </div>
+                ) : (
+                  <p className="text-2xl font-bold text-purple-600">{stats.staffCount}</p>
+                )}
+              </div>
+              <div className="bg-purple-100 p-2 rounded-full">
+                <Users className="w-5 h-5 text-purple-600" />
+              </div>
+            </div>
+          </Card>
+        </div>
 
-          <TabsContent value="add" className="mt-6">
-            <AddProductForm onAdd={async (data) => {
-              try {
-                const { initializeApp, getApps, getApp } = await import('firebase/app');
-                const { getFirestore, doc, setDoc } = await import('firebase/firestore');
-                
-                const config = {
-                  apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
-                  authDomain: "coffee-f4bc1.firebaseapp.com",
-                  projectId: "coffee-f4bc1",
-                  storageBucket: "coffee-f4bc1.firebasestorage.app",
-                  messagingSenderId: "847730890494",
-                  appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
-                  measurementId: "G-3XN7LXDTJJ"
-                };
-                
-                const app = getApps().length > 0 ? getApp() : initializeApp(config);
-                const firestore = getFirestore(app);
-                
-                const newItem = {
-                  id: `item-${Date.now()}`,
-                  ...data,
-                  rating: 5.0,
-                  time: "5 мин"
-                };
-                
-                await setDoc(doc(firestore, 'menu', newItem.id), newItem);
-                
-                setMenuItems(prev => [...prev, newItem]);
-                toast({ title: 'Добавлено', description: 'Новый товар успешно создан.' });
-              } catch (error) {
-                toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось создать товар.' });
-              }
-            }} />
-          </TabsContent>
-        </Tabs>
+        {/* Навигационные карточки */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Link href="/admin/menu">
+            <Card className="hover:shadow-lg transition-all cursor-pointer group">
+              <CardHeader className="text-center">
+                <div className="bg-primary/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
+                  <Home className="w-8 h-8 text-primary" />
+                </div>
+                <CardTitle className="text-xl">Меню</CardTitle>
+                <p className="text-muted-foreground text-sm">Просмотр и управление меню как у клиентов</p>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link href="/admin/orders">
+            <Card className="hover:shadow-lg transition-all cursor-pointer group">
+              <CardHeader className="text-center">
+                <div className="bg-green-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors">
+                  <ShoppingCart className="w-8 h-8 text-green-600" />
+                </div>
+                <CardTitle className="text-xl">Заказы</CardTitle>
+                <p className="text-muted-foreground text-sm">Управление заказами клиентов</p>
+                {stats.newOrders > 0 && (
+                  <div className="inline-flex items-center bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mt-2">
+                    {stats.newOrders} новых
+                  </div>
+                )}
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link href="/admin/staff">
+            <Card className="hover:shadow-lg transition-all cursor-pointer group">
+              <CardHeader className="text-center">
+                <div className="bg-purple-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors">
+                  <Users className="w-8 h-8 text-purple-600" />
+                </div>
+                <CardTitle className="text-xl">Персонал</CardTitle>
+                <p className="text-muted-foreground text-sm">Управление официантами</p>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link href="/admin/settings">
+            <Card className="hover:shadow-lg transition-all cursor-pointer group">
+              <CardHeader className="text-center">
+                <div className="bg-amber-100 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-200 transition-colors">
+                  <Settings className="w-8 h-8 text-amber-600" />
+                </div>
+                <CardTitle className="text-xl">Товары</CardTitle>
+                <p className="text-muted-foreground text-sm">Управление меню и товарами</p>
+              </CardHeader>
+            </Card>
+          </Link>
+        </div>
+
+        {/* Быстрые действия */}
+        <div className="bg-accent/5 p-6 rounded-3xl border border-accent/10">
+          <h2 className="text-xl font-bold mb-4">Быстрые действия</h2>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/admin/orders">
+              <Button className="rounded-xl">
+                {stats.newOrders > 0 && (
+                  <span className="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full mr-2">
+                    {stats.newOrders}
+                  </span>
+                )}
+                Посмотреть заказы
+              </Button>
+            </Link>
+            <Link href="/admin/menu">
+              <Button variant="outline" className="rounded-xl">Сделать заказ</Button>
+            </Link>
+            <Link href="/admin/staff">
+              <Button variant="outline" className="rounded-xl">Управление персоналом</Button>
+            </Link>
+          </div>
+        </div>
       </main>
     </div>
   );

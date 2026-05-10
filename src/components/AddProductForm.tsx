@@ -30,11 +30,8 @@ export function AddProductForm({ onAdd }: AddProductFormProps) {
   const [formData, setFormData] = useState({
     name: '',
     price: '',
-    description: '',
-    category: '',
-    sizes: ''
+    category: ''
   });
-  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,10 +43,7 @@ export function AddProductForm({ onAdd }: AddProductFormProps) {
     const productData = {
       name: formData.name,
       price: Number(formData.price),
-      description: formData.description,
-      category: formData.category,
-      ingredients: [],
-      sizes: parseSizes(formData.sizes)
+      category: formData.category
     };
 
     onAdd(productData);
@@ -58,50 +52,10 @@ export function AddProductForm({ onAdd }: AddProductFormProps) {
     setFormData({
       name: '',
       price: '',
-      description: '',
-      category: '',
-      sizes: ''
-    });
-    setSelectedSizes([]);
-  };
-
-  const parseSizes = (sizesString: string): { [key: string]: number } => {
-    if (!sizesString) return {};
-    
-    const sizes: { [key: string]: number } = {};
-    sizesString.split(',').forEach(size => {
-      const [name, price] = size.trim().split(':');
-      if (name && price) {
-        sizes[name.trim()] = Number(price.trim());
-      }
-    });
-    return sizes;
-  };
-
-  const toggleSize = (size: string) => {
-    setSelectedSizes(prev => {
-      const newSizes = prev.includes(size) 
-        ? prev.filter(s => s !== size)
-        : [...prev, size];
-      
-      // Обновляем строку размеров
-      const newSizesString = newSizes.map(s => {
-        const currentSizes = parseSizes(formData.sizes);
-        return `${s}:${currentSizes[s] || 0}`;
-      }).join(', ');
-      
-      setFormData(prev => ({ ...prev, sizes: newSizesString }));
-      return newSizes;
+      category: ''
     });
   };
 
-  const updateSizePrice = (size: string, price: string) => {
-    const currentSizes = parseSizes(formData.sizes);
-    currentSizes[size] = Number(price);
-    
-    const newSizesString = selectedSizes.map(s => `${s}:${currentSizes[s] || 0}`).join(', ');
-    setFormData(prev => ({ ...prev, sizes: newSizesString }));
-  };
 
   return (
     <div className="p-6 sm:p-8 rounded-3xl border shadow-lg bg-card">
@@ -148,51 +102,6 @@ export function AddProductForm({ onAdd }: AddProductFormProps) {
             </div>
           </div>
 
-          <div>
-            <Label className="text-[10px] font-bold uppercase tracking-widest ml-1">Описание</Label>
-            <Input 
-              value={formData.description} 
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Описание товара"
-              className="rounded-xl h-11 bg-muted/50 border-none"
-            />
-          </div>
-
-          <div>
-            <Label className="text-[10px] font-bold uppercase tracking-widest ml-1">Размеры (опционально)</Label>
-            <div className="space-y-2">
-              <div className="flex flex-wrap gap-1">
-                {SIZE_OPTIONS.map(size => (
-                  <Button
-                    key={size}
-                    type="button"
-                    size="sm"
-                    variant={selectedSizes.includes(size) ? "default" : "outline"}
-                    onClick={() => toggleSize(size)}
-                    className="h-7 px-2 text-xs"
-                  >
-                    {size}
-                  </Button>
-                ))}
-              </div>
-              {selectedSizes.length > 0 && (
-                <div className="space-y-1">
-                  {selectedSizes.map(size => (
-                    <div key={size} className="flex items-center gap-2">
-                      <Label className="text-xs w-16">{size}:</Label>
-                      <Input 
-                        type="number"
-                        placeholder="Цена"
-                        value={parseSizes(formData.sizes)[size] || ''}
-                        onChange={(e) => updateSizePrice(size, e.target.value)}
-                        className="rounded-lg h-7 bg-muted/50 border-none text-xs flex-1"
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
         </div>
 
         <Button type="submit" className="w-full rounded-xl h-12 font-bold gap-2 shadow-lg shadow-primary/10">

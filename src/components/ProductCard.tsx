@@ -60,39 +60,39 @@ export function ProductCard({ item }: ProductCardProps) {
         onClick={() => setIsModalOpen(true)}
         className="group relative flex flex-col gap-3 cursor-pointer select-none active:scale-[0.98] transition-transform"
       >
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[2rem] bg-muted shadow-inner">
+        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[1rem] bg-muted shadow-inner">
           <ItemPlaceholder category={item.category} />
           
           <button 
             onClick={handleQuickAdd}
-            className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm p-2.5 rounded-full shadow-lg text-primary hover:scale-110 transition-transform active:scale-90"
+            className="absolute bottom-2 right-2 bg-white/95 backdrop-blur-sm p-2 rounded-full shadow-lg text-primary hover:scale-110 transition-transform active:scale-90"
           >
-            <Plus className="w-5 h-5 stroke-[3]" />
+            <Plus className="w-4 h-4 stroke-[2.5]" />
           </button>
         </div>
 
-        <div className="px-1 space-y-1">
+        <div className="px-2 space-y-2">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="text-base font-bold text-foreground leading-tight truncate">
+            <h3 className="text-sm font-bold text-foreground leading-tight truncate">
               {item.name}
             </h3>
-            <span className="text-base font-bold whitespace-nowrap text-primary">
+            <span className="text-sm font-bold whitespace-nowrap text-primary">
               {item.sizes ? `от ${item.price}` : item.price} сум
             </span>
           </div>
 
-          <div className="flex items-center gap-3 text-[13px] text-muted-foreground font-medium">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
             <div className="flex items-center gap-1">
-              <Star className="w-3.5 h-3.5 fill-current text-primary" />
+              <Star className="w-3 h-3 fill-current text-primary" />
               <span className="text-foreground">{item.rating}</span>
             </div>
             <div className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
+              <Clock className="w-3 h-3" />
               <span>{item.time}</span>
             </div>
           </div>
           {item.sizes && (
-            <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest pt-1">
+            <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest pt-1">
               Доступны разные объемы
             </div>
           )}
