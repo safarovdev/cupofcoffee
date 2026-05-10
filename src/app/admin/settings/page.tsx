@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -64,10 +65,12 @@ export default function AdminProductsPage() {
   const handleUpdateItem = async (data: any) => {
     if (!firestore || !editingItem) return;
     try {
+      // При обновлении используем ID редактируемого элемента
       await setDoc(doc(firestore, 'menu', editingItem.id), data, { merge: true });
       setEditingItem(null);
-      toast({ title: 'Товар обновлен' });
+      toast({ title: 'Товар успешно обновлен' });
     } catch (error) {
+      console.error('Update error:', error);
       toast({ variant: 'destructive', title: 'Ошибка обновления' });
     }
   };
@@ -75,7 +78,7 @@ export default function AdminProductsPage() {
   const handleAddItem = async (data: any) => {
     if (!firestore) return;
     try {
-      const id = data.id || `item-${Date.now()}`;
+      const id = `item-${Date.now()}`;
       await setDoc(doc(firestore, 'menu', id), {
         ...data,
         rating: 5.0,
@@ -177,7 +180,7 @@ export default function AdminProductsPage() {
           <DialogHeader className="p-8 bg-primary text-white">
             <DialogTitle className="text-2xl font-black uppercase tracking-tighter">НОВАЯ ПОЗИЦИЯ</DialogTitle>
           </DialogHeader>
-          <div className="p-6 sm:p-10">
+          <div className="p-6 sm:p-10 max-h-[80vh] overflow-y-auto no-scrollbar">
             <AddProductForm onSave={handleAddItem} />
           </div>
         </DialogContent>
@@ -188,7 +191,7 @@ export default function AdminProductsPage() {
           <DialogHeader className="p-8 bg-primary text-white">
             <DialogTitle className="text-2xl font-black uppercase tracking-tighter">ИЗМЕНЕНИЕ ТОВАРА</DialogTitle>
           </DialogHeader>
-          <div className="p-6 sm:p-10">
+          <div className="p-6 sm:p-10 max-h-[80vh] overflow-y-auto no-scrollbar">
             {editingItem && (
               <AddProductForm 
                 onSave={handleUpdateItem} 

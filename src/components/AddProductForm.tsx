@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Save, Loader2, Flame, Image as ImageIcon, X } from 'lucide-react';
+import { Plus, Save, Loader2, Flame, Image as ImageIcon, X, Upload } from 'lucide-react';
 import Image from 'next/image';
 
 interface ProductFormProps {
@@ -79,7 +79,8 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
     }
   };
 
-  const removeImage = () => {
+  const removeImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setFormData(prev => ({ ...prev, imageUrl: '' }));
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -114,38 +115,51 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
       <div className="grid grid-cols-1 gap-4">
         {/* Блок загрузки изображения */}
         <div className="space-y-2">
-          <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Изображение товара</Label>
-          <div className="flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/20 rounded-[1.5rem] p-4 bg-muted/10">
+          <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Фото товара</Label>
+          <div 
+            onClick={() => !isUploading && fileInputRef.current?.click()}
+            className="group relative flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/20 rounded-[2rem] min-h-[180px] bg-muted/5 cursor-pointer hover:bg-muted/10 transition-all overflow-hidden"
+          >
             {formData.imageUrl ? (
-              <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-inner bg-background">
+              <div className="absolute inset-0 w-full h-full">
                 <Image 
                   src={formData.imageUrl} 
                   alt="Превью" 
                   fill 
                   className="object-cover"
                 />
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="destructive"
-                  className="absolute top-2 right-2 h-8 w-8 rounded-full shadow-lg"
-                  onClick={removeImage}
-                  disabled={isSaving || isUploading}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="rounded-full bg-white text-black hover:bg-white/90 font-bold"
+                    >
+                      <Upload className="w-3 h-3 mr-2" /> Сменить
+                    </Button>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="destructive"
+                      className="h-8 w-8 rounded-full"
+                      onClick={removeImage}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
             ) : (
-              <div 
-                onClick={() => fileInputRef.current?.click()}
-                className="flex flex-col items-center gap-2 cursor-pointer hover:opacity-70 transition-opacity py-4"
-              >
-                <div className="bg-primary/10 p-4 rounded-full text-primary">
+              <div className="flex flex-col items-center gap-3 py-8">
+                <div className="bg-primary/5 p-4 rounded-2xl text-primary transition-transform group-hover:scale-110">
                   {isUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <ImageIcon className="w-8 h-8" />}
                 </div>
-                <p className="text-[10px] font-black uppercase tracking-widest opacity-40">
-                  {isUploading ? 'Загрузка...' : 'Нажмите для выбора фото'}
-                </p>
+                <div className="text-center">
+                  <p className="text-[10px] font-black uppercase tracking-widest opacity-60">
+                    {isUploading ? 'Загрузка в облако...' : 'Нажмите для выбора'}
+                  </p>
+                  <p className="text-[8px] font-bold text-muted-foreground/50 uppercase mt-1">PNG, JPG до 5MB</p>
+                </div>
               </div>
             )}
             <input 
@@ -192,7 +206,7 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
               disabled={isSaving || isUploading}
             >
               <SelectTrigger className="rounded-xl h-11 bg-muted/50 border-none font-bold">
-                <SelectValue placeholder="Категория" />
+                <SelectValue placeholder="Выбрать" />
               </SelectTrigger>
               <SelectContent>
                 {CATEGORIES.map(cat => (
@@ -211,19 +225,19 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
             value={formData.ingredients} 
             onChange={(e) => setFormData(prev => ({ ...prev, ingredients: e.target.value }))}
             className="rounded-xl h-11 bg-muted/50 border-none font-bold"
-            placeholder="Кофе, Молоко, Сахар"
+            placeholder="Кофе, Молоко, Сахар..."
             disabled={isSaving || isUploading}
           />
         </div>
 
-        <div className="flex items-center justify-between p-4 bg-orange-50 rounded-2xl border border-orange-100 mt-2">
+        <div className="flex items-center justify-between p-4 bg-orange-50/50 rounded-2xl border border-orange-100/50 mt-2">
           <div className="flex items-center gap-3">
-            <div className="bg-orange-500 p-2 rounded-xl text-white">
+            <div className="bg-orange-500 p-2 rounded-xl text-white shadow-lg shadow-orange-200">
               <Flame className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-tight text-orange-900 leading-none mb-1">Спецпредложение</p>
-              <p className="text-[9px] text-orange-700/60 font-medium leading-none">Показать на главном баннере</p>
+              <p className="text-[10px] font-black uppercase tracking-tight text-orange-900 leading-none mb-1">Спецпредложение</p>
+              <p className="text-[8px] text-orange-700/60 font-bold uppercase leading-none">Главный баннер меню</p>
             </div>
           </div>
           <Switch 
@@ -234,7 +248,7 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
         </div>
       </div>
 
-      <Button type="submit" disabled={isSaving || isUploading} className="w-full rounded-xl h-12 font-black gap-2 shadow-lg uppercase text-xs tracking-widest">
+      <Button type="submit" disabled={isSaving || isUploading} className="w-full rounded-2xl h-14 font-black gap-2 shadow-xl uppercase text-xs tracking-widest mt-4">
         {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : (initialData ? <Save className="w-4 h-4" /> : <Plus className="w-4 h-4" />)}
         {isSaving ? 'СОХРАНЕНИЕ...' : (buttonLabel || (initialData ? 'Сохранить изменения' : 'Создать товар'))}
       </Button>
