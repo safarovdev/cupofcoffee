@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, ShoppingBasket, Search } from "lucide-react";
+import { Home, ShoppingBasket } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -16,7 +16,6 @@ export function BottomNav() {
 
   const navItems = [
     { href: "/", icon: Home, label: "Меню" },
-    { href: "/track-order", icon: Search, label: "Поиск" },
     { href: "/cart", icon: ShoppingBasket, label: "Корзина", badge: totalItems },
   ];
 
@@ -40,7 +39,7 @@ export function BottomNav() {
                 "p-1 transition-all duration-300",
                 isActive ? "scale-110" : "scale-100"
               )}>
-                <Icon className={cn("w-5 h-5", isActive ? "stroke-[2.5]" : "stroke-[2]")} />
+                <Icon className={cn("w-6 h-6", isActive ? "stroke-[2.5]" : "stroke-[2]")} />
               </div>
               <span className={cn(
                 "text-[8px] font-black uppercase tracking-[0.2em] transition-all",
@@ -50,7 +49,7 @@ export function BottomNav() {
               </span>
               
               {item.badge && item.badge > 0 && (
-                <span className="absolute top-0.5 right-2 bg-primary text-white text-[8px] w-4 h-4 flex items-center justify-center rounded-full font-black border-2 border-white shadow-sm">
+                <span className="absolute -top-1 right-2 bg-primary text-white text-[10px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full font-black border-2 border-white shadow-sm px-1">
                   {item.badge}
                 </span>
               )}

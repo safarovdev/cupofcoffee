@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { ChevronRight, ArrowLeft, Loader2, Coffee } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/context/CartContext";
 import { useFirestore } from "@/firebase";
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 
@@ -21,7 +20,6 @@ export type MenuItem = {
 };
 
 export function Menu() {
-  const { searchQuery } = useCart();
   const { firestore } = useFirestore();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -29,11 +27,16 @@ export function Menu() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!firestore) return;
+    if (!firestore) {
+      console.log("Firestore not initialized yet");
+      return;
+    }
 
+    console.log("Subscribing to menu collection...");
     const q = query(collection(firestore, 'menu'), orderBy('name', 'asc'));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
+      console.log("Snapshot received, docs:", snapshot.docs.length);
       const items = snapshot.docs.map(doc => ({ 
         id: doc.id, 
         ...doc.data() 
@@ -76,15 +79,9 @@ export function Menu() {
     return () => unsubscribe();
   }, [firestore]);
 
-  const filteredItems = menuItems.filter(item => {
-    const matchesSearch = !searchQuery || 
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      item.ingredients?.some(i => i.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesCategory = !activeCategory || item.category === activeCategory;
-    
-    return matchesSearch && matchesCategory;
-  });
+  const filteredItems = activeCategory 
+    ? menuItems.filter(item => item.category === activeCategory)
+    : menuItems;
 
   if (loading) return (
     <div className="h-[40vh] flex flex-col items-center justify-center gap-6">
@@ -97,12 +94,13 @@ export function Menu() {
     <div className="text-center py-20 px-6 space-y-4">
       <Coffee className="w-12 h-12 text-primary/10 mx-auto" />
       <p className="text-muted-foreground text-sm uppercase tracking-widest">Меню скоро обновится</p>
+      <p className="text-[10px] text-muted-foreground">Проверьте коллекцию 'menu' в Firestore</p>
     </div>
   );
 
   return (
     <div className="space-y-10 md:space-y-16 pb-20 max-w-7xl mx-auto px-6">
-      {searchQuery || activeCategory ? (
+      {activeCategory ? (
         <section className="space-y-6">
           <div className="flex items-center gap-4">
             <Button 
@@ -115,10 +113,10 @@ export function Menu() {
             </Button>
             <div className="space-y-0.5">
               <h2 className="text-2xl font-black uppercase tracking-tighter leading-none">
-                {activeCategory ? (categories.find(c => c.id === activeCategory)?.name) : "Результаты"}
+                {categories.find(c => c.id === activeCategory)?.name || "Категория"}
               </h2>
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                Найдено {filteredItems.length} позиций
+                {filteredItems.length} позиций
               </p>
             </div>
           </div>
