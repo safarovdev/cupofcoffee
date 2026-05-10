@@ -1,12 +1,12 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
-import { ChevronRight, ArrowLeft, Loader2, Coffee, AlertCircle } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { ChevronRight, ArrowLeft, Loader2, Coffee, AlertCircle, RefreshCw } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { Button } from "@/components/ui/button";
 import { useFirestore, useCollection } from "@/firebase";
-import { collection, query, orderBy, DocumentData } from 'firebase/firestore';
+import { collection, query, orderBy, DocumentData, getDocs } from 'firebase/firestore';
 
 export type MenuItem = {
   id: string;
@@ -24,17 +24,28 @@ export function Menu() {
   const { firestore } = useFirestore();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  // Используем useMemo для стабилизации запроса и предотвращения лишних ререндеров
+  // Используем максимально простой запрос без сортировки для исключения проблем с индексами
   const menuQuery = useMemo(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'menu'), orderBy('name', 'asc'));
+    return collection(firestore, 'menu');
   }, [firestore]);
 
   const { data: rawData, loading, error } = useCollection<MenuItem>(menuQuery as any);
 
+  // Отладочный лог для консоли браузера
+  useEffect(() => {
+    if (rawData) {
+      console.log("AromaFlow Debug: Received menu items count:", rawData.length);
+      console.log("AromaFlow Debug: Data sample:", rawData[0]);
+    }
+    if (error) {
+      console.error("AromaFlow Debug: Firestore Error:", error);
+    }
+  }, [rawData, error]);
+
   // Обработка данных
   const { menuItems, categories } = useMemo(() => {
-    if (!rawData) return { menuItems: [], categories: [] };
+    if (!rawData || rawData.length === 0) return { menuItems: [], categories: [] };
 
     const items = rawData as MenuItem[];
     const uniqueCategories = new Map();
@@ -80,9 +91,13 @@ export function Menu() {
   if (error) return (
     <div className="text-center py-20 px-6 space-y-4">
       <AlertCircle className="w-12 h-12 text-destructive/30 mx-auto" />
-      <p className="text-muted-foreground text-sm uppercase tracking-widest font-bold">Ошибка загрузки</p>
-      <p className="text-[10px] text-muted-foreground max-w-xs mx-auto">Пожалуйста, проверьте подключение к интернету или настройки Firebase.</p>
-      <Button onClick={() => window.location.reload()} variant="outline" size="sm" className="rounded-full">Попробовать снова</Button>
+      <p className="text-muted-foreground text-sm uppercase tracking-widest font-bold">Ошибка базы данных</p>
+      <p className="text-[10px] text-muted-foreground max-w-xs mx-auto mb-4">
+        {error.message || "Пожалуйста, проверьте правила доступа в Firebase Console."}
+      </p>
+      <Button onClick={() => window.location.reload()} variant="outline" size="sm" className="rounded-full">
+        Попробовать снова
+      </Button>
     </div>
   );
 
@@ -92,7 +107,15 @@ export function Menu() {
         <Coffee className="w-10 h-10 text-primary/20" />
       </div>
       <p className="text-muted-foreground text-sm uppercase tracking-widest font-bold">Меню скоро обновится</p>
-      <p className="text-[10px] text-muted-foreground max-w-xs mx-auto">Мы наполняем нашу витрину самыми вкусными новинками для вас!</p>
+      <p className="text-[10px] text-muted-foreground max-w-xs mx-auto mb-6">Мы наполняем нашу витрину самыми вкусными новинками для вас!</p>
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        onClick={() => window.location.reload()} 
+        className="rounded-full gap-2 text-[10px] uppercase tracking-widest"
+      >
+        <RefreshCw className="w-3 h-3" /> Обновить данные
+      </Button>
     </div>
   );
 
