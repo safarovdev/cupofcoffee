@@ -15,6 +15,7 @@ export function AdminBottomNav() {
   const [navigatingTo, setNavigatingTo] = useState<string | null>(null);
 
   useEffect(() => {
+    // Сбрасываем индикатор загрузки, когда путь изменился
     setNavigatingTo(null);
   }, [pathname]);
 
@@ -50,7 +51,9 @@ export function AdminBottomNav() {
             <Link 
               key={item.href}
               href={item.href}
-              onClick={() => !isActive && setNavigatingTo(item.href)}
+              onClick={() => {
+                if (!isActive) setNavigatingTo(item.href);
+              }}
               className={cn(
                 "flex flex-col items-center justify-center gap-1.5 transition-all active:scale-90 relative h-full flex-1 rounded-[2rem] outline-none",
                 isActive ? "text-primary bg-primary/5" : "text-muted-foreground hover:bg-black/[0.02]",
@@ -74,7 +77,7 @@ export function AdminBottomNav() {
                 {item.label}
               </span>
               
-              {item.badge !== undefined && item.badge > 0 && (
+              {item.badge !== undefined && item.badge > 0 && !isNavigating && (
                 <span className={cn(
                   "absolute top-2 right-1/4 text-white text-[9px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full font-black border-2 border-white shadow-lg px-1 animate-in zoom-in duration-300",
                   item.badgeColor || "bg-primary"
