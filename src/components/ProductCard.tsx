@@ -57,7 +57,7 @@ export function ProductCard({ item }: ProductCardProps) {
     <>
       <div 
         onClick={() => setIsModalOpen(true)}
-        className="group relative flex flex-col gap-4 bg-white p-3 rounded-[2.5rem] border border-black/[0.02] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-500 cursor-pointer active:scale-[0.97]"
+        className="group relative flex flex-col bg-white p-3 rounded-[2.5rem] border border-black/[0.02] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-500 cursor-pointer active:scale-[0.97] w-full"
       >
         <div className="relative aspect-square w-full overflow-hidden rounded-[2rem] bg-muted/10">
           <ItemPlaceholder category={item.category} />
@@ -75,23 +75,23 @@ export function ProductCard({ item }: ProductCardProps) {
           </button>
         </div>
 
-        <div className="px-2 pb-2 space-y-1.5">
-          <div className="flex justify-between items-start gap-2">
+        <div className="px-2 pb-2 flex flex-col flex-1 justify-between min-h-[80px]">
+          <div className="space-y-1.5">
             <h3 className="text-base font-black text-primary leading-tight line-clamp-1 group-hover:text-primary/70 transition-colors">
               {item.name}
             </h3>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
-              <Clock className="w-3 h-3 opacity-30" />
-              <span>{item.time || '5 мин'}</span>
+            
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+                <Clock className="w-3 h-3 opacity-30" />
+                <span>{item.time || '5 мин'}</span>
+              </div>
+              <span className="w-1 h-1 rounded-full bg-primary/10" />
+              <span className="text-[9px] font-black text-primary/20 uppercase tracking-[0.2em]">{item.category}</span>
             </div>
-            <span className="w-1 h-1 rounded-full bg-primary/10" />
-            <span className="text-[9px] font-black text-primary/20 uppercase tracking-[0.2em]">{item.category}</span>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-3">
             <span className="text-lg font-black text-primary tracking-tighter">
               {item.price.toLocaleString()} <span className="text-[10px] uppercase font-bold text-primary/30">сум</span>
             </span>

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { ChevronRight, ArrowLeft, Loader2, Coffee, AlertCircle, RefreshCw } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Loader2, Coffee, AlertCircle } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { Button } from "@/components/ui/button";
 import { useFirestore, useCollection } from "@/firebase";
@@ -96,42 +96,44 @@ export function Menu() {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="w-full">
       {/* Современный селектор категорий */}
-      <div className="sticky top-16 z-40 bg-background/80 backdrop-blur-md py-4 -mx-6 px-6">
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-          <button
-            onClick={() => setActiveCategory(null)}
-            className={cn(
-              "whitespace-nowrap h-10 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
-              activeCategory === null 
-                ? "bg-primary text-white shadow-lg scale-105" 
-                : "bg-muted/50 text-muted-foreground hover:bg-muted"
-            )}
-          >
-            Все меню
-          </button>
-          {categories.map((cat) => (
+      <div className="sticky top-16 z-40 bg-background/80 backdrop-blur-md py-4 border-b border-black/[0.02]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 -mx-2 px-2">
             <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
+              onClick={() => setActiveCategory(null)}
               className={cn(
-                "whitespace-nowrap h-10 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
-                activeCategory === cat.id 
-                  ? "bg-primary text-white shadow-lg scale-105" 
+                "whitespace-nowrap h-10 px-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                activeCategory === null 
+                  ? "bg-primary text-white shadow-lg" 
                   : "bg-muted/50 text-muted-foreground hover:bg-muted"
               )}
             >
-              {cat.name}
+              Все меню
             </button>
-          ))}
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={cn(
+                  "whitespace-nowrap h-10 px-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                  activeCategory === cat.id 
+                    ? "bg-primary text-white shadow-lg" 
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                )}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="px-6 space-y-12">
+      <div className="max-w-7xl mx-auto px-6 py-12 space-y-16">
         {activeCategory ? (
           <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredItems.map((item) => (
                 <ProductCard key={item.id} item={item} />
               ))}
@@ -151,14 +153,14 @@ export function Menu() {
                     </h2>
                     <Button 
                       variant="ghost" 
-                      className="text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-primary transition-colors"
+                      className="text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-primary transition-colors h-8"
                       onClick={() => setActiveCategory(cat.id)}
                     >
                       Смотреть все
                     </Button>
                   </div>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {catItems.slice(0, 4).map((item) => (
                       <ProductCard key={item.id} item={item} />
                     ))}
