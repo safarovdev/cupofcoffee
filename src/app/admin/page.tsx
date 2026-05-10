@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useUser, useFirestore } from '@/firebase';
-import { doc, getDoc, collection, getDocs, setDoc, query, where, addDoc, updateDoc, serverTimestamp, limit } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, setDoc, query, where, addDoc, updateDoc, serverTimestamp, limit, Timestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -20,7 +20,8 @@ import {
   History,
   Coffee,
   LayoutDashboard,
-  Wallet
+  Wallet,
+  BarChart3
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -101,7 +102,15 @@ export default function AdminPage() {
     let interval: any;
     if (activeShift && activeShift.startTime) {
       interval = setInterval(() => {
-        const start = activeShift.startTime.toDate ? activeShift.startTime.toDate() : new Date(activeShift.startTime);
+        let start;
+        if (activeShift.startTime instanceof Timestamp) {
+          start = activeShift.startTime.toDate();
+        } else if (activeShift.startTime?.seconds) {
+          start = new Date(activeShift.startTime.seconds * 1000);
+        } else {
+          start = new Date(activeShift.startTime);
+        }
+        
         const now = new Date();
         const diff = Math.floor((now.getTime() - start.getTime()) / 1000);
         
@@ -163,26 +172,40 @@ export default function AdminPage() {
     if (!firestore || !activeShift) return;
     setIsInitializing(true);
     try {
-      const start = activeShift.startTime.toDate ? activeShift.startTime.toDate() : new Date(activeShift.startTime);
+      let start;
+      if (activeShift.startTime instanceof Timestamp) {
+        start = activeShift.startTime.toDate();
+      } else if (activeShift.startTime?.seconds) {
+        start = new Date(activeShift.startTime.seconds * 1000);
+      } else {
+        start = new Date(activeShift.startTime);
+      }
+      
       const end = new Date();
       const durationMin = Math.round((end.getTime() - start.getTime()) / 60000);
       
-      // Подсчет статистики за смену
-      const ordersQuery = query(
-        collection(firestore, 'orders'),
-        where('createdAt', '>=', activeShift.startTime),
-        where('status', '==', 'accepted')
-      );
-      
-      const ordersSnap = await getDocs(ordersQuery);
+      // Подсчет статистики за смену - получаем все заказы и фильтруем по времени
+      const ordersSnap = await getDocs(collection(firestore, 'orders'));
       let totalEarnings = 0;
       let ordersCount = 0;
 
       ordersSnap.forEach((doc) => {
         const orderData = doc.data();
-        // Дополнительная проверка на время (Firestore query >= иногда берет чуть больше если тики совпадают)
-        totalEarnings += orderData.totalAmount || 0;
-        ordersCount++;
+        let orderCreated;
+        
+        if (orderData.createdAt instanceof Timestamp) {
+          orderCreated = orderData.createdAt.toDate();
+        } else if (orderData.createdAt?.seconds) {
+          orderCreated = new Date(orderData.createdAt.seconds * 1000);
+        } else {
+          orderCreated = new Date(orderData.createdAt);
+        }
+
+        // Если заказ был создан во время смены и принят
+        if (orderCreated >= start && orderData.status === 'accepted') {
+          totalEarnings += Number(orderData.totalAmount) || 0;
+          ordersCount++;
+        }
       });
       
       await updateDoc(doc(firestore, 'shifts', activeShift.id), {
@@ -317,7 +340,7 @@ export default function AdminPage() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
               <div className="flex items-center gap-6">
                 <div className={cn(
-                  "w-20 h-20 rounded-[1.8rem] flex items-center justify-center shadow-xl animate-pulse",
+                  "w-20 h-20 rounded-[1.8rem] flex items-center justify-center shadow-xl",
                   activeShift ? "bg-emerald-500 text-white" : "bg-orange-500 text-white"
                 )}>
                   {activeShift ? <Clock className="w-10 h-10" /> : <Play className="w-10 h-10 ml-1" />}
@@ -380,7 +403,7 @@ export default function AdminPage() {
           {[
             { href: '/admin/menu', title: 'Принять заказ', desc: 'Интерфейс официанта', icon: Home, color: 'bg-primary' },
             { href: '/admin/orders', title: 'Заказы', desc: 'Управление потоком', icon: ShoppingCart, color: 'bg-emerald-600' },
-            { href: '/admin/shifts', title: 'Статистика смен', desc: 'История работы', icon: History, color: 'bg-blue-600' },
+            { href: '/admin/shifts', title: 'Статистика', desc: 'История и итоги', icon: BarChart3, color: 'bg-blue-600' },
             { href: '/admin/staff', title: 'Персонал', desc: 'Ваша команда', icon: Users, color: 'bg-purple-600' },
             { href: '/admin/settings', title: 'Товары', desc: 'Редактор меню', icon: Settings, color: 'bg-orange-600' },
           ].map((item, i) => (
