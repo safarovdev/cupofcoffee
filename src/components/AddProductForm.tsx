@@ -87,14 +87,22 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.price || !formData.category || isSaving || isUploading) return;
+    
+    // Более мягкая валидация: разрешаем отправку, если основные поля заполнены
+    const name = formData.name.trim();
+    const price = Number(formData.price);
+    const category = formData.category;
+
+    if (!name || isNaN(price) || !category || isSaving || isUploading) {
+      return;
+    }
 
     setIsSaving(true);
     try {
       const productData = {
-        name: formData.name,
-        price: Number(formData.price),
-        category: formData.category,
+        name: name,
+        price: price,
+        category: category,
         ingredients: formData.ingredients.split(',').map(i => i.trim()).filter(i => i),
         isSpecial: formData.isSpecial,
         imageUrl: formData.imageUrl
@@ -102,9 +110,12 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
 
       await onSave(productData);
       
+      // Сбрасываем форму только если это новый товар
       if (!initialData) {
         setFormData({ name: '', price: '', category: '', ingredients: '', isSpecial: false, imageUrl: '' });
       }
+    } catch (error) {
+      console.error('Submit error:', error);
     } finally {
       setIsSaving(false);
     }
@@ -117,7 +128,7 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
         <div className="space-y-2">
           <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Фото товара</Label>
           <div 
-            onClick={() => !isUploading && fileInputRef.current?.click()}
+            onClick={() => !isUploading && !isSaving && fileInputRef.current?.click()}
             className="group relative flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/20 rounded-[2rem] min-h-[180px] bg-muted/5 cursor-pointer hover:bg-muted/10 transition-all overflow-hidden"
           >
             {formData.imageUrl ? (
@@ -133,7 +144,12 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
                     <Button
                       type="button"
                       size="sm"
+                      disabled={isSaving}
                       className="rounded-full bg-white text-black hover:bg-white/90 font-bold"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fileInputRef.current?.click();
+                      }}
                     >
                       <Upload className="w-3 h-3 mr-2" /> Сменить
                     </Button>
@@ -141,6 +157,7 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
                       type="button"
                       size="icon"
                       variant="destructive"
+                      disabled={isSaving}
                       className="h-8 w-8 rounded-full"
                       onClick={removeImage}
                     >

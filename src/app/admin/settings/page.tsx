@@ -63,15 +63,22 @@ export default function AdminProductsPage() {
   };
 
   const handleUpdateItem = async (data: any) => {
-    if (!firestore || !editingItem) return;
+    if (!firestore || !editingItem?.id) {
+      toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось определить ID товара' });
+      return;
+    }
+    
     try {
-      // При обновлении используем ID редактируемого элемента
       await setDoc(doc(firestore, 'menu', editingItem.id), data, { merge: true });
       setEditingItem(null);
       toast({ title: 'Товар успешно обновлен' });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Update error:', error);
-      toast({ variant: 'destructive', title: 'Ошибка обновления' });
+      toast({ 
+        variant: 'destructive', 
+        title: 'Ошибка обновления', 
+        description: error.message || 'Проверьте соединение с интернетом'
+      });
     }
   };
 
@@ -86,8 +93,8 @@ export default function AdminProductsPage() {
       });
       setShowAddDialog(false);
       toast({ title: 'Товар добавлен' });
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Ошибка сохранения' });
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Ошибка сохранения', description: error.message });
     }
   };
 
