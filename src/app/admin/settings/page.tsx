@@ -63,13 +63,14 @@ export default function AdminProductsPage() {
   };
 
   const handleUpdateItem = async (data: any) => {
-    if (!firestore || !editingItem?.id) {
-      toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось определить ID товара' });
+    const itemId = editingItem?.id;
+    if (!firestore || !itemId) {
+      toast({ variant: 'destructive', title: 'Ошибка', description: 'ID товара не найден' });
       return;
     }
     
     try {
-      await setDoc(doc(firestore, 'menu', editingItem.id), data, { merge: true });
+      await setDoc(doc(firestore, 'menu', itemId), data, { merge: true });
       setEditingItem(null);
       toast({ title: 'Товар успешно обновлен' });
     } catch (error: any) {

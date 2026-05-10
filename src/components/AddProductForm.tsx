@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Plus, Save, Loader2, Flame, Image as ImageIcon, X, Upload } from 'lucide-react';
 import Image from 'next/image';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProductFormProps {
   onSave: (data: any) => Promise<void>;
@@ -30,6 +31,7 @@ const CATEGORIES = [
 const IMGBB_API_KEY = '6e681c9c15fe63d6b40db8afc9230a41';
 
 export function AddProductForm({ onSave, initialData, buttonLabel }: ProductFormProps) {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -71,9 +73,13 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
       const result = await response.json();
       if (result.success) {
         setFormData(prev => ({ ...prev, imageUrl: result.data.url }));
+        toast({ title: 'Изображение загружено' });
+      } else {
+        toast({ variant: 'destructive', title: 'Ошибка загрузки', description: result.error?.message || 'Попробуйте другое фото' });
       }
     } catch (error) {
       console.error('Error uploading image to ImgBB:', error);
+      toast({ variant: 'destructive', title: 'Ошибка загрузки', description: 'Не удалось загрузить фото на сервер' });
     } finally {
       setIsUploading(false);
     }
@@ -88,12 +94,22 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Более мягкая валидация: разрешаем отправку, если основные поля заполнены
+    if (isSaving || isUploading) return;
+
     const name = formData.name.trim();
     const price = Number(formData.price);
     const category = formData.category;
 
-    if (!name || isNaN(price) || !category || isSaving || isUploading) {
+    if (!name) {
+      toast({ variant: 'destructive', title: 'Ошибка', description: 'Введите название товара' });
+      return;
+    }
+    if (!formData.price || isNaN(price) || price <= 0) {
+      toast({ variant: 'destructive', title: 'Ошибка', description: 'Введите корректную цену' });
+      return;
+    }
+    if (!category) {
+      toast({ variant: 'destructive', title: 'Ошибка', description: 'Выберите категорию' });
       return;
     }
 
@@ -110,12 +126,12 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
 
       await onSave(productData);
       
-      // Сбрасываем форму только если это новый товар
       if (!initialData) {
         setFormData({ name: '', price: '', category: '', ingredients: '', isSpecial: false, imageUrl: '' });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Submit error:', error);
+      toast({ variant: 'destructive', title: 'Ошибка', description: error.message || 'Не удалось сохранить товар' });
     } finally {
       setIsSaving(false);
     }
@@ -173,9 +189,8 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
                 </div>
                 <div className="text-center">
                   <p className="text-[10px] font-black uppercase tracking-widest opacity-60">
-                    {isUploading ? 'Загрузка в облако...' : 'Нажмите для выбора'}
+                    {isUploading ? 'Загрузка...' : 'Нажмите для выбора'}
                   </p>
-                  <p className="text-[8px] font-bold text-muted-foreground/50 uppercase mt-1">PNG, JPG до 5MB</p>
                 </div>
               </div>
             )}
@@ -254,7 +269,6 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-tight text-orange-900 leading-none mb-1">Спецпредложение</p>
-              <p className="text-[8px] text-orange-700/60 font-bold uppercase leading-none">Главный баннер меню</p>
             </div>
           </div>
           <Switch 
