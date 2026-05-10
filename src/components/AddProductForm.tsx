@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Save, Loader2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Plus, Save, Loader2, Flame } from 'lucide-react';
 
 interface ProductFormProps {
   onSave: (data: any) => Promise<void>;
@@ -30,7 +31,8 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
     name: '',
     price: '',
     category: '',
-    ingredients: ''
+    ingredients: '',
+    isSpecial: false
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -40,7 +42,8 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
         name: initialData.name || '',
         price: initialData.price?.toString() || '',
         category: initialData.category || '',
-        ingredients: initialData.ingredients ? initialData.ingredients.join(', ') : ''
+        ingredients: initialData.ingredients ? initialData.ingredients.join(', ') : '',
+        isSpecial: initialData.isSpecial || false
       });
     }
   }, [initialData]);
@@ -55,13 +58,14 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
         name: formData.name,
         price: Number(formData.price),
         category: formData.category,
-        ingredients: formData.ingredients.split(',').map(i => i.trim()).filter(i => i)
+        ingredients: formData.ingredients.split(',').map(i => i.trim()).filter(i => i),
+        isSpecial: formData.isSpecial
       };
 
       await onSave(productData);
       
       if (!initialData) {
-        setFormData({ name: '', price: '', category: '', ingredients: '' });
+        setFormData({ name: '', price: '', category: '', ingredients: '', isSpecial: false });
       }
     } finally {
       setIsSaving(false);
@@ -69,7 +73,7 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 gap-4">
         <div>
           <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Название</Label>
@@ -125,6 +129,23 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
             onChange={(e) => setFormData(prev => ({ ...prev, ingredients: e.target.value }))}
             className="rounded-xl h-11 bg-muted/50 border-none font-bold"
             placeholder="Кофе, Молоко, Сахар"
+            disabled={isSaving}
+          />
+        </div>
+
+        <div className="flex items-center justify-between p-4 bg-orange-50 rounded-2xl border border-orange-100 mt-2">
+          <div className="flex items-center gap-3">
+            <div className="bg-orange-500 p-2 rounded-xl text-white">
+              <Flame className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-tight text-orange-900 leading-none mb-1">Спецпредложение</p>
+              <p className="text-[9px] text-orange-700/60 font-medium leading-none">Показать на главном баннере</p>
+            </div>
+          </div>
+          <Switch 
+            checked={formData.isSpecial} 
+            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isSpecial: checked }))} 
             disabled={isSaving}
           />
         </div>

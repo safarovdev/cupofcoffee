@@ -13,8 +13,7 @@
         "price": { "type": "number" },
         "sizes": { "type": "object" },
         "ingredients": { "type": "array", "items": { "type": "string" } },
-        "rating": { "type": "number" },
-        "time": { "type": "string" }
+        "isSpecial": { "type": "boolean", "description": "Флаг специального предложения" }
       },
       "required": ["name", "category", "price"]
     },

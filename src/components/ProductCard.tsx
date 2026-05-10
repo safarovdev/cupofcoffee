@@ -1,14 +1,17 @@
+
 "use client";
 
-import { Star, Clock, Plus, Coffee, Wine, IceCream, Cookie, Beaker } from "lucide-react";
+import { Plus, Coffee, Wine, IceCream, Cookie, Beaker, ShoppingBag } from "lucide-react";
 import { MenuItem } from "./Menu";
 import { CustomizationModal } from "./CustomizationModal";
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
   item: MenuItem;
+  isMinimal?: boolean;
 }
 
 function ItemPlaceholder({ category }: { category: string }) {
@@ -33,7 +36,7 @@ function ItemPlaceholder({ category }: { category: string }) {
   );
 }
 
-export function ProductCard({ item }: ProductCardProps) {
+export function ProductCard({ item, isMinimal = false }: ProductCardProps) {
   const { addToCart } = useCart();
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,6 +56,25 @@ export function ProductCard({ item }: ProductCardProps) {
     });
   };
 
+  if (isMinimal) {
+    return (
+      <>
+        <button 
+          onClick={(e) => { e.stopPropagation(); setIsModalOpen(true); }}
+          className="bg-white text-primary px-8 h-14 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-all active:scale-95 flex items-center gap-3"
+        >
+          <ShoppingBag className="w-4 h-4" />
+          Выбрать
+        </button>
+        <CustomizationModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          item={item} 
+        />
+      </>
+    );
+  }
+
   return (
     <>
       <div 
@@ -62,11 +84,6 @@ export function ProductCard({ item }: ProductCardProps) {
         <div className="relative aspect-square w-full overflow-hidden rounded-[2rem] bg-muted/10">
           <ItemPlaceholder category={item.category} />
           
-          <div className="absolute top-3 left-3 bg-white/80 backdrop-blur-md px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-sm">
-            <Star className="w-3 h-3 fill-primary text-primary" />
-            <span className="text-[10px] font-black tracking-tighter text-primary">{item.rating || 5.0}</span>
-          </div>
-
           <button 
             onClick={handleQuickAdd}
             className="absolute bottom-3 right-3 bg-primary text-white p-3 rounded-2xl shadow-xl hover:scale-110 transition-all active:scale-90 z-10"
@@ -75,23 +92,15 @@ export function ProductCard({ item }: ProductCardProps) {
           </button>
         </div>
 
-        <div className="px-2 pb-2 flex flex-col flex-1 justify-between min-h-[80px]">
-          <div className="space-y-1.5">
-            <h3 className="text-base font-black text-primary leading-tight line-clamp-1 group-hover:text-primary/70 transition-colors">
+        <div className="px-2 pb-2 pt-3 flex flex-col flex-1 justify-between min-h-[90px]">
+          <div className="space-y-1">
+            <h3 className="text-base font-black text-primary leading-tight line-clamp-1 group-hover:text-primary/70 transition-colors uppercase tracking-tight">
               {item.name}
             </h3>
-            
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5 text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
-                <Clock className="w-3 h-3 opacity-30" />
-                <span>{item.time || '5 мин'}</span>
-              </div>
-              <span className="w-1 h-1 rounded-full bg-primary/10" />
-              <span className="text-[9px] font-black text-primary/20 uppercase tracking-[0.2em]">{item.category}</span>
-            </div>
+            <span className="text-[9px] font-black text-primary/20 uppercase tracking-[0.2em]">{item.category}</span>
           </div>
 
-          <div className="pt-3">
+          <div className="pt-2">
             <span className="text-lg font-black text-primary tracking-tighter">
               {item.price.toLocaleString()} <span className="text-[10px] uppercase font-bold text-primary/30">сум</span>
             </span>
