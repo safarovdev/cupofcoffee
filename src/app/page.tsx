@@ -29,12 +29,12 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <main className="flex-1 w-full pt-8 sm:pt-12 pb-40">
+      <main className="flex-1 w-full pt-6 sm:pt-10 pb-40">
         {/* Hero Section / Welcome */}
-        <div className="max-w-7xl mx-auto px-6 mb-12 sm:mb-16">
-          <div className="space-y-2">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/40">Добро пожаловать в</p>
-            <h2 className="text-4xl sm:text-6xl font-black font-headline tracking-tighter leading-[0.9]">
+        <div className="max-w-7xl mx-auto px-6 mb-8 sm:mb-12">
+          <div className="space-y-1">
+            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-primary/40">Добро пожаловать в</p>
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black font-headline tracking-tighter leading-none">
               Лучший кофе <br /> в вашем городе
             </h2>
           </div>
@@ -43,25 +43,24 @@ export default function Home() {
         <Menu />
       </main>
 
-      {/* Floating Checkout Bar - Native Mobile Look */}
+      {/* Floating Checkout Button - Bottom Right */}
       {totalItems > 0 && (
-        <div className="fixed bottom-24 left-0 right-0 z-[999] px-6 animate-in slide-in-from-bottom-8 duration-500 lg:bottom-12 lg:max-w-md lg:ml-auto">
+        <div className="fixed bottom-28 right-6 z-[999] animate-in zoom-in-50 duration-300 lg:bottom-12">
           <Button 
             onClick={handleCheckout}
             size="lg"
-            className="w-full h-16 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] bg-primary hover:bg-primary/95 text-white font-black flex items-center justify-between px-8 transition-transform active:scale-95 group"
+            className="h-16 px-6 rounded-2xl shadow-2xl bg-primary hover:bg-primary/95 text-white font-black flex items-center gap-4 transition-transform active:scale-95"
           >
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <ShoppingBag className="w-6 h-6" />
-                <span className="absolute -top-1 -right-1 bg-white text-primary text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-black">
-                  {totalItems}
-                </span>
-              </div>
-              <span className="text-sm uppercase tracking-widest">Оформить</span>
+            <div className="relative">
+              <ShoppingBag className="w-5 h-5" />
+              <span className="absolute -top-2 -right-2 bg-white text-primary text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-black">
+                {totalItems}
+              </span>
             </div>
-            <div className="h-6 w-px bg-white/20 mx-4" />
-            <span className="text-lg tracking-tighter">{totalPrice} сум</span>
+            <div className="flex flex-col items-start leading-none">
+              <span className="text-[10px] uppercase tracking-widest opacity-70">Оформить</span>
+              <span className="text-sm tracking-tight">{totalPrice} сум</span>
+            </div>
           </Button>
         </div>
       )}

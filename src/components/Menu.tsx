@@ -29,12 +29,8 @@ export function Menu() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!firestore) {
-      console.log("Firestore not initialized yet...");
-      return;
-    }
+    if (!firestore) return;
 
-    console.log("Starting menu subscription...");
     const q = query(collection(firestore, 'menu'), orderBy('name', 'asc'));
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -43,7 +39,6 @@ export function Menu() {
         ...doc.data() 
       })) as MenuItem[];
       
-      console.log(`Received ${items.length} items from Firebase`);
       setMenuItems(items);
       
       const uniqueCategories = new Map();
@@ -93,53 +88,41 @@ export function Menu() {
 
   if (loading) return (
     <div className="h-[40vh] flex flex-col items-center justify-center gap-6">
-      <div className="relative">
-        <Loader2 className="w-16 h-16 animate-spin text-primary opacity-20" />
-        <Loader2 className="w-16 h-16 animate-spin text-primary absolute top-0 left-0 [animation-delay:-0.3s]" />
-      </div>
-      <p className="text-xs font-black uppercase tracking-[0.3em] text-primary/40 animate-pulse">Загрузка меню...</p>
+      <Loader2 className="w-10 h-10 animate-spin text-primary/30" />
+      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/40">Загрузка меню...</p>
     </div>
   );
 
   if (menuItems.length === 0) return (
-    <div className="text-center py-20 px-6 space-y-6">
-      <div className="w-24 h-24 bg-primary/5 rounded-[2rem] flex items-center justify-center mx-auto">
-        <Coffee className="w-10 h-10 text-primary/20" />
-      </div>
-      <div className="space-y-2">
-        <h3 className="text-2xl font-black uppercase tracking-tighter">Меню пусто</h3>
-        <p className="text-muted-foreground text-sm max-w-[280px] mx-auto">Зайдите в админ-панель и добавьте товары или нажмите "Наполнить базу".</p>
-      </div>
+    <div className="text-center py-20 px-6 space-y-4">
+      <Coffee className="w-12 h-12 text-primary/10 mx-auto" />
+      <p className="text-muted-foreground text-sm uppercase tracking-widest">Меню скоро обновится</p>
     </div>
   );
 
   return (
-    <div className="space-y-12 md:space-y-20 pb-20 max-w-7xl mx-auto px-6">
+    <div className="space-y-10 md:space-y-16 pb-20 max-w-7xl mx-auto px-6">
       {searchQuery || activeCategory ? (
-        <section className="space-y-8">
+        <section className="space-y-6">
           <div className="flex items-center gap-4">
-            {(activeCategory || searchQuery) && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="rounded-xl border h-10 w-10"
-                onClick={() => {
-                  setActiveCategory(null);
-                }}
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            )}
-            <div className="space-y-1">
-              <h2 className="text-3xl font-black uppercase tracking-tighter">
-                {activeCategory ? (categories.find(c => c.id === activeCategory)?.name) : "Результаты поиска"}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-xl border h-10 w-10 shrink-0"
+              onClick={() => setActiveCategory(null)}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div className="space-y-0.5">
+              <h2 className="text-2xl font-black uppercase tracking-tighter leading-none">
+                {activeCategory ? (categories.find(c => c.id === activeCategory)?.name) : "Результаты"}
               </h2>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                 Найдено {filteredItems.length} позиций
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {filteredItems.map((item) => (
               <ProductCard key={item.id} item={item} />
             ))}
@@ -152,24 +135,24 @@ export function Menu() {
             if (catItems.length === 0) return null;
 
             return (
-              <section key={cat.id} className="space-y-8">
-                <div className="flex items-end justify-between">
-                  <div className="space-y-1">
-                    <h2 className="text-3xl font-black font-headline text-primary uppercase tracking-tighter">
+              <section key={cat.id} className="space-y-6">
+                <div className="flex items-end justify-between border-l-4 border-primary pl-4">
+                  <div className="space-y-0.5">
+                    <h2 className="text-2xl font-black font-headline text-primary uppercase tracking-tighter leading-none">
                       {cat.name}
                     </h2>
-                    <div className="h-1.5 w-12 bg-primary rounded-full" />
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Популярное в категории</p>
                   </div>
                   <Button 
                     variant="ghost" 
-                    className="text-primary font-black gap-2 hover:bg-primary/5 px-4 py-2 rounded-xl text-[10px] uppercase tracking-widest h-auto border border-primary/10"
+                    className="text-primary font-black gap-1 hover:bg-primary/5 px-2 rounded-xl text-[10px] uppercase tracking-widest h-auto"
                     onClick={() => setActiveCategory(cat.id)}
                   >
-                    Все <ChevronRight className="w-4 h-4" />
+                    Все <ChevronRight className="w-3 h-3" />
                   </Button>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {catItems.slice(0, 4).map((item) => (
                     <ProductCard key={item.id} item={item} />
                   ))}

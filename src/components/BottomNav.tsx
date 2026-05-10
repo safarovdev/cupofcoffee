@@ -10,7 +10,6 @@ export function BottomNav() {
   const { totalItems } = useCart();
   const pathname = usePathname();
 
-  // Не показываем в админке
   if (pathname.startsWith('/admin')) {
     return null;
   }
@@ -22,8 +21,8 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-[100] bg-white/80 backdrop-blur-2xl border-t border-black/[0.05] px-6 pb-8 pt-3 md:pb-8 md:pt-4">
-      <div className="flex justify-around items-center max-w-xl mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 z-[100] bg-white/90 backdrop-blur-2xl border-t border-black/[0.03] px-6 pb-6 pt-3 md:pb-8 md:pt-4">
+      <div className="flex justify-around items-center max-w-lg mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -33,31 +32,31 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center gap-1.5 group transition-all active:scale-90 relative py-1 px-4 rounded-2xl",
+                "flex flex-col items-center gap-1 group transition-all active:scale-90 relative py-1 px-4 rounded-2xl",
                 isActive ? "text-primary" : "text-muted-foreground"
               )}
             >
               <div className={cn(
-                "p-1 rounded-xl transition-all duration-300",
+                "p-1 transition-all duration-300",
                 isActive ? "scale-110" : "scale-100"
               )}>
-                <Icon className={cn("w-6 h-6 transition-all", isActive ? "stroke-[2.5]" : "stroke-[2]")} />
+                <Icon className={cn("w-5 h-5", isActive ? "stroke-[2.5]" : "stroke-[2]")} />
               </div>
               <span className={cn(
-                "text-[9px] font-black uppercase tracking-widest transition-all",
-                isActive ? "opacity-100" : "opacity-60"
+                "text-[8px] font-black uppercase tracking-[0.2em] transition-all",
+                isActive ? "opacity-100" : "opacity-40"
               )}>
                 {item.label}
               </span>
               
               {item.badge && item.badge > 0 && (
-                <span className="absolute top-1 right-2 bg-primary text-white text-[9px] w-4 h-4 flex items-center justify-center rounded-full font-black border-2 border-white shadow-sm animate-in zoom-in duration-300">
+                <span className="absolute top-0.5 right-2 bg-primary text-white text-[8px] w-4 h-4 flex items-center justify-center rounded-full font-black border-2 border-white shadow-sm">
                   {item.badge}
                 </span>
               )}
               
               {isActive && (
-                <div className="absolute -top-3 w-1 h-1 bg-primary rounded-full" />
+                <div className="absolute -top-3 w-1 h-1 bg-primary rounded-full shadow-[0_0_8px_hsl(var(--primary))]" />
               )}
             </Link>
           );
