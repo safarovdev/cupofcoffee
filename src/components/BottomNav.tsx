@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, ShoppingBasket, Search, History } from "lucide-react";
+import { Home, ShoppingBasket, Search } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -10,6 +10,7 @@ export function BottomNav() {
   const { totalItems } = useCart();
   const pathname = usePathname();
 
+  // Не показываем в админке
   if (pathname.startsWith('/admin')) {
     return null;
   }
@@ -21,7 +22,7 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-2xl border-t border-black/[0.05] px-6 pb-8 pt-3 md:pb-8 md:pt-4 lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-[100] bg-white/80 backdrop-blur-2xl border-t border-black/[0.05] px-6 pb-8 pt-3 md:pb-8 md:pt-4">
       <div className="flex justify-around items-center max-w-xl mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
