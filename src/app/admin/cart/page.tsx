@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -6,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, ShieldAlert, Plus, Minus, Trash2 } from 'lucide-react';
+import { ArrowLeft, ShieldAlert, Plus, Minus, Trash2, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -22,6 +23,8 @@ export default function AdminCartPage() {
     notes: ''
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleQuantityChange = (itemId: string, newQuantity: number) => {
     if (newQuantity <= 0) {
       removeFromCart(itemId);
@@ -35,70 +38,61 @@ export default function AdminCartPage() {
       toast({
         variant: 'destructive',
         title: 'Корзина пуста',
-        description: 'Добавьте товары в корзину перед оформлением заказа'
+        description: 'Добавьте товары перед оформлением'
       });
       return;
     }
 
-    if (!customerInfo.name.trim() || !customerInfo.phone.trim()) {
+    if (!customerInfo.name.trim()) {
       toast({
         variant: 'destructive',
-        title: 'Заполните данные клиента',
-        description: 'Укажите имя и телефон клиента'
+        title: 'Заполните данные',
+        description: 'Укажите имя клиента'
       });
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
-      // Создаем заказ в Firebase
       const { initializeApp, getApps, getApp } = await import('firebase/app');
-      const { getFirestore, collection, doc, setDoc } = await import('firebase/firestore');
+      const { getFirestore, collection, doc, setDoc, getDocs, serverTimestamp } = await import('firebase/firestore');
+      const { firebaseConfig } = await import('@/firebase/config');
       
-      const config = {
-        apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
-        authDomain: "coffee-f4bc1.firebaseapp.com",
-        projectId: "coffee-f4bc1",
-        storageBucket: "coffee-f4bc1.firebasestorage.app",
-        messagingSenderId: "847730890494",
-        appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
-        measurementId: "G-3XN7LXDTJJ"
-      };
-      
-      const app = getApps().length > 0 ? getApp() : initializeApp(config);
+      const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
       const firestore = getFirestore(app);
+
+      const ordersSnapshot = await getDocs(collection(firestore, 'orders'));
+      const orderId = String(ordersSnapshot.size + 1).padStart(4, '0');
 
       const orderData = {
         customerName: customerInfo.name,
-        customerPhone: customerInfo.phone,
-        customerNotes: customerInfo.notes || undefined,
+        customerPhone: customerInfo.phone || '',
+        customerNotes: customerInfo.notes || '',
         items: cart.map(cartItem => ({
           id: cartItem.item.id,
           name: cartItem.item.name,
           price: cartItem.priceAtSelection,
           quantity: cartItem.quantity,
           category: cartItem.item.category,
-          selectedSize: cartItem.size,
-          sizePrice: cartItem.size ? cartItem.priceAtSelection : undefined
+          selectedSize: cartItem.size || '',
+          sizePrice: cartItem.size ? cartItem.priceAtSelection : null
         })),
         totalAmount: totalPrice,
         totalItems: totalItems,
         status: 'pending',
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
         createdBy: 'admin'
       };
 
-      const orderId = `order-${Date.now()}`;
       await setDoc(doc(firestore, 'orders', orderId), orderData);
 
-      // Очищаем корзину
       clearCart();
-
       toast({
         title: 'Заказ создан',
-        description: `Заказ #${orderId.slice(-6)} успешно отправлен в систему`
+        description: `Заказ #${orderId} успешно добавлен в систему`
       });
 
-      // Перенаправляем на страницу заказов
       router.push('/admin/orders');
     } catch (error) {
       console.error('Error creating order:', error);
@@ -107,159 +101,121 @@ export default function AdminCartPage() {
         title: 'Ошибка',
         description: 'Не удалось создать заказ'
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <header className="bg-card/80 backdrop-blur-md border-b p-4 sticky top-0 z-50 flex justify-between items-center px-6">
+    <div className="min-h-screen flex flex-col bg-background pb-32">
+      <header className="bg-card/80 backdrop-blur-md border-b p-4 sticky top-0 z-50 flex items-center gap-4 px-6">
+        <Link href="/admin/menu" className="p-2 -ml-2 hover:bg-muted rounded-full transition-colors">
+          <ArrowLeft className="w-6 h-6 text-primary" />
+        </Link>
         <div className="flex items-center gap-2">
-          <Link href="/admin/menu" className="text-muted-foreground hover:text-primary">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div className="flex items-center gap-2">
-            <ShieldAlert className="w-5 h-5 text-primary" />
-            <h1 className="font-bold text-lg uppercase tracking-tight">Корзина <span className="text-primary">Admin</span></h1>
-          </div>
+          <ShieldAlert className="w-5 h-5 text-primary" />
+          <h1 className="font-black text-lg uppercase tracking-tight">Корзина <span className="text-primary">Admin</span></h1>
         </div>
       </header>
 
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-6 pb-24 md:pb-6">
+      <main className="flex-1 max-w-4xl mx-auto w-full px-6 py-8 space-y-8">
         {cart.length === 0 ? (
-          <Card className="text-center py-12">
-            <CardContent>
-              <div className="text-muted-foreground">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                  <div className="w-8 h-8 border-2 border-current rounded-sm" />
-                </div>
-                <p className="text-lg mb-2">Корзина пуста</p>
-                <p className="text-sm mb-4">Добавьте товары из меню</p>
-                <Link href="/admin/menu">
-                  <Button>Перейти в меню</Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="text-center py-20">
+            <p className="text-muted-foreground font-bold mb-6">В корзине пусто</p>
+            <Link href="/admin/menu">
+              <Button className="rounded-2xl h-12 font-bold px-8">Перейти в меню</Button>
+            </Link>
+          </div>
         ) : (
           <div className="space-y-6">
-            {/* Информационная карточка */}
-            <Card className="bg-blue-50 border-blue-200">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg text-blue-800">Оформление заказа</CardTitle>
+            <Card className="rounded-[2.5rem] border-none shadow-md overflow-hidden">
+              <CardHeader className="p-8 pb-4">
+                <CardTitle className="text-xl font-black uppercase tracking-tighter">Состав заказа</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-blue-700 text-sm">
-                  Заполните данные клиента для создания заказа. Заказ будет отправлен в систему управления заказами для принятия официантами.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Состав заказа */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Состав заказа ({totalItems} шт.)</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-8 pt-0 space-y-4">
                 {cart.map((cartItem) => (
-                  <div key={cartItem.cartId} className="flex items-center justify-between p-3 bg-accent/50 rounded-lg">
+                  <div key={cartItem.cartId} className="flex items-center justify-between p-4 bg-muted/50 rounded-2xl">
                     <div className="flex-1">
-                      <p className="font-medium">{cartItem.item.name}</p>
-                      <p className="text-sm text-muted-foreground">{cartItem.item.category}</p>
-                      {cartItem.size && (
-                        <p className="text-sm text-primary">Размер: {cartItem.size}</p>
-                      )}
+                      <p className="font-black text-sm uppercase tracking-tight">{cartItem.item.name}</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{cartItem.size || 'Стандарт'}</p>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-4">
                       <div className="flex items-center gap-2">
                         <Button
-                          size="sm"
+                          size="icon"
                           variant="outline"
                           onClick={() => handleQuantityChange(cartItem.cartId, cartItem.quantity - 1)}
-                          className="w-8 h-8 p-0"
+                          className="w-8 h-8 rounded-lg"
+                          disabled={isSubmitting}
                         >
                           <Minus className="w-3 h-3" />
                         </Button>
-                        <span className="w-8 text-center font-medium">{cartItem.quantity}</span>
+                        <span className="w-4 text-center font-black text-xs">{cartItem.quantity}</span>
                         <Button
-                          size="sm"
+                          size="icon"
                           variant="outline"
                           onClick={() => handleQuantityChange(cartItem.cartId, cartItem.quantity + 1)}
-                          className="w-8 h-8 p-0"
+                          className="w-8 h-8 rounded-lg"
+                          disabled={isSubmitting}
                         >
                           <Plus className="w-3 h-3" />
                         </Button>
                       </div>
-                      <div className="text-right min-w-[80px]">
-                        <p className="font-semibold">
-                          {cartItem.priceAtSelection * cartItem.quantity} сум
-                        </p>
-                      </div>
+                      <p className="font-black text-sm text-primary min-w-[80px] text-right">
+                        {cartItem.priceAtSelection * cartItem.quantity} сум
+                      </p>
                       <Button
-                        size="sm"
+                        size="icon"
                         variant="ghost"
                         onClick={() => removeFromCart(cartItem.cartId)}
-                        className="w-8 h-8 p-0 text-destructive hover:text-destructive"
+                        className="w-8 h-8 text-destructive hover:bg-destructive/10"
+                        disabled={isSubmitting}
                       >
                         <Trash2 className="w-3 h-3" />
                       </Button>
                     </div>
                   </div>
                 ))}
-                
-                <div className="border-t pt-4">
-                  <div className="flex justify-between items-center text-lg font-bold">
-                    <span>Итого:</span>
-                    <span className="text-primary">{totalPrice} сум</span>
-                  </div>
+                <div className="border-t pt-4 flex justify-between items-center">
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Итог:</span>
+                  <span className="text-2xl font-black text-primary tracking-tighter">{totalPrice} сум</span>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Данные клиента */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Данные клиента</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="customerName">Имя клиента *</Label>
+            <Card className="rounded-[2.5rem] border-none shadow-md p-8 space-y-6">
+              <CardTitle className="text-xl font-black uppercase tracking-tighter">Данные клиента</CardTitle>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Имя клиента *</Label>
                   <Input
-                    id="customerName"
                     value={customerInfo.name}
                     onChange={(e) => setCustomerInfo(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Введите имя клиента"
-                    required
+                    placeholder="Введите имя"
+                    className="h-14 rounded-2xl bg-muted/50 border-none px-6 font-bold"
+                    disabled={isSubmitting}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="customerPhone">Телефон клиента *</Label>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Телефон (необязательно)</Label>
                   <Input
-                    id="customerPhone"
                     value={customerInfo.phone}
                     onChange={(e) => setCustomerInfo(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="+998 XX XXX-XX-XX"
-                    required
+                    placeholder="+998"
+                    className="h-14 rounded-2xl bg-muted/50 border-none px-6 font-bold"
+                    disabled={isSubmitting}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="customerNotes">Примечания</Label>
-                  <Input
-                    id="customerNotes"
-                    value={customerInfo.notes}
-                    onChange={(e) => setCustomerInfo(prev => ({ ...prev, notes: e.target.value }))}
-                    placeholder="Дополнительные пожелания"
-                  />
-                </div>
-              </CardContent>
+              </div>
             </Card>
 
-            {/* Кнопка оформления */}
             <Button 
               onClick={handleCheckout}
-              className="w-full h-12 rounded-xl font-bold"
-              size="lg"
+              disabled={isSubmitting}
+              className="w-full h-16 rounded-[1.8rem] font-black text-lg shadow-xl shadow-primary/20"
             >
-              Создать заказ ({totalPrice} сум)
+              {isSubmitting ? <Loader2 className="animate-spin mr-2 w-6 h-6" /> : null}
+              {isSubmitting ? 'СОЗДАНИЕ...' : `ОФОРМИТЬ ЗАКАЗ (${totalPrice} сум)`}
             </Button>
           </div>
         )}
