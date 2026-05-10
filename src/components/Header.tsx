@@ -6,6 +6,7 @@ import { Menu as MenuIcon, X, Coffee, Wine, IceCream, Beaker, Cookie, ChevronRig
 import { useState, useMemo } from "react";
 import { useFirestore, useCollection } from "@/firebase";
 import { collection } from "firebase/firestore";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Sheet,
   SheetContent,
@@ -18,6 +19,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function Header() {
   const db = useFirestore();
+  const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
   const menuQuery = useMemo(() => {
@@ -66,6 +69,12 @@ export function Header() {
 
   const scrollToCategory = (id: string) => {
     setIsOpen(false);
+    
+    if (pathname !== '/') {
+      router.push(`/#category-${id}`);
+      return;
+    }
+
     const element = document.getElementById(`category-${id}`);
     if (element) {
       const headerOffset = 140;
@@ -98,7 +107,7 @@ export function Header() {
               <ScrollArea className="h-[calc(100vh-120px)] p-6">
                 <div className="space-y-2">
                   <button
-                    onClick={() => { setIsOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    onClick={() => { setIsOpen(false); if(pathname === '/') window.scrollTo({ top: 0, behavior: "smooth" }); else router.push('/'); }}
                     className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-primary/5 transition-all text-left group"
                   >
                     <div className="flex items-center gap-4">
