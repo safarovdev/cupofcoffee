@@ -7,18 +7,59 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, ShieldAlert, Plus, Minus, Trash2, Loader2, User } from 'lucide-react';
+import { ArrowLeft, ShieldAlert, Plus, Minus, Trash2, Loader2, User, PlusCircle, Banknote } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
 export default function AdminCartPage() {
-  const { cart, totalItems, totalPrice, updateQuantity, removeFromCart, clearCart } = useCart();
+  const { cart, totalItems, totalPrice, updateQuantity, removeFromCart, clearCart, addToCart } = useCart();
   const { toast } = useToast();
   const router = useRouter();
   
   const [customerName, setCustomerName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Состояние для быстрого добавления произвольного товара
+  const [customItem, setCustomItem] = useState({ name: '', price: '' });
+
+  const handleAddCustomItem = () => {
+    if (!customItem.name.trim() || !customItem.price) {
+      toast({
+        variant: 'destructive',
+        title: 'Ошибка',
+        description: 'Введите название и цену товара'
+      });
+      return;
+    }
+
+    const price = Number(customItem.price);
+    if (isNaN(price) || price <= 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Ошибка',
+        description: 'Цена должна быть числом больше нуля'
+      });
+      return;
+    }
+
+    // Создаем синтетический объект MenuItem для произвольного товара
+    const syntheticItem = {
+      id: `custom-${Date.now()}`,
+      name: customItem.name.trim(),
+      description: 'Произвольный товар',
+      ingredients: [],
+      price: price,
+      category: 'custom'
+    };
+
+    addToCart(syntheticItem as any, undefined, undefined, price);
+    setCustomItem({ name: '', price: '' });
+    toast({
+      title: 'Добавлено',
+      description: `Позиция "${syntheticItem.name}" добавлена в чек`
+    });
+  };
 
   const handleCheckout = async () => {
     if (cart.length === 0) {
@@ -94,7 +135,7 @@ export default function AdminCartPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background pb-32">
+    <div className="min-h-screen flex flex-col bg-background pb-40">
       <header className="bg-card/80 backdrop-blur-md border-b p-4 sticky top-0 z-50 flex items-center gap-4 px-6">
         <Link href="/admin/menu" className="p-2 -ml-2 hover:bg-muted rounded-full transition-colors">
           <ArrowLeft className="w-6 h-6 text-primary" />
@@ -106,6 +147,44 @@ export default function AdminCartPage() {
       </header>
 
       <main className="flex-1 max-w-4xl mx-auto w-full px-6 py-8 space-y-8">
+        
+        {/* Блок быстрого добавления произвольного товара */}
+        <Card className="rounded-[2.5rem] border-none shadow-md overflow-hidden bg-primary/5 border-2 border-primary/10">
+          <CardHeader className="p-8 pb-4">
+            <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+              <PlusCircle className="w-5 h-5 text-primary" /> Произвольная позиция
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-8 pt-0 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label className="text-[10px] font-black uppercase opacity-40 ml-1">Название товара</Label>
+                <Input 
+                  value={customItem.name}
+                  onChange={(e) => setCustomItem(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Напр. Доп. услуга"
+                  className="rounded-xl border-none bg-background shadow-inner h-12 font-bold"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-[10px] font-black uppercase opacity-40 ml-1">Цена (сум)</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    type="number"
+                    value={customItem.price}
+                    onChange={(e) => setCustomItem(prev => ({ ...prev, price: e.target.value }))}
+                    placeholder="0"
+                    className="rounded-xl border-none bg-background shadow-inner h-12 font-bold"
+                  />
+                  <Button onClick={handleAddCustomItem} className="h-12 w-12 rounded-xl shrink-0" size="icon">
+                    <Plus className="w-6 h-6" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {cart.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-muted-foreground font-bold mb-6">В корзине пусто</p>
@@ -123,7 +202,10 @@ export default function AdminCartPage() {
                 {cart.map((cartItem) => (
                   <div key={cartItem.cartId} className="flex items-center justify-between p-4 bg-muted/50 rounded-2xl">
                     <div className="flex-1">
-                      <p className="font-black text-sm uppercase tracking-tight">{cartItem.item.name}</p>
+                      <p className="font-black text-sm uppercase tracking-tight">
+                        {cartItem.item.name}
+                        {cartItem.item.category === 'custom' && <span className="ml-2 text-[8px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">РУЧНОЙ ВВОД</span>}
+                      </p>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{cartItem.size || 'Стандарт'}</p>
                     </div>
                     <div className="flex items-center gap-4">
@@ -148,8 +230,8 @@ export default function AdminCartPage() {
                           <Plus className="w-3 h-3" />
                         </Button>
                       </div>
-                      <p className="font-black text-sm text-primary min-w-[80px] text-right">
-                        {cartItem.priceAtSelection * cartItem.quantity} сум
+                      <p className="font-black text-sm text-primary min-w-[100px] text-right">
+                        {(cartItem.priceAtSelection * cartItem.quantity).toLocaleString()} сум
                       </p>
                       <Button
                         size="icon"
@@ -165,7 +247,7 @@ export default function AdminCartPage() {
                 ))}
                 <div className="border-t pt-4 flex justify-between items-center">
                   <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Итог:</span>
-                  <span className="text-2xl font-black text-primary tracking-tighter">{totalPrice} сум</span>
+                  <span className="text-2xl font-black text-primary tracking-tighter">{totalPrice.toLocaleString()} сум</span>
                 </div>
               </CardContent>
             </Card>
@@ -196,7 +278,10 @@ export default function AdminCartPage() {
               {isSubmitting ? (
                 <Loader2 className="animate-spin w-6 h-6" />
               ) : (
-                `ОФОРМИТЬ ЗАКАЗ (${totalPrice} сум)`
+                <div className="flex items-center gap-3">
+                  <Banknote className="w-6 h-6" />
+                  ОФОРМИТЬ ЧЕК ({totalPrice.toLocaleString()} сум)
+                </div>
               )}
             </Button>
           </div>
