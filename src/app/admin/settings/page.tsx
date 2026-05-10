@@ -162,7 +162,7 @@ export default function AdminProductsPage() {
         )}
       </main>
 
-      {/* Floating Action Button - Compact and pill-shaped */}
+      {/* Floating Action Button - Компактная кнопка-пилюля в углу */}
       <div className="fixed bottom-28 right-6 z-[60] animate-in fade-in slide-in-from-bottom-4 duration-300">
         <Button 
           onClick={() => setShowAddDialog(true)}
