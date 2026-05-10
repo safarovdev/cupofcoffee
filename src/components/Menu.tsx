@@ -1,11 +1,12 @@
+
 "use client";
 
-import { useState, useEffect } from "react";
-import { ChevronRight, ArrowLeft, Loader2, Coffee } from "lucide-react";
+import { useState, useMemo } from "react";
+import { ChevronRight, ArrowLeft, Loader2, Coffee, AlertCircle } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { Button } from "@/components/ui/button";
-import { useFirestore } from "@/firebase";
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { useFirestore, useCollection } from "@/firebase";
+import { collection, query, orderBy, DocumentData } from 'firebase/firestore';
 
 export type MenuItem = {
   id: string;
@@ -22,62 +23,48 @@ export type MenuItem = {
 export function Menu() {
   const { firestore } = useFirestore();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!firestore) {
-      console.log("Firestore not initialized yet");
-      return;
-    }
+  // Используем useMemo для стабилизации запроса и предотвращения лишних ререндеров
+  const menuQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'menu'), orderBy('name', 'asc'));
+  }, [firestore]);
 
-    console.log("Subscribing to menu collection...");
-    const q = query(collection(firestore, 'menu'), orderBy('name', 'asc'));
+  const { data: rawData, loading, error } = useCollection<MenuItem>(menuQuery as any);
+
+  // Обработка данных
+  const { menuItems, categories } = useMemo(() => {
+    if (!rawData) return { menuItems: [], categories: [] };
+
+    const items = rawData as MenuItem[];
+    const uniqueCategories = new Map();
     
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      console.log("Snapshot received, docs:", snapshot.docs.length);
-      const items = snapshot.docs.map(doc => ({ 
-        id: doc.id, 
-        ...doc.data() 
-      })) as MenuItem[];
-      
-      setMenuItems(items);
-      
-      const uniqueCategories = new Map();
-      items.forEach((item: MenuItem) => {
-        if (item.category && !uniqueCategories.has(item.category)) {
-          uniqueCategories.set(item.category, item.category);
-        }
-      });
-      
-      const categoryOrder = ['coffee', 'tea', 'mojito', 'mojito-carafe', 'milkshakes', 'ice-cream', 'desserts', 'bakery'];
-      const categoryNames: Record<string, string> = {
-        'coffee': 'Кофе', 'tea': 'Чай', 'mojito': 'Мохито',
-        'mojito-carafe': 'Графины', 'milkshakes': 'Шейки',
-        'ice-cream': 'Мороженое', 'desserts': 'Десерты', 'bakery': 'Выпечка'
-      };
-      
-      const categoriesArray = Array.from(uniqueCategories.keys())
-        .map(catId => ({
-          id: catId,
-          name: categoryNames[catId] || catId
-        }))
-        .sort((a, b) => {
-          const aIndex = categoryOrder.indexOf(a.id);
-          const bIndex = categoryOrder.indexOf(b.id);
-          return (aIndex !== -1 ? aIndex : 99) - (bIndex !== -1 ? bIndex : 99);
-        });
-      
-      setCategories(categoriesArray);
-      setLoading(false);
-    }, (error) => {
-      console.error('Firestore Subscription Error:', error);
-      setLoading(false);
+    items.forEach((item) => {
+      if (item.category && !uniqueCategories.has(item.category)) {
+        uniqueCategories.set(item.category, item.category);
+      }
     });
 
-    return () => unsubscribe();
-  }, [firestore]);
+    const categoryOrder = ['coffee', 'tea', 'mojito', 'mojito-carafe', 'milkshakes', 'ice-cream', 'desserts', 'bakery'];
+    const categoryNames: Record<string, string> = {
+      'coffee': 'Кофе', 'tea': 'Чай', 'mojito': 'Мохито',
+      'mojito-carafe': 'Графины', 'milkshakes': 'Шейки',
+      'ice-cream': 'Мороженое', 'desserts': 'Десерты', 'bakery': 'Выпечка'
+    };
+
+    const categoriesArray = Array.from(uniqueCategories.keys())
+      .map(catId => ({
+        id: catId,
+        name: categoryNames[catId] || catId
+      }))
+      .sort((a, b) => {
+        const aIndex = categoryOrder.indexOf(a.id);
+        const bIndex = categoryOrder.indexOf(b.id);
+        return (aIndex !== -1 ? aIndex : 99) - (bIndex !== -1 ? bIndex : 99);
+      });
+
+    return { menuItems: items, categories: categoriesArray };
+  }, [rawData]);
 
   const filteredItems = activeCategory 
     ? menuItems.filter(item => item.category === activeCategory)
@@ -85,72 +72,83 @@ export function Menu() {
 
   if (loading) return (
     <div className="h-[40vh] flex flex-col items-center justify-center gap-6">
-      <Loader2 className="w-10 h-10 animate-spin text-primary/30" />
-      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/40">Загрузка меню...</p>
+      <Loader2 className="w-12 h-12 animate-spin text-primary/30" />
+      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/40 animate-pulse">Загрузка меню...</p>
+    </div>
+  );
+
+  if (error) return (
+    <div className="text-center py-20 px-6 space-y-4">
+      <AlertCircle className="w-12 h-12 text-destructive/30 mx-auto" />
+      <p className="text-muted-foreground text-sm uppercase tracking-widest font-bold">Ошибка загрузки</p>
+      <p className="text-[10px] text-muted-foreground max-w-xs mx-auto">Пожалуйста, проверьте подключение к интернету или настройки Firebase.</p>
+      <Button onClick={() => window.location.reload()} variant="outline" size="sm" className="rounded-full">Попробовать снова</Button>
     </div>
   );
 
   if (menuItems.length === 0) return (
-    <div className="text-center py-20 px-6 space-y-4">
-      <Coffee className="w-12 h-12 text-primary/10 mx-auto" />
-      <p className="text-muted-foreground text-sm uppercase tracking-widest">Меню скоро обновится</p>
-      <p className="text-[10px] text-muted-foreground">Проверьте коллекцию 'menu' в Firestore</p>
+    <div className="text-center py-24 px-6 space-y-4">
+      <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+        <Coffee className="w-10 h-10 text-primary/20" />
+      </div>
+      <p className="text-muted-foreground text-sm uppercase tracking-widest font-bold">Меню скоро обновится</p>
+      <p className="text-[10px] text-muted-foreground max-w-xs mx-auto">Мы наполняем нашу витрину самыми вкусными новинками для вас!</p>
     </div>
   );
 
   return (
-    <div className="space-y-10 md:space-y-16 pb-20 max-w-7xl mx-auto px-6">
+    <div className="space-y-12 md:space-y-20 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {activeCategory ? (
-        <section className="space-y-6">
+        <section className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
               size="icon" 
-              className="rounded-xl border h-10 w-10 shrink-0"
+              className="rounded-2xl border bg-white/50 backdrop-blur-sm h-12 w-12 shrink-0 shadow-sm"
               onClick={() => setActiveCategory(null)}
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-6 h-6" />
             </Button>
-            <div className="space-y-0.5">
-              <h2 className="text-2xl font-black uppercase tracking-tighter leading-none">
+            <div className="space-y-1">
+              <h2 className="text-3xl font-black uppercase tracking-tighter leading-none">
                 {categories.find(c => c.id === activeCategory)?.name || "Категория"}
               </h2>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                {filteredItems.length} позиций
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">
+                {filteredItems.length} позиций доступно
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredItems.map((item) => (
               <ProductCard key={item.id} item={item} />
             ))}
           </div>
         </section>
       ) : (
-        <div className="space-y-12 md:space-y-20">
+        <div className="space-y-16 md:space-y-24">
           {categories.map((cat) => {
             const catItems = menuItems.filter(i => i.category === cat.id);
             if (catItems.length === 0) return null;
 
             return (
-              <section key={cat.id} className="space-y-6">
-                <div className="flex items-end justify-between border-l-4 border-primary pl-4">
-                  <div className="space-y-0.5">
-                    <h2 className="text-2xl font-black font-headline text-primary uppercase tracking-tighter leading-none">
+              <section key={cat.id} className="space-y-8">
+                <div className="flex items-end justify-between border-l-[6px] border-primary pl-5">
+                  <div className="space-y-1">
+                    <h2 className="text-3xl font-black font-headline text-primary uppercase tracking-tighter leading-none">
                       {cat.name}
                     </h2>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Популярное в категории</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Лучшее предложение для вас</p>
                   </div>
                   <Button 
                     variant="ghost" 
-                    className="text-primary font-black gap-1 hover:bg-primary/5 px-2 rounded-xl text-[10px] uppercase tracking-widest h-auto"
+                    className="text-primary font-black gap-2 hover:bg-primary/5 px-4 rounded-2xl text-[10px] uppercase tracking-widest h-10 border border-transparent hover:border-primary/10 transition-all"
                     onClick={() => setActiveCategory(cat.id)}
                   >
-                    Все <ChevronRight className="w-3 h-3" />
+                    Смотреть все <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {catItems.slice(0, 4).map((item) => (
                     <ProductCard key={item.id} item={item} />
                   ))}
