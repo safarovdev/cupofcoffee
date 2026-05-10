@@ -13,7 +13,8 @@
         "price": { "type": "number" },
         "sizes": { "type": "object" },
         "ingredients": { "type": "array", "items": { "type": "string" } },
-        "isSpecial": { "type": "boolean", "description": "Флаг специального предложения" }
+        "isSpecial": { "type": "boolean", "description": "Флаг специального предложения" },
+        "imageUrl": { "type": "string", "description": "URL изображения товара" }
       },
       "required": ["name", "category", "price"]
     },

@@ -8,13 +8,27 @@ import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface ProductCardProps {
   item: MenuItem;
   isMinimal?: boolean;
 }
 
-function ItemPlaceholder({ category }: { category: string }) {
+function ItemPlaceholder({ category, imageUrl }: { category: string, imageUrl?: string }) {
+  if (imageUrl) {
+    return (
+      <div className="w-full h-full relative transition-transform group-hover:scale-110 duration-1000">
+        <Image 
+          src={imageUrl} 
+          alt="Product" 
+          fill 
+          className="object-cover"
+        />
+      </div>
+    );
+  }
+
   const getIcon = () => {
     switch (category) {
       case 'coffee': return <Coffee className="w-8 h-8" />;
@@ -82,7 +96,7 @@ export function ProductCard({ item, isMinimal = false }: ProductCardProps) {
         className="group relative flex flex-col bg-white p-3 rounded-[2.5rem] border border-black/[0.02] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-500 cursor-pointer active:scale-[0.97] w-full"
       >
         <div className="relative aspect-square w-full overflow-hidden rounded-[2rem] bg-muted/10">
-          <ItemPlaceholder category={item.category} />
+          <ItemPlaceholder category={item.category} imageUrl={item.imageUrl} />
           
           <button 
             onClick={handleQuickAdd}

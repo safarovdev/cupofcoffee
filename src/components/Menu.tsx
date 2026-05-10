@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useFirestore, useCollection } from "@/firebase";
 import { collection } from 'firebase/firestore';
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export type MenuItem = {
   id: string;
@@ -17,6 +18,7 @@ export type MenuItem = {
   price: number;
   category: string;
   isSpecial?: boolean;
+  imageUrl?: string;
   sizes?: { [key: string]: number };
 };
 
@@ -154,8 +156,28 @@ export function Menu() {
                   <h2 className="text-2xl font-black uppercase tracking-tighter">Спецпредложение</h2>
                 </div>
                 <div className="bg-primary rounded-[3rem] p-8 sm:p-12 text-white relative overflow-hidden group shadow-2xl">
+                  {specialOffer.imageUrl && (
+                    <div className="absolute inset-0 opacity-40">
+                      <Image 
+                        src={specialOffer.imageUrl} 
+                        alt="Background" 
+                        fill 
+                        className="object-cover blur-sm"
+                      />
+                    </div>
+                  )}
                   <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
                   <div className="relative z-10 flex flex-col md:flex-row gap-8 items-center">
+                    {specialOffer.imageUrl && (
+                      <div className="w-32 h-32 sm:w-48 sm:h-48 relative rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/10 shrink-0">
+                        <Image 
+                          src={specialOffer.imageUrl} 
+                          alt={specialOffer.name} 
+                          fill 
+                          className="object-cover"
+                        />
+                      </div>
+                    )}
                     <div className="flex-1 space-y-4 text-center md:text-left">
                       <span className="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest">Хит месяца</span>
                       <h3 className="text-4xl sm:text-5xl font-black font-headline tracking-tighter leading-none">{specialOffer.name}</h3>

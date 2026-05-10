@@ -7,6 +7,7 @@ import { Edit, Trash2, Coffee, Flame } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 interface EditableProductCardProps {
   item: any;
@@ -27,13 +28,22 @@ export function EditableProductCard({ item, onEdit, onDelete }: EditableProductC
       item.isSpecial ? "bg-orange-50/50" : "bg-card"
     )}>
       <CardContent className="p-0 flex h-32">
-        <div className="w-32 bg-muted relative flex items-center justify-center shrink-0">
-          <Coffee className="w-8 h-8 text-primary/10" />
-          <Badge className="absolute top-2 left-2 text-[8px] font-black bg-white/90 text-primary border-none">
+        <div className="w-32 bg-muted relative flex items-center justify-center shrink-0 overflow-hidden">
+          {item.imageUrl ? (
+            <Image 
+              src={item.imageUrl} 
+              alt={item.name} 
+              fill 
+              className="object-cover"
+            />
+          ) : (
+            <Coffee className="w-8 h-8 text-primary/10" />
+          )}
+          <Badge className="absolute top-2 left-2 text-[8px] font-black bg-white/90 text-primary border-none shadow-sm">
             {categoryNames[item.category] || item.category}
           </Badge>
           {item.isSpecial && (
-            <div className="absolute bottom-2 left-2 bg-orange-500 text-white p-1 rounded-lg">
+            <div className="absolute bottom-2 left-2 bg-orange-500 text-white p-1 rounded-lg shadow-lg">
               <Flame className="w-3 h-3" />
             </div>
           )}

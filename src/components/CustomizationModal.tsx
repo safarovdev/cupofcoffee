@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 interface CustomizationModalProps {
   isOpen: boolean;
@@ -23,7 +24,20 @@ interface CustomizationModalProps {
   item: MenuItem;
 }
 
-function LargePlaceholder({ category }: { category: string }) {
+function LargePlaceholder({ category, imageUrl }: { category: string, imageUrl?: string }) {
+  if (imageUrl) {
+    return (
+      <div className="w-full h-full relative">
+        <Image 
+          src={imageUrl} 
+          alt="Product" 
+          fill 
+          className="object-cover"
+        />
+      </div>
+    );
+  }
+
   const getIcon = () => {
     switch (category) {
       case 'coffee': return <Coffee className="w-20 h-20" />;
@@ -77,14 +91,14 @@ export function CustomizationModal({ isOpen, onClose, item }: CustomizationModal
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl p-0 overflow-hidden bg-card border-none sm:rounded-[2rem]">
         <div className="flex flex-col md:flex-row h-full max-h-[95vh] overflow-y-auto custom-scrollbar">
-          <div className="md:w-1/2 relative h-48 md:h-auto bg-muted">
-            <LargePlaceholder category={item.category} />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+          <div className="md:w-1/2 relative h-64 md:h-auto bg-muted">
+            <LargePlaceholder category={item.category} imageUrl={item.imageUrl} />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
             <div className="absolute bottom-6 left-6 right-6">
-              <DialogTitle className="text-2xl sm:text-3xl font-headline font-bold text-primary">
+              <DialogTitle className="text-2xl sm:text-3xl font-headline font-bold text-white drop-shadow-md">
                 {item.name}
               </DialogTitle>
-              <p className="text-primary/70 text-sm mt-1 font-bold">
+              <p className="text-white/80 text-sm mt-1 font-bold drop-shadow-sm">
                 {currentPrice} сум
               </p>
             </div>
