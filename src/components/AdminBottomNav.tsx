@@ -1,6 +1,7 @@
+
 "use client";
 
-import { LayoutDashboard, Users, Settings, ShoppingBag, ClipboardList, Loader2 } from "lucide-react";
+import { LayoutDashboard, Users, Settings, ShoppingBag, ClipboardList, Loader2, History } from "lucide-react";
 import { useFirestore, useCollection } from "@/firebase";
 import { collection, query, where } from "firebase/firestore";
 import Link from "next/link";
@@ -13,12 +14,10 @@ export function AdminBottomNav() {
   const firestore = useFirestore();
   const [navigatingTo, setNavigatingTo] = useState<string | null>(null);
 
-  // Сбрасываем индикатор навигации при смене пути
   useEffect(() => {
     setNavigatingTo(null);
   }, [pathname]);
 
-  // Реальное отслеживание новых заказов без лагов
   const pendingOrdersQuery = useMemo(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'orders'), where('status', '==', 'pending'));
@@ -33,10 +32,10 @@ export function AdminBottomNav() {
 
   const navItems = [
     { href: "/admin", icon: LayoutDashboard, label: "Панель" },
-    { href: "/admin/menu", icon: ShoppingBag, label: "Меню" },
     { href: "/admin/orders", icon: ClipboardList, label: "Заказы", badge: pendingCount, badgeColor: 'bg-orange-500' },
-    { href: "/admin/staff", icon: Users, label: "Штат" },
+    { href: "/admin/shifts", icon: History, label: "Смены" },
     { href: "/admin/settings", icon: Settings, label: "Товары" },
+    { href: "/admin/staff", icon: Users, label: "Штат" },
   ];
 
   return (
@@ -69,7 +68,7 @@ export function AdminBottomNav() {
                 )}
               </div>
               <span className={cn(
-                "text-[8px] font-black uppercase tracking-[0.15em] transition-all",
+                "text-[7px] xs:text-[8px] font-black uppercase tracking-[0.1em] transition-all",
                 isActive || isNavigating ? "opacity-100" : "opacity-40"
               )}>
                 {item.label}

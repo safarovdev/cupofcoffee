@@ -27,6 +27,19 @@
         "uid": { "type": "string" }
       },
       "required": ["email", "uid"]
+    },
+    "Shift": {
+      "title": "Shift",
+      "description": "Рабочая смена сотрудника.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "startTime": { "type": "string", "format": "date-time" },
+        "endTime": { "type": "string", "format": "date-time" },
+        "durationMinutes": { "type": "number" }
+      },
+      "required": ["userId", "startTime"]
     }
   },
   "auth": {
@@ -40,6 +53,10 @@
     "/admins/{adminId}": {
       "schema": "AdminUser",
       "description": "Список разрешенных администраторов. Документ должен иметь ID равный UID пользователя."
+    },
+    "/shifts": {
+      "schema": "Shift",
+      "description": "История рабочих смен."
     }
   }
 }

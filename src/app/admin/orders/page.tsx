@@ -1,15 +1,17 @@
+
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useFirestore, useCollection } from '@/firebase';
-import { collection, query, orderBy, doc, updateDoc } from 'firebase/firestore';
+import { useState, useMemo, useEffect } from 'react';
+import { useFirestore, useCollection, useUser } from '@/firebase';
+import { collection, query, orderBy, doc, updateDoc, where, getDocs, limit } from 'firebase/firestore';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, Clock, User, ArrowLeft, LayoutDashboard, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, User, ArrowLeft, Loader2, AlertTriangle, Play } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 interface Order {
   id: string;
@@ -42,13 +44,33 @@ interface Staff {
 
 export default function OrdersPage() {
   const { toast } = useToast();
+  const { user } = useUser();
   const firestore = useFirestore();
+  const router = useRouter();
   
   const [activeTab, setActiveTab] = useState<'pending' | 'accepted' | 'rejected'>('pending');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showStaffSelector, setShowStaffSelector] = useState(false);
+  const [hasActiveShift, setHasActiveShift] = useState<boolean | null>(null);
 
-  // Используем хуки вместо динамических импортов для скорости
+  // Проверка активной смены
+  useEffect(() => {
+    if (user && firestore) {
+      const q = query(
+        collection(firestore, 'shifts'),
+        where('userId', '==', user.uid),
+        where('endTime', '==', null),
+        limit(1)
+      );
+      
+      const checkShift = async () => {
+        const snap = await getDocs(q);
+        setHasActiveShift(!snap.empty);
+      };
+      checkShift();
+    }
+  }, [user, firestore]);
+
   const ordersQuery = useMemo(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'orders'), orderBy('createdAt', 'desc'));
@@ -74,7 +96,7 @@ export default function OrdersPage() {
   }, [rawOrders]);
 
   const handleAcceptOrder = async (orderId: string, staffId: string) => {
-    if (!firestore) return;
+    if (!firestore || !hasActiveShift) return;
     try {
       const staffMember = staffMembers?.find(s => s.id === staffId);
       await updateDoc(doc(firestore, 'orders', orderId), {
@@ -113,6 +135,24 @@ export default function OrdersPage() {
       </header>
 
       <main className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        {/* Предупреждение о смене */}
+        {hasActiveShift === false && (
+          <Card className="bg-orange-50 border-orange-200 border-2 rounded-[2rem] overflow-hidden">
+            <CardContent className="p-6 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+              <div className="bg-orange-500 text-white p-3 rounded-2xl shadow-lg">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-black text-orange-800 uppercase tracking-tight text-sm">Внимание! Смена не открыта</h3>
+                <p className="text-xs text-orange-700 font-medium">Для принятия новых заказов необходимо начать рабочую смену.</p>
+              </div>
+              <Button onClick={() => router.push('/admin')} size="sm" className="bg-orange-600 hover:bg-orange-700 rounded-xl h-10 px-6 font-bold gap-2">
+                <Play className="w-3 h-3 fill-current" /> НАЧАТЬ СМЕНУ
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Фильтры */}
         <div className="flex bg-muted p-1.5 rounded-2xl sm:rounded-[2rem] gap-1">
           {(['pending', 'accepted', 'rejected'] as const).map((status) => (
@@ -164,7 +204,15 @@ export default function OrdersPage() {
                         <Button size="sm" variant="destructive" className="rounded-xl h-10 w-10 p-0" onClick={() => handleRejectOrder(order.id)}>
                           <XCircle className="w-5 h-5" />
                         </Button>
-                        <Button size="sm" className="rounded-xl h-10 px-4 bg-emerald-600 hover:bg-emerald-700" onClick={() => { setSelectedOrder(order); setShowStaffSelector(true); }}>
+                        <Button 
+                          size="sm" 
+                          disabled={!hasActiveShift}
+                          className={cn(
+                            "rounded-xl h-10 px-4",
+                            hasActiveShift ? "bg-emerald-600 hover:bg-emerald-700" : "bg-muted text-muted-foreground cursor-not-allowed"
+                          )} 
+                          onClick={() => { setSelectedOrder(order); setShowStaffSelector(true); }}
+                        >
                           <CheckCircle className="w-4 h-4 mr-2" /> ПРИНЯТЬ
                         </Button>
                       </>
