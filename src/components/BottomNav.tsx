@@ -51,7 +51,7 @@ export function BottomNav() {
               </span>
               
               {item.badge && item.badge > 0 && (
-                <span className="absolute top-2 right-1/4 bg-primary text-white text-[10px] min-w-[20px] h-[20px] flex items-center justify-center rounded-full font-black border-2 border-white shadow-lg px-1 animate-in zoom-in duration-300">
+                <span className="absolute top-1 right-[20%] bg-primary text-white text-[9px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full font-black border-2 border-white shadow-lg px-1 animate-in zoom-in duration-300">
                   {item.badge}
                 </span>
               )}

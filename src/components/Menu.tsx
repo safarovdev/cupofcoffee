@@ -37,7 +37,7 @@ export function Menu() {
     const items = rawData as MenuItem[];
     
     // 1. Поиск специального предложения
-    const special = items.find(i => i.isSpecial) || items[0];
+    const special = items.find(i => i.isSpecial) || null;
 
     // 2. Логика "Рекомендуем вам" (перемешивание каждые 4 часа)
     const hoursSlot = Math.floor(new Date().getHours() / 4);
@@ -45,7 +45,7 @@ export function Menu() {
     const seed = `${dayKey}-${hoursSlot}`;
     
     const shuffled = [...items]
-      .filter(i => i.id !== special.id)
+      .filter(i => !special || i.id !== special.id)
       .sort((a, b) => {
         const hashA = (a.id + seed).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         const hashB = (b.id + seed).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -82,7 +82,7 @@ export function Menu() {
     return { 
       menuItems: items, 
       categories: categoriesArray, 
-      specialOffer: items.find(i => i.isSpecial) || null, 
+      specialOffer: special, 
       recommendedItems: shuffled 
     };
   }, [rawData]);
@@ -208,7 +208,7 @@ export function Menu() {
               if (catItems.length === 0) return null;
 
               return (
-                <section key={cat.id} className="space-y-6">
+                <section key={cat.id} id={`category-${cat.id}`} className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-black font-headline text-primary uppercase tracking-tighter">
                       {cat.name}
