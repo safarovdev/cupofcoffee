@@ -1,65 +1,50 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useFirestore } from '@/firebase';
+import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowLeft, ShieldAlert, Plus, Trash2, Loader2, Package, Search, Edit } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader2, Package, Search, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { AddProductForm } from '@/components/AddProductForm';
 
-const CATEGORIES = ['Все']; // Будет заполнено из базы данных
-
 export default function AdminProductsPage() {
+  const { firestore } = useFirestore();
   const { toast } = useToast();
   
   const [menuItems, setMenuItems] = useState<any[]>([]);
-  const [menuLoading, setMenuLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
-  
   const [categories, setCategories] = useState<string[]>(['Все']);
 
-  useEffect(() => {
-    const loadMenuItems = async () => {
-      try {
-        const { initializeApp, getApps, getApp } = await import('firebase/app');
-        const { getFirestore, collection, getDocs } = await import('firebase/firestore');
-        
-        const config = {
-          apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
-          authDomain: "coffee-f4bc1.firebaseapp.com",
-          projectId: "coffee-f4bc1",
-          storageBucket: "coffee-f4bc1.firebasestorage.app",
-          messagingSenderId: "847730890494",
-          appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
-          measurementId: "G-3XN7LXDTJJ"
-        };
-        
-        const app = getApps().length > 0 ? getApp() : initializeApp(config);
-        const firestore = getFirestore(app);
-        
-        const querySnapshot = await getDocs(collection(firestore, 'menu'));
-        const items = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-        // Извлекаем уникальные категории из товаров
-        const uniqueCategories = ['Все', ...new Set(items.map((item: any) => item.category).filter(Boolean))];
-        setCategories(uniqueCategories);
-        setMenuItems(items);
-        console.log(`Products: Loaded ${items.length} items, categories: ${uniqueCategories.join(', ')}`);
-      } catch (error) {
-        console.error('Products: Error loading items:', error);
-      } finally {
-        setMenuLoading(false);
-      }
-    };
+  const loadMenuItems = async () => {
+    if (!firestore) return;
+    setLoading(true);
+    try {
+      const querySnapshot = await getDocs(collection(firestore, 'menu'));
+      const items = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      const uniqueCategories = ['Все', ...new Set(items.map((item: any) => item.category).filter(Boolean))];
+      setCategories(uniqueCategories);
+      setMenuItems(items);
+    } catch (error) {
+      console.error('Error loading items:', error);
+      toast({ variant: 'destructive', title: 'Ошибка загрузки' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadMenuItems();
-  }, []);
+  }, [firestore]);
 
   const filteredItems = menuItems.filter(item => {
     const matchesCategory = selectedCategory === 'Все' || item.category === selectedCategory;
@@ -68,170 +53,110 @@ export default function AdminProductsPage() {
   });
 
   const handleDeleteItem = async (id: string) => {
-    if (!confirm('Удалить этот товар?')) return;
-    
+    if (!firestore || !confirm('Удалить этот товар?')) return;
     try {
-      const { initializeApp, getApps, getApp } = await import('firebase/app');
-      const { getFirestore, doc, deleteDoc } = await import('firebase/firestore');
-      
-      const config = {
-        apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
-        authDomain: "coffee-f4bc1.firebaseapp.com",
-        projectId: "coffee-f4bc1",
-        storageBucket: "coffee-f4bc1.firebasestorage.app",
-        messagingSenderId: "847730890494",
-        appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
-        measurementId: "G-3XN7LXDTJJ"
-      };
-      
-      const app = getApps().length > 0 ? getApp() : initializeApp(config);
-      const firestore = getFirestore(app);
-      
       await deleteDoc(doc(firestore, 'menu', id));
-      
       setMenuItems(prev => prev.filter(item => item.id !== id));
-      toast({ title: 'Удалено', description: 'Товар успешно удален.' });
+      toast({ title: 'Товар удален' });
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось удалить товар.' });
+      toast({ variant: 'destructive', title: 'Ошибка удаления' });
     }
   };
 
   const handleAddItem = async (data: any) => {
+    if (!firestore) return;
     try {
-      const { initializeApp, getApps, getApp } = await import('firebase/app');
-      const { getFirestore, doc, setDoc } = await import('firebase/firestore');
-      
-      const config = {
-        apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
-        authDomain: "coffee-f4bc1.firebaseapp.com",
-        projectId: "coffee-f4bc1",
-        storageBucket: "coffee-f4bc1.firebasestorage.app",
-        messagingSenderId: "847730890494",
-        appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
-        measurementId: "G-3XN7LXDTJJ"
-      };
-      
-      const app = getApps().length > 0 ? getApp() : initializeApp(config);
-      const firestore = getFirestore(app);
-      
-      const newItem = {
-        id: `item-${Date.now()}`,
+      const id = data.id || `item-${Date.now()}`;
+      await setDoc(doc(firestore, 'menu', id), {
         ...data,
         rating: 5.0,
         time: "5 мин"
-      };
-      
-      await setDoc(doc(firestore, 'menu', newItem.id), newItem);
-      
-      setMenuItems(prev => [...prev, newItem]);
+      });
       setShowAddDialog(false);
-      toast({ title: 'Добавлено', description: 'Новый товар успешно создан.' });
+      loadMenuItems();
+      toast({ title: 'Товар добавлен' });
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось создать товар.' });
+      toast({ variant: 'destructive', title: 'Ошибка сохранения' });
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* Header */}
-      <header className="bg-card/80 backdrop-blur-md border-b p-3 sticky top-0 z-50 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Link href="/admin" className="text-muted-foreground hover:text-primary p-2">
+    <div className="min-h-screen flex flex-col bg-background pb-32">
+      <header className="bg-card/80 backdrop-blur-md border-b p-6 sticky top-0 z-50 flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <Link href="/admin" className="p-2 hover:bg-muted rounded-2xl transition-colors">
             <ArrowLeft className="w-6 h-6" />
           </Link>
-          <div className="flex items-center gap-2">
-            <ShieldAlert className="w-6 h-6 text-primary" />
-            <h1 className="font-bold text-lg uppercase tracking-tight">Товары</h1>
-          </div>
+          <h1 className="font-black text-2xl uppercase tracking-tighter">Управление товарами</h1>
         </div>
-        <div className="text-sm text-muted-foreground">
+        <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground bg-muted px-4 py-2 rounded-full">
           {menuItems.length} позиций
         </div>
       </header>
 
-      <main className="flex-1 p-6 sm:p-8 lg:p-10 pb-40">
-        {/* Search */}
-        <div className="relative mb-4">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground" />
-          <Input
-            placeholder="Поиск товаров..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-12 h-14 text-lg rounded-xl"
-          />
+      <main className="max-w-7xl mx-auto w-full p-6 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input
+              placeholder="Поиск по названию..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-12 h-14 rounded-2xl border-none shadow-sm"
+            />
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+            {categories.map(cat => (
+              <Button
+                key={cat}
+                variant={selectedCategory === cat ? 'default' : 'outline'}
+                onClick={() => setSelectedCategory(cat)}
+                className="rounded-full px-6 h-14 font-bold"
+              >
+                {cat}
+              </Button>
+            ))}
+          </div>
         </div>
 
-        {/* Category Filter */}
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide">
-          {categories.map(cat => (
-            <Button
-              key={cat}
-              variant={selectedCategory === cat ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedCategory(cat)}
-              className="whitespace-nowrap h-10 px-4 text-sm rounded-full"
-            >
-              {cat}
-            </Button>
-          ))}
-        </div>
-
-        {/* Products Grid */}
-        {menuLoading ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="animate-spin text-primary w-16 h-16" />
-            <p className="mt-4 text-xl text-muted-foreground">Загрузка...</p>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <Loader2 className="w-12 h-12 animate-spin text-primary" />
+            <p className="font-bold uppercase tracking-widest text-muted-foreground">Загрузка товаров...</p>
           </div>
         ) : filteredItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Package className="w-24 h-24 text-muted-foreground/30 mb-4" />
-            <p className="text-2xl text-muted-foreground">Нет товаров</p>
-            <p className="text-muted-foreground/70 mt-2 text-lg">Добавьте первый товар</p>
-          </div>
+          <Card className="border-none shadow-sm rounded-[2.5rem] py-24">
+            <CardContent className="flex flex-col items-center text-center space-y-4">
+              <Package className="w-20 h-20 text-muted-foreground/20" />
+              <p className="text-xl font-bold uppercase tracking-tighter">Товары не найдены</p>
+              <Button onClick={() => setShowAddDialog(true)} className="rounded-2xl h-12">Добавить первый товар</Button>
+            </CardContent>
+          </Card>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {filteredItems.map(item => (
-              <Card key={item.id} className="overflow-hidden">
-                {/* Image */}
-                <div className="aspect-square bg-muted relative overflow-hidden">
-                  {item.image ? (
-                    <img 
-                      src={item.image} 
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-                      <Package className="w-12 h-12 text-primary/30" />
-                    </div>
-                  )}
-                </div>
-                
-                {/* Info */}
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-sm line-clamp-1">{item.name}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{item.category}</p>
-                  <p className="font-bold text-primary mt-3 text-base">{item.price} ₽</p>
-                  
-                  {/* Always visible buttons */}
-                  <div className="flex gap-2 mt-3">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex-1 h-10 text-sm"
-                      onClick={() => {/* Edit logic */}}
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Изменить
+              <Card key={item.id} className="group overflow-hidden rounded-[2rem] border-none shadow-sm hover:shadow-xl transition-all">
+                <div className="aspect-square bg-muted flex items-center justify-center relative">
+                  <Package className="w-12 h-12 text-primary/10" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 gap-2">
+                    <Button size="icon" className="rounded-xl h-12 w-12 bg-white text-primary hover:bg-white/90">
+                      <Edit className="w-5 h-5" />
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      className="h-10 px-3"
+                    <Button 
+                      size="icon" 
+                      variant="destructive" 
+                      className="rounded-xl h-12 w-12"
                       onClick={() => handleDeleteItem(item.id)}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-5 h-5" />
                     </Button>
+                  </div>
+                </div>
+                <CardContent className="p-6 space-y-2">
+                  <h3 className="font-bold text-lg leading-tight line-clamp-1">{item.name}</h3>
+                  <div className="flex justify-between items-end">
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{item.category}</p>
+                    <p className="text-xl font-black text-primary">{item.price} сум</p>
                   </div>
                 </CardContent>
               </Card>
@@ -240,25 +165,22 @@ export default function AdminProductsPage() {
         )}
       </main>
 
-      {/* Floating Add Button */}
-      <div className="fixed bottom-36 right-6 z-[999] lg:bottom-16">
-        <Button 
-          onClick={() => setShowAddDialog(true)}
-          size="lg"
-          className="rounded-full h-20 px-8 shadow-2xl bg-primary hover:bg-primary/90 text-white font-bold flex items-center gap-3 text-lg"
-        >
-          <Plus className="w-8 h-8" />
-          <span>Добавить</span>
-        </Button>
-      </div>
+      <Button 
+        onClick={() => setShowAddDialog(true)}
+        className="fixed bottom-28 right-6 lg:bottom-12 rounded-[2rem] h-20 px-10 shadow-2xl font-black text-xl gap-4 animate-in slide-in-from-bottom-10"
+      >
+        <Plus className="w-8 h-8" />
+        Добавить товар
+      </Button>
 
-      {/* Add Product Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl">Добавить товар</DialogTitle>
+        <DialogContent className="max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none">
+          <DialogHeader className="p-8 bg-primary text-white">
+            <DialogTitle className="text-2xl font-black uppercase tracking-tighter">Новый товар</DialogTitle>
           </DialogHeader>
-          <AddProductForm onAdd={handleAddItem} />
+          <div className="p-8">
+            <AddProductForm onAdd={handleAddItem} />
+          </div>
         </DialogContent>
       </Dialog>
     </div>
