@@ -142,7 +142,7 @@ export default function CartPage() {
                   className="w-full rounded-2xl h-14 font-black text-base shadow-lg shadow-primary/20 gap-2"
                 >
                   <Link href="/checkout">
-                    ПЕРЕЙТИ К ОПЛАТЕ
+                    ОФОРМИТЬ ЗАКАЗ
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </Button>
