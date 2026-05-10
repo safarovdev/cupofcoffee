@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useCart } from '@/context/CartContext';
-import { ArrowLeft, Plus, Minus, User, Loader2 } from 'lucide-react';
+import { ArrowLeft, Plus, Minus, User, Loader2, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 
@@ -75,7 +75,6 @@ export default function CheckoutPage() {
       const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
       const firestore = getFirestore(app);
 
-      // Генерируем ID заказа на основе общего количества
       const ordersSnapshot = await getDocs(collection(firestore, 'orders'));
       const orderId = String(ordersSnapshot.size + 1).padStart(4, '0');
 
@@ -108,10 +107,11 @@ export default function CheckoutPage() {
 
       toast({
         title: 'Заказ успешно оформлен!',
-        description: `Номер вашего заказа: #${orderId}`
+        description: `Ваш заказ #${orderId} принят кофейней.`,
       });
 
-      router.push('/order-confirmation');
+      // Сразу переходим на главную
+      router.push('/');
     } catch (error) {
       console.error('Error creating order:', error);
       toast({
