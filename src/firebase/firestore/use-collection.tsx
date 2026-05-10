@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Query,
   onSnapshot,
@@ -14,8 +15,9 @@ export function useCollection<T = DocumentData>(query: Query<T> | null) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    // Если запрос еще не сформирован (null), мы остаемся в состоянии loading: true,
+    // но ничего не делаем, пока не получим валидный query.
     if (!query) {
-      setLoading(false);
       return;
     }
 

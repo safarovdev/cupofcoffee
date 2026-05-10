@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useUser, useFirestore } from '@/firebase';
-import { doc, getDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, writeBatch, setDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -112,6 +112,29 @@ export default function AdminPage() {
     router.push('/');
   };
 
+  const handleMakeMeAdmin = async () => {
+    if (!firestore || !user) return;
+    setIsInitializing(true);
+    try {
+      await setDoc(doc(firestore, 'admins', user.uid), {
+        email: user.email,
+        uid: user.uid,
+        createdAt: new Date().toISOString()
+      });
+      setIsAdmin(true);
+      toast({ title: 'Права администратора получены!', description: 'Теперь у вас есть доступ к панели.' });
+      loadStats();
+    } catch (error) {
+      toast({ 
+        variant: 'destructive', 
+        title: 'Ошибка', 
+        description: 'Не удалось назначить права. Проверьте правила доступа Firestore.' 
+      });
+    } finally {
+      setIsInitializing(false);
+    }
+  };
+
   const seedDatabase = async () => {
     if (!firestore) return;
     setIsInitializing(true);
@@ -190,7 +213,17 @@ export default function AdminPage() {
           <h2 className="text-2xl font-bold uppercase tracking-tighter">Доступ ограничен</h2>
           <p className="text-muted-foreground">У вас нет прав администратора. Ваш UID:</p>
           <div className="bg-muted p-4 rounded-2xl font-mono text-xs break-all">{user.uid}</div>
-          <Button onClick={handleLogout} variant="outline" className="w-full h-12 rounded-2xl">Выйти</Button>
+          
+          <div className="pt-4 space-y-3">
+            <Button 
+              onClick={handleMakeMeAdmin} 
+              disabled={isInitializing}
+              className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 font-bold"
+            >
+              {isInitializing ? <Loader2 className="animate-spin mr-2" /> : "Сделать меня администратором"}
+            </Button>
+            <Button onClick={handleLogout} variant="outline" className="w-full h-12 rounded-2xl">Выйти</Button>
+          </div>
         </Card>
       </div>
     );
