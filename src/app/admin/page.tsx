@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -18,7 +19,8 @@ import {
   Square,
   History,
   Coffee,
-  LayoutDashboard
+  LayoutDashboard,
+  Wallet
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -99,7 +101,7 @@ export default function AdminPage() {
     let interval: any;
     if (activeShift && activeShift.startTime) {
       interval = setInterval(() => {
-        const start = activeShift.startTime.toDate();
+        const start = activeShift.startTime.toDate ? activeShift.startTime.toDate() : new Date(activeShift.startTime);
         const now = new Date();
         const diff = Math.floor((now.getTime() - start.getTime()) / 1000);
         
@@ -143,7 +145,9 @@ export default function AdminPage() {
         userName: user.email || 'Admin',
         startTime: serverTimestamp(),
         endTime: null,
-        durationMinutes: 0
+        durationMinutes: 0,
+        totalEarnings: 0,
+        ordersCount: 0
       });
       const newShift = await getDoc(docRef);
       setActiveShift({ id: docRef.id, ...newShift.data() });
@@ -159,18 +163,42 @@ export default function AdminPage() {
     if (!firestore || !activeShift) return;
     setIsInitializing(true);
     try {
-      const start = activeShift.startTime.toDate();
+      const start = activeShift.startTime.toDate ? activeShift.startTime.toDate() : new Date(activeShift.startTime);
       const end = new Date();
       const durationMin = Math.round((end.getTime() - start.getTime()) / 60000);
       
+      // Подсчет статистики за смену
+      const ordersQuery = query(
+        collection(firestore, 'orders'),
+        where('createdAt', '>=', activeShift.startTime),
+        where('status', '==', 'accepted')
+      );
+      
+      const ordersSnap = await getDocs(ordersQuery);
+      let totalEarnings = 0;
+      let ordersCount = 0;
+
+      ordersSnap.forEach((doc) => {
+        const orderData = doc.data();
+        // Дополнительная проверка на время (Firestore query >= иногда берет чуть больше если тики совпадают)
+        totalEarnings += orderData.totalAmount || 0;
+        ordersCount++;
+      });
+      
       await updateDoc(doc(firestore, 'shifts', activeShift.id), {
         endTime: serverTimestamp(),
-        durationMinutes: durationMin
+        durationMinutes: durationMin,
+        totalEarnings: totalEarnings,
+        ordersCount: ordersCount
       });
       
       setActiveShift(null);
-      toast({ title: 'Смена закрыта', description: `Продолжительность: ${durationMin} мин.` });
+      toast({ 
+        title: 'Смена закрыта', 
+        description: `Итог: ${totalEarnings.toLocaleString()} сум (${ordersCount} зак.)` 
+      });
     } catch (error) {
+      console.error('Error closing shift:', error);
       toast({ variant: 'destructive', title: 'Ошибка при закрытии смены' });
     } finally {
       setIsInitializing(false);
@@ -256,7 +284,7 @@ export default function AdminPage() {
             <ShieldAlert className="w-10 h-10 text-destructive" />
           </div>
           <h2 className="text-2xl font-black uppercase tracking-tighter mb-4">Доступ ограничен</h2>
-          <p className="text-sm text-muted-foreground mb-6">У вашего аккаунта нет прав администратора.</p>
+          <p className="text-sm text-muted-foreground mb-6">UID: {user.uid}</p>
           <Button onClick={handleMakeMeAdmin} disabled={isInitializing} className="w-full h-14 rounded-2xl bg-primary font-black">
             {isInitializing ? <Loader2 className="animate-spin mr-2" /> : "ПОЛУЧИТЬ ПРАВА"}
           </Button>

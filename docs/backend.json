@@ -30,14 +30,16 @@
     },
     "Shift": {
       "title": "Shift",
-      "description": "Рабочая смена сотрудника.",
+      "description": "Рабочая смена сотрудника с финансовой статистикой.",
       "type": "object",
       "properties": {
         "userId": { "type": "string" },
         "userName": { "type": "string" },
         "startTime": { "type": "string", "format": "date-time" },
         "endTime": { "type": "string", "format": "date-time" },
-        "durationMinutes": { "type": "number" }
+        "durationMinutes": { "type": "number" },
+        "totalEarnings": { "type": "number", "description": "Сумма выручки за смену в UZS" },
+        "ordersCount": { "type": "number", "description": "Количество принятых заказов за смену" }
       },
       "required": ["userId", "startTime"]
     }

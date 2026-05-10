@@ -6,7 +6,7 @@ import { useFirestore, useCollection } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, History, Clock, User, Calendar, Loader2 } from 'lucide-react';
+import { ArrowLeft, History, Clock, User, Calendar, Loader2, Wallet, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +17,8 @@ interface Shift {
   startTime: any;
   endTime: any;
   durationMinutes: number;
+  totalEarnings?: number;
+  ordersCount?: number;
 }
 
 export default function ShiftStatsPage() {
@@ -44,8 +46,17 @@ export default function ShiftStatsPage() {
     });
   }, [shifts]);
 
-  const totalMinutes = useMemo(() => {
-    return formattedShifts.reduce((acc, curr) => acc + (curr.durationMinutes || 0), 0);
+  const stats = useMemo(() => {
+    const totalMin = formattedShifts.reduce((acc, curr) => acc + (curr.durationMinutes || 0), 0);
+    const totalEarned = formattedShifts.reduce((acc, curr) => acc + (curr.totalEarnings || 0), 0);
+    const totalOrders = formattedShifts.reduce((acc, curr) => acc + (curr.ordersCount || 0), 0);
+    
+    return {
+      totalMinutes: totalMin,
+      totalEarnings: totalEarned,
+      totalOrders: totalOrders,
+      shiftsCount: formattedShifts.length
+    };
   }, [formattedShifts]);
 
   return (
@@ -61,12 +72,18 @@ export default function ShiftStatsPage() {
         {/* Суммарная статистика */}
         <div className="grid grid-cols-2 gap-4">
           <Card className="border-none shadow-sm rounded-3xl bg-primary text-white p-6">
-            <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">Всего смен</p>
-            <p className="text-3xl font-black">{loading ? '...' : formattedShifts.length}</p>
+            <div className="flex items-center gap-2 opacity-60 mb-1">
+              <Wallet className="w-3 h-3" />
+              <p className="text-[10px] font-black uppercase tracking-widest">Всего выручка</p>
+            </div>
+            <p className="text-2xl sm:text-3xl font-black">{loading ? '...' : stats.totalEarnings.toLocaleString()} сум</p>
           </Card>
           <Card className="border-none shadow-sm rounded-3xl bg-card p-6 border border-primary/10">
-            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Отработано (мин)</p>
-            <p className="text-3xl font-black text-primary">{loading ? '...' : totalMinutes}</p>
+             <div className="flex items-center gap-2 text-muted-foreground mb-1">
+              <ShoppingBag className="w-3 h-3" />
+              <p className="text-[10px] font-black uppercase tracking-widest">Заказов принято</p>
+            </div>
+            <p className="text-2xl sm:text-3xl font-black text-primary">{loading ? '...' : stats.totalOrders}</p>
           </Card>
         </div>
 
@@ -94,20 +111,33 @@ export default function ShiftStatsPage() {
                         )}>
                           {s.endTime ? <History className="w-6 h-6" /> : <Clock className="w-6 h-6 animate-pulse" />}
                         </div>
-                        <div>
+                        <div className="flex-1">
                           <h4 className="font-black text-sm uppercase tracking-tight">{s.userName}</h4>
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className="flex flex-wrap items-center gap-2 mt-1">
                             <Badge variant={s.endTime ? "secondary" : "default"} className="text-[8px] font-black tracking-widest uppercase rounded-lg px-2">
                               {s.endTime ? "Завершена" : "В работе"}
                             </Badge>
                             {s.endTime && (
-                              <p className="text-[10px] font-bold text-primary">{s.durationMinutes} минут</p>
+                              <p className="text-[10px] font-bold text-primary">{s.durationMinutes} мин</p>
                             )}
                           </div>
                         </div>
                       </div>
+
+                      {s.endTime && (
+                        <div className="grid grid-cols-2 gap-4 border-t sm:border-t-0 sm:border-l sm:pl-6 pt-4 sm:pt-0">
+                          <div>
+                            <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">Выручка</p>
+                            <p className="font-black text-sm text-primary tracking-tight">{(s.totalEarnings || 0).toLocaleString()} сум</p>
+                          </div>
+                          <div>
+                            <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">Заказы</p>
+                            <p className="font-black text-sm tracking-tight">{s.ordersCount || 0} зак.</p>
+                          </div>
+                        </div>
+                      )}
                       
-                      <div className="grid grid-cols-2 sm:flex sm:flex-col items-start sm:items-end gap-2 sm:gap-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                      <div className="flex flex-col items-start sm:items-end gap-1 text-[10px] font-bold text-muted-foreground uppercase tracking-widest min-w-[120px]">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-3 h-3" />
                           <span>{s.startTime instanceof Date ? s.startTime.toLocaleDateString() : '...'}</span>
