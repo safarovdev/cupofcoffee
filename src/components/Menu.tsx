@@ -6,7 +6,7 @@ import { ChevronRight, ArrowLeft, Loader2, Coffee, AlertCircle, RefreshCw } from
 import { ProductCard } from "./ProductCard";
 import { Button } from "@/components/ui/button";
 import { useFirestore, useCollection } from "@/firebase";
-import { collection, query, orderBy, DocumentData, getDocs } from 'firebase/firestore';
+import { collection, DocumentData } from 'firebase/firestore';
 
 export type MenuItem = {
   id: string;
@@ -21,10 +21,9 @@ export type MenuItem = {
 };
 
 export function Menu() {
-  const { firestore } = useFirestore();
+  const firestore = useFirestore();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  // Используем максимально простой запрос без сортировки для исключения проблем с индексами
   const menuQuery = useMemo(() => {
     if (!firestore) return null;
     return collection(firestore, 'menu');
@@ -32,18 +31,15 @@ export function Menu() {
 
   const { data: rawData, loading, error } = useCollection<MenuItem>(menuQuery as any);
 
-  // Отладочный лог для консоли браузера
   useEffect(() => {
     if (rawData) {
       console.log("AromaFlow Debug: Received menu items count:", rawData.length);
-      console.log("AromaFlow Debug: Data sample:", rawData[0]);
     }
     if (error) {
       console.error("AromaFlow Debug: Firestore Error:", error);
     }
   }, [rawData, error]);
 
-  // Обработка данных
   const { menuItems, categories } = useMemo(() => {
     if (!rawData || rawData.length === 0) return { menuItems: [], categories: [] };
 
@@ -93,7 +89,7 @@ export function Menu() {
       <AlertCircle className="w-12 h-12 text-destructive/30 mx-auto" />
       <p className="text-muted-foreground text-sm uppercase tracking-widest font-bold">Ошибка базы данных</p>
       <p className="text-[10px] text-muted-foreground max-w-xs mx-auto mb-4">
-        {error.message || "Пожалуйста, проверьте правила доступа в Firebase Console."}
+        Проверьте консоль браузера для деталей.
       </p>
       <Button onClick={() => window.location.reload()} variant="outline" size="sm" className="rounded-full">
         Попробовать снова

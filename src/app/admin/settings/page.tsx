@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AddProductForm } from '@/components/AddProductForm';
 
 export default function AdminProductsPage() {
-  const { firestore } = useFirestore();
+  const firestore = useFirestore();
   const { toast } = useToast();
   
   const [menuItems, setMenuItems] = useState<any[]>([]);

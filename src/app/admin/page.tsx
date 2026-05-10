@@ -28,7 +28,7 @@ import { Label } from '@/components/ui/label';
 
 export default function AdminPage() {
   const { user, loading: authLoading } = useUser();
-  const { firestore } = useFirestore();
+  const firestore = useFirestore();
   const { toast } = useToast();
   const router = useRouter();
   
@@ -46,7 +46,6 @@ export default function AdminPage() {
   });
   const [statsLoading, setStatsLoading] = useState(true);
 
-  // Загрузка статистики
   const loadStats = async () => {
     if (!firestore) return;
     try {
@@ -100,7 +99,7 @@ export default function AdminPage() {
       toast({ 
         variant: 'destructive', 
         title: 'Ошибка входа', 
-        description: 'Проверьте данные или права доступа.' 
+        description: error.message || 'Проверьте данные или права доступа.' 
       });
     } finally {
       setIsSigningIn(false);
@@ -212,7 +211,6 @@ export default function AdminPage() {
       </header>
 
       <main className="max-w-7xl mx-auto p-6 space-y-8">
-        {/* Статистика */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { label: 'Новые заказы', val: stats.newOrders, icon: Clock, color: 'text-orange-500', bg: 'bg-orange-100' },
@@ -234,7 +232,6 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Навигация */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Link href="/admin/menu">
             <Card className="hover:shadow-xl transition-all cursor-pointer group border-none rounded-[2.5rem] bg-card">
@@ -285,7 +282,6 @@ export default function AdminPage() {
           </Link>
         </div>
 
-        {/* Быстрые действия */}
         <Card className="border-none shadow-sm rounded-[2.5rem] bg-primary/5">
           <CardHeader>
             <CardTitle className="text-xl font-black uppercase tracking-tighter">Сервисные функции</CardTitle>
