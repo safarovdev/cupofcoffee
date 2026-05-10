@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Star, Clock, Plus, Coffee, Wine, IceCream, Cookie, Beaker } from "lucide-react";
@@ -15,15 +14,15 @@ interface ProductCardProps {
 function ItemPlaceholder({ category }: { category: string }) {
   const getIcon = () => {
     switch (category) {
-      case 'coffee': return <Coffee className="w-12 h-12" />;
-      case 'ice-coffee': return <Coffee className="w-12 h-12" />;
-      case 'mojito': return <Wine className="w-12 h-12" />;
-      case 'mojito-carafe': return <Beaker className="w-12 h-12" />;
-      case 'tea': return <Coffee className="w-12 h-12 rotate-12" />;
-      case 'ice-tea': return <Wine className="w-12 h-12" />;
-      case 'milkshakes': return <Wine className="w-12 h-12" />;
-      case 'ice-cream': return <IceCream className="w-12 h-12" />;
-      default: return <Cookie className="w-12 h-12" />;
+      case 'coffee': return <Coffee className="w-10 h-10" />;
+      case 'ice-coffee': return <Coffee className="w-10 h-10" />;
+      case 'mojito': return <Wine className="w-10 h-10" />;
+      case 'mojito-carafe': return <Beaker className="w-10 h-10" />;
+      case 'tea': return <Coffee className="w-10 h-10 rotate-12" />;
+      case 'ice-tea': return <Wine className="w-10 h-10" />;
+      case 'milkshakes': return <Wine className="w-10 h-10" />;
+      case 'ice-cream': return <IceCream className="w-10 h-10" />;
+      default: return <Cookie className="w-10 h-10" />;
     }
   };
 
@@ -46,11 +45,11 @@ export function ProductCard({ item }: ProductCardProps) {
       return;
     }
     
-    const isDrink = item.category === "coffee" || item.category === "tea" || item.category === "ice-coffee";
+    const isDrink = ['coffee', 'tea', 'ice-coffee', 'ice-tea'].includes(item.category);
     addToCart(item, undefined, isDrink ? "regular" : undefined);
     toast({
       title: "Добавлено!",
-      description: `${item.name} теперь в корзине.`,
+      description: `${item.name} в корзине.`,
     });
   };
 
@@ -58,46 +57,43 @@ export function ProductCard({ item }: ProductCardProps) {
     <>
       <div 
         onClick={() => setIsModalOpen(true)}
-        className="group relative flex flex-col gap-4 bg-white p-3 rounded-[2.5rem] border border-black/[0.03] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)] transition-all duration-500 cursor-pointer select-none active:scale-[0.98]"
+        className="group relative flex flex-col gap-3 bg-white p-2.5 rounded-[2rem] border border-black/[0.03] shadow-[0_2px_10px_rgba(0,0,0,0.01)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.06)] transition-all duration-500 cursor-pointer select-none active:scale-[0.98]"
       >
-        <div className="relative aspect-square w-full overflow-hidden rounded-[2rem] bg-muted/20">
+        <div className="relative aspect-square w-full overflow-hidden rounded-[1.5rem] bg-muted/20">
           <ItemPlaceholder category={item.category} />
           
           <button 
             onClick={handleQuickAdd}
-            className="absolute bottom-3 right-3 bg-primary text-white p-3 rounded-2xl shadow-2xl hover:scale-110 transition-all active:scale-90 z-10"
+            className="absolute bottom-2.5 right-2.5 bg-primary text-white p-2.5 rounded-xl shadow-xl hover:scale-110 transition-all active:scale-90 z-10"
           >
-            <Plus className="w-5 h-5 stroke-[3]" />
+            <Plus className="w-4 h-4 stroke-[3]" />
           </button>
 
-          <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-xl flex items-center gap-1.5 shadow-sm border border-black/[0.05]">
-            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-            <span className="text-[11px] font-black tracking-tight">{item.rating || 5.0}</span>
+          <div className="absolute top-2.5 left-2.5 bg-white/95 backdrop-blur-md px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-sm border border-black/[0.03]">
+            <Star className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
+            <span className="text-[10px] font-black tracking-tight">{item.rating || 5.0}</span>
           </div>
         </div>
 
-        <div className="px-2 pb-2 space-y-3">
-          <div className="space-y-1">
-            <h3 className="text-base font-black text-primary leading-tight line-clamp-1 group-hover:translate-x-1 transition-transform duration-300">
+        <div className="px-1.5 pb-1.5 space-y-2">
+          <div className="space-y-0.5">
+            <h3 className="text-sm font-black text-primary leading-tight line-clamp-1 group-hover:translate-x-0.5 transition-transform duration-300">
               {item.name}
             </h3>
-            <div className="flex items-center gap-3">
-              <p className="text-[10px] text-muted-foreground font-bold flex items-center gap-1.5 uppercase tracking-tighter">
-                <Clock className="w-3 h-3" />
-                <span>{item.time || '5-10 мин'}</span>
+            <div className="flex items-center gap-2">
+              <p className="text-[9px] text-muted-foreground font-bold flex items-center gap-1 uppercase tracking-tight">
+                <Clock className="w-2.5 h-2.5" />
+                <span>{item.time || '5 мин'}</span>
               </p>
-              <div className="w-1 h-1 rounded-full bg-primary/20" />
-              <p className="text-[10px] text-primary/40 font-black uppercase tracking-widest">{item.category}</p>
+              <div className="w-0.5 h-0.5 rounded-full bg-primary/20" />
+              <p className="text-[9px] text-primary/30 font-black uppercase tracking-widest">{item.category}</p>
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-2 pt-2 border-t border-black/[0.03]">
-            <div className="flex flex-col">
-               <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Цена</span>
-               <span className="text-xl font-black text-primary tracking-tighter leading-none">
-                 {item.price.toLocaleString()} <span className="text-[10px] uppercase ml-0.5">сум</span>
-               </span>
-            </div>
+          <div className="flex items-center justify-between gap-2 pt-1.5 border-t border-black/[0.02]">
+             <span className="text-base font-black text-primary tracking-tighter leading-none">
+               {item.price.toLocaleString()} <span className="text-[8px] uppercase font-bold text-primary/40">сум</span>
+             </span>
           </div>
         </div>
       </div>
