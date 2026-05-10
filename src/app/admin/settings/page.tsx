@@ -24,6 +24,7 @@ export default function AdminProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [editingItem, setEditingItem] = useState<any | null>(null);
 
   useEffect(() => {
     if (!firestore) return;
@@ -60,10 +61,11 @@ export default function AdminProductsPage() {
     }
   };
 
-  const handleUpdateItem = async (id: string, data: any) => {
-    if (!firestore) return;
+  const handleUpdateItem = async (data: any) => {
+    if (!firestore || !editingItem) return;
     try {
-      await setDoc(doc(firestore, 'menu', id), data, { merge: true });
+      await setDoc(doc(firestore, 'menu', editingItem.id), data, { merge: true });
+      setEditingItem(null);
       toast({ title: 'Товар обновлен' });
     } catch (error) {
       toast({ variant: 'destructive', title: 'Ошибка обновления' });
@@ -107,7 +109,6 @@ export default function AdminProductsPage() {
       </header>
 
       <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-        {/* Поиск и фильтры */}
         <div className="space-y-4">
           <div className="relative">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/30" />
@@ -137,7 +138,6 @@ export default function AdminProductsPage() {
           </div>
         </div>
 
-        {/* Список товаров */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <Loader2 className="animate-spin text-primary w-10 h-10" />
@@ -154,7 +154,7 @@ export default function AdminProductsPage() {
               <EditableProductCard 
                 key={item.id} 
                 item={item} 
-                onUpdate={handleUpdateItem} 
+                onEdit={(item) => setEditingItem(item)} 
                 onDelete={handleDeleteItem} 
               />
             ))}
@@ -162,7 +162,6 @@ export default function AdminProductsPage() {
         )}
       </main>
 
-      {/* Floating Action Button - Компактная кнопка-пилюля в углу */}
       <div className="fixed bottom-28 right-6 z-[60] animate-in fade-in slide-in-from-bottom-4 duration-300">
         <Button 
           onClick={() => setShowAddDialog(true)}
@@ -173,14 +172,30 @@ export default function AdminProductsPage() {
         </Button>
       </div>
 
-      {/* Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none bg-background">
           <DialogHeader className="p-8 bg-primary text-white">
             <DialogTitle className="text-2xl font-black uppercase tracking-tighter">НОВАЯ ПОЗИЦИЯ</DialogTitle>
           </DialogHeader>
           <div className="p-6 sm:p-10">
-            <AddProductForm onAdd={handleAddItem} />
+            <AddProductForm onSave={handleAddItem} />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
+        <DialogContent className="max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none bg-background">
+          <DialogHeader className="p-8 bg-primary text-white">
+            <DialogTitle className="text-2xl font-black uppercase tracking-tighter">ИЗМЕНЕНИЕ ТОВАРА</DialogTitle>
+          </DialogHeader>
+          <div className="p-6 sm:p-10">
+            {editingItem && (
+              <AddProductForm 
+                onSave={handleUpdateItem} 
+                initialData={editingItem} 
+                buttonLabel="Обновить товар" 
+              />
+            )}
           </div>
         </DialogContent>
       </Dialog>
