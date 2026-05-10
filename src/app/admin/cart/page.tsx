@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, ShieldAlert, Plus, Minus, Trash2, Loader2 } from 'lucide-react';
+import { ArrowLeft, ShieldAlert, Plus, Minus, Trash2, Loader2, User } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -17,21 +17,8 @@ export default function AdminCartPage() {
   const { toast } = useToast();
   const router = useRouter();
   
-  const [customerInfo, setCustomerInfo] = useState({
-    name: '',
-    phone: '',
-    notes: ''
-  });
-
+  const [customerName, setCustomerName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleQuantityChange = (itemId: string, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      removeFromCart(itemId);
-    } else {
-      updateQuantity(itemId, newQuantity);
-    }
-  };
 
   const handleCheckout = async () => {
     if (cart.length === 0) {
@@ -43,7 +30,7 @@ export default function AdminCartPage() {
       return;
     }
 
-    if (!customerInfo.name.trim()) {
+    if (!customerName.trim()) {
       toast({
         variant: 'destructive',
         title: 'Заполните данные',
@@ -66,9 +53,9 @@ export default function AdminCartPage() {
       const orderId = String(ordersSnapshot.size + 1).padStart(4, '0');
 
       const orderData = {
-        customerName: customerInfo.name,
-        customerPhone: customerInfo.phone || '',
-        customerNotes: customerInfo.notes || '',
+        customerName: customerName.trim(),
+        customerPhone: '',
+        customerNotes: '',
         items: cart.map(cartItem => ({
           id: cartItem.item.id,
           name: cartItem.item.name,
@@ -144,7 +131,7 @@ export default function AdminCartPage() {
                         <Button
                           size="icon"
                           variant="outline"
-                          onClick={() => handleQuantityChange(cartItem.cartId, cartItem.quantity - 1)}
+                          onClick={() => updateQuantity(cartItem.cartId, -1)}
                           className="w-8 h-8 rounded-lg"
                           disabled={isSubmitting}
                         >
@@ -154,7 +141,7 @@ export default function AdminCartPage() {
                         <Button
                           size="icon"
                           variant="outline"
-                          onClick={() => handleQuantityChange(cartItem.cartId, cartItem.quantity + 1)}
+                          onClick={() => updateQuantity(cartItem.cartId, 1)}
                           className="w-8 h-8 rounded-lg"
                           disabled={isSubmitting}
                         >
@@ -187,21 +174,13 @@ export default function AdminCartPage() {
               <CardTitle className="text-xl font-black uppercase tracking-tighter">Данные клиента</CardTitle>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Имя клиента *</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50 flex items-center gap-2">
+                    <User className="w-3 h-3" /> Имя клиента *
+                  </Label>
                   <Input
-                    value={customerInfo.name}
-                    onChange={(e) => setCustomerInfo(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Введите имя"
-                    className="h-14 rounded-2xl bg-muted/50 border-none px-6 font-bold"
-                    disabled={isSubmitting}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Телефон (необязательно)</Label>
-                  <Input
-                    value={customerInfo.phone}
-                    onChange={(e) => setCustomerInfo(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="+998"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    placeholder="Введите имя клиента"
                     className="h-14 rounded-2xl bg-muted/50 border-none px-6 font-bold"
                     disabled={isSubmitting}
                   />
@@ -214,8 +193,11 @@ export default function AdminCartPage() {
               disabled={isSubmitting}
               className="w-full h-16 rounded-[1.8rem] font-black text-lg shadow-xl shadow-primary/20"
             >
-              {isSubmitting ? <Loader2 className="animate-spin mr-2 w-6 h-6" /> : null}
-              {isSubmitting ? 'СОЗДАНИЕ...' : `ОФОРМИТЬ ЗАКАЗ (${totalPrice} сум)`}
+              {isSubmitting ? (
+                <Loader2 className="animate-spin w-6 h-6" />
+              ) : (
+                `ОФОРМИТЬ ЗАКАЗ (${totalPrice} сум)`
+              )}
             </Button>
           </div>
         )}

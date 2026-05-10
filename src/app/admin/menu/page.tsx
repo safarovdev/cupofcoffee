@@ -1,9 +1,9 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Menu } from "@/components/Menu";
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, ShieldAlert, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
@@ -24,7 +24,7 @@ export default function AdminMenuPage() {
       });
       return;
     }
-    router.push('/admin/checkout');
+    router.push('/admin/cart');
   };
 
   return (
@@ -52,7 +52,6 @@ export default function AdminMenuPage() {
         <Menu />
       </main>
 
-      {/* Компактная плавающая кнопка заказа */}
       {totalItems > 0 && (
         <div className="fixed bottom-28 right-6 z-[999] animate-in fade-in slide-in-from-bottom-4 duration-300">
           <Button 
@@ -61,7 +60,7 @@ export default function AdminMenuPage() {
             className="rounded-full h-14 px-6 shadow-2xl bg-primary hover:bg-primary/90 text-white font-black flex items-center gap-3 transition-transform active:scale-95 border-2 border-white/10"
           >
             <ShoppingCart className="w-5 h-5" />
-            <span className="text-xs uppercase tracking-[0.2em]">Заказ</span>
+            <span className="text-xs uppercase tracking-[0.2em]">В корзину</span>
             <span className="bg-white/20 px-2 py-0.5 rounded-full text-[10px] min-w-[20px] text-center">
               {totalItems}
             </span>

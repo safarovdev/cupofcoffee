@@ -1,9 +1,12 @@
 
 "use client";
 
+import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus, Minus, ChevronLeft, ShoppingCart, CreditCard, Coffee, Wine, IceCream, Beaker, Cookie, ArrowRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Trash2, Plus, Minus, ChevronLeft, ShoppingCart, Coffee, Wine, IceCream, Beaker, Cookie, ArrowRight, Loader2, User } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
@@ -32,8 +35,78 @@ function SmallPlaceholder({ category }: { category: string }) {
 }
 
 export default function CartPage() {
-  const { cart, removeFromCart, updateQuantity, totalPrice } = useCart();
+  const { cart, removeFromCart, updateQuantity, totalPrice, totalItems, clearCart } = useCart();
+  const { toast } = useToast();
   const router = useRouter();
+  
+  const [customerName, setCustomerName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCheckout = async () => {
+    if (!customerName.trim()) {
+      toast({
+        variant: 'destructive',
+        title: 'Введите имя',
+        description: 'Пожалуйста, укажите ваше имя для оформления заказа'
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { initializeApp, getApps, getApp } = await import('firebase/app');
+      const { getFirestore, collection, doc, setDoc, getDocs, serverTimestamp } = await import('firebase/firestore');
+      const { firebaseConfig } = await import('@/firebase/config');
+      
+      const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+      const firestore = getFirestore(app);
+
+      const ordersSnapshot = await getDocs(collection(firestore, 'orders'));
+      const orderId = String(ordersSnapshot.size + 1).padStart(4, '0');
+
+      const orderData = {
+        customerName: customerName.trim(),
+        customerPhone: '',
+        customerNotes: '',
+        items: cart.map(cartItem => ({
+          id: cartItem.item.id,
+          name: cartItem.item.name,
+          price: cartItem.priceAtSelection,
+          quantity: cartItem.quantity,
+          category: cartItem.item.category,
+          selectedSize: cartItem.size || '',
+          sizePrice: cartItem.size ? cartItem.priceAtSelection : null
+        })),
+        totalAmount: totalPrice,
+        totalItems: totalItems,
+        status: 'pending',
+        createdAt: serverTimestamp(),
+        acceptedBy: null,
+        acceptedAt: null,
+        createdBy: 'customer'
+      };
+
+      await setDoc(doc(firestore, 'orders', orderId), orderData);
+
+      clearCart();
+      toast({
+        title: 'Заказ успешно оформлен!',
+        description: `Ваш заказ #${orderId} принят кофейней.`,
+      });
+
+      router.push('/');
+    } catch (error) {
+      console.error('Error creating order:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Ошибка',
+        description: 'Не удалось оформить заказ. Попробуйте позже.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-32">
@@ -90,6 +163,7 @@ export default function CartPage() {
                             size="icon" 
                             className="h-8 w-8 rounded-none" 
                             onClick={() => updateQuantity(item.cartId, -1)}
+                            disabled={isSubmitting}
                           >
                             <Minus className="w-3.5 h-3.5" />
                           </Button>
@@ -99,6 +173,7 @@ export default function CartPage() {
                             size="icon" 
                             className="h-8 w-8 rounded-none" 
                             onClick={() => updateQuantity(item.cartId, 1)}
+                            disabled={isSubmitting}
                           >
                             <Plus className="w-3.5 h-3.5" />
                           </Button>
@@ -108,6 +183,7 @@ export default function CartPage() {
                           size="icon" 
                           className="h-9 w-9 text-destructive hover:bg-destructive/10"
                           onClick={() => removeFromCart(item.cartId)}
+                          disabled={isSubmitting}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -121,7 +197,21 @@ export default function CartPage() {
             <div className="lg:col-span-1 space-y-4 sticky top-24">
               <div className="bg-card rounded-[2.5rem] border-none shadow-md p-8 space-y-6">
                 <h3 className="font-black text-xl uppercase tracking-tighter">Итог заказа</h3>
+                
                 <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50 flex items-center gap-2">
+                      <User className="w-3 h-3" /> Ваше имя *
+                    </Label>
+                    <Input
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="Введите ваше имя"
+                      className="h-12 rounded-xl bg-muted/50 border-none px-4 font-bold"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+
                   <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-muted-foreground">
                     <span>Сумма</span>
                     <span>{totalPrice} сум</span>
@@ -138,13 +228,18 @@ export default function CartPage() {
                 </div>
                 
                 <Button 
-                  asChild
+                  onClick={handleCheckout}
+                  disabled={isSubmitting}
                   className="w-full rounded-2xl h-14 font-black text-base shadow-lg shadow-primary/20 gap-2"
                 >
-                  <Link href="/checkout">
-                    ОФОРМИТЬ ЗАКАЗ
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  {isSubmitting ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      ОФОРМИТЬ ЗАКАЗ
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
