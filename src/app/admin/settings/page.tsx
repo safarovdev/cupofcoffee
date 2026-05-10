@@ -2,16 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { useFirestore } from '@/firebase';
-import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, setDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Plus, Trash2, Loader2, Package, Search, Coffee } from 'lucide-react';
+import { ArrowLeft, Plus, Loader2, Package, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { AddProductForm } from '@/components/AddProductForm';
+import { EditableProductCard } from '@/components/EditableProductCard';
 import { cn } from '@/lib/utils';
 
 export default function AdminProductsPage() {
@@ -23,26 +24,25 @@ export default function AdminProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [categories, setCategories] = useState<string[]>(['Все']);
 
-  const loadMenuItems = async () => {
+  useEffect(() => {
     if (!firestore) return;
-    setLoading(true);
-    try {
-      const querySnapshot = await getDocs(collection(firestore, 'menu'));
-      const items = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      
-      const uniqueCategories = ['Все', ...new Set(items.map((item: any) => item.category).filter(Boolean))];
-      setCategories(uniqueCategories);
-      setMenuItems(items);
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Ошибка загрузки' });
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  useEffect(() => { loadMenuItems(); }, [firestore]);
+    const q = query(collection(firestore, 'menu'), orderBy('name', 'asc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setMenuItems(items);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching menu:", error);
+      toast({ variant: 'destructive', title: 'Ошибка загрузки' });
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [firestore, toast]);
+
+  const categories = ['Все', ...new Set(menuItems.map((item: any) => item.category).filter(Boolean))];
 
   const filteredItems = menuItems.filter(item => {
     const matchesCategory = selectedCategory === 'Все' || item.category === selectedCategory;
@@ -51,13 +51,22 @@ export default function AdminProductsPage() {
   });
 
   const handleDeleteItem = async (id: string) => {
-    if (!firestore || !confirm('Удалить этот товар?')) return;
+    if (!firestore) return;
     try {
       await deleteDoc(doc(firestore, 'menu', id));
-      setMenuItems(prev => prev.filter(item => item.id !== id));
       toast({ title: 'Товар удален' });
     } catch (error) {
       toast({ variant: 'destructive', title: 'Ошибка удаления' });
+    }
+  };
+
+  const handleUpdateItem = async (id: string, data: any) => {
+    if (!firestore) return;
+    try {
+      await setDoc(doc(firestore, 'menu', id), data, { merge: true });
+      toast({ title: 'Товар обновлен' });
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Ошибка обновления' });
     }
   };
 
@@ -71,7 +80,6 @@ export default function AdminProductsPage() {
         time: "5 мин"
       });
       setShowAddDialog(false);
-      loadMenuItems();
       toast({ title: 'Товар добавлен' });
     } catch (error) {
       toast({ variant: 'destructive', title: 'Ошибка сохранения' });
@@ -88,7 +96,7 @@ export default function AdminProductsPage() {
     <div className="min-h-screen bg-background pb-40">
       <header className="bg-card/80 backdrop-blur-md border-b p-6 sticky top-0 z-50 flex items-center justify-between px-6">
         <div className="flex items-center gap-4">
-          <Link href="/admin" className="p-2 hover:bg-muted rounded-full text-muted-foreground">
+          <Link href="/admin" className="p-2 hover:bg-muted rounded-full text-muted-foreground transition-colors">
             <ArrowLeft className="w-6 h-6" />
           </Link>
           <h1 className="font-black text-xl uppercase tracking-tighter">РЕДАКТОР <span className="text-primary">МЕНЮ</span></h1>
@@ -102,24 +110,24 @@ export default function AdminProductsPage() {
         {/* Поиск и фильтры */}
         <div className="space-y-4">
           <div className="relative">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/50" />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/30" />
             <Input
               placeholder="Поиск по названию..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-16 rounded-[2rem] bg-card border-none px-14 shadow-sm font-bold text-lg"
+              className="h-14 rounded-[1.5rem] bg-card border-none px-14 shadow-sm font-bold"
             />
           </div>
           
-          <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar px-1">
+          <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar px-1">
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 className={cn(
-                  "whitespace-nowrap h-12 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
+                  "whitespace-nowrap h-10 px-5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                   selectedCategory === cat 
-                    ? "bg-primary text-white shadow-lg scale-105" 
+                    ? "bg-primary text-white shadow-md scale-105" 
                     : "bg-card text-muted-foreground hover:bg-muted shadow-sm"
                 )}
               >
@@ -133,50 +141,37 @@ export default function AdminProductsPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <Loader2 className="animate-spin text-primary w-10 h-10" />
-            <p className="text-[10px] font-black uppercase tracking-widest opacity-40">ЗАГРУЗКА...</p>
+            <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Синхронизация...</p>
           </div>
         ) : filteredItems.length === 0 ? (
-          <Card className="border-none shadow-sm rounded-[2.5rem] bg-card/50 py-20 text-center">
+          <Card className="border-none shadow-sm rounded-[2rem] bg-card/50 py-20 text-center">
             <Package className="w-16 h-16 text-muted-foreground/10 mx-auto mb-4" />
             <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Ничего не найдено</p>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredItems.map(item => (
-              <Card key={item.id} className="group overflow-hidden rounded-[2.5rem] border-none shadow-md bg-card transition-all active:scale-[0.98]">
-                <div className="aspect-[4/3] bg-muted relative flex items-center justify-center">
-                  <Coffee className="w-12 h-12 text-primary/10" />
-                  <div className="absolute top-4 right-4 flex gap-2">
-                    <Button size="icon" variant="destructive" className="rounded-2xl h-10 w-10 shadow-lg" onClick={() => handleDeleteItem(item.id)}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-black text-lg uppercase tracking-tighter leading-none line-clamp-1">{item.name}</h3>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <Badge variant="outline" className="text-[8px] uppercase tracking-widest border-primary/20 text-primary/60">
-                      {categoryNames[item.category] || item.category}
-                    </Badge>
-                    <p className="text-lg font-black text-primary tracking-tighter">{item.price} сум</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <EditableProductCard 
+                key={item.id} 
+                item={item} 
+                onUpdate={handleUpdateItem} 
+                onDelete={handleDeleteItem} 
+              />
             ))}
           </div>
         )}
       </main>
 
-      {/* Floating Action Button */}
-      <Button 
-        onClick={() => setShowAddDialog(true)}
-        className="fixed bottom-28 right-6 rounded-[2.5rem] h-20 px-8 shadow-2xl font-black text-xl gap-3 z-[60] bg-primary text-white"
-      >
-        <Plus className="w-6 h-6 stroke-[3]" />
-        <span>ТОВАР</span>
-      </Button>
+      {/* Floating Action Button - Compact and pill-shaped */}
+      <div className="fixed bottom-28 right-6 z-[60] animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <Button 
+          onClick={() => setShowAddDialog(true)}
+          className="rounded-full h-14 px-6 shadow-2xl bg-primary hover:bg-primary/90 text-white font-black flex items-center gap-3 transition-transform active:scale-95 border-2 border-white/10"
+        >
+          <Plus className="w-5 h-5 stroke-[3]" />
+          <span className="text-xs uppercase tracking-[0.2em]">Добавить</span>
+        </Button>
+      </div>
 
       {/* Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
