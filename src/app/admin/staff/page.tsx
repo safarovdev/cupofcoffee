@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { User, Plus, Edit, Trash2, ArrowLeft } from 'lucide-react';
+import { User, Plus, Edit, Trash2, ArrowLeft, Loader2, Power } from 'lucide-react';
 import Link from 'next/link';
 
 interface Staff {
@@ -22,419 +22,201 @@ export default function StaffPage() {
   const { toast } = useToast();
   const [staff, setStaff] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAddForm, setShowAddForm] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    role: ''
-  });
+  const [formData, setFormData] = useState({ name: '', role: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadStaff = async () => {
-    console.log('Loading staff from Firebase...');
     try {
       const { initializeApp, getApps, getApp } = await import('firebase/app');
-      const { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } = await import('firebase/firestore');
+      const { getFirestore, collection, getDocs } = await import('firebase/firestore');
+      const { firebaseConfig } = await import('@/firebase/config');
       
-      const config = {
-        apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
-        authDomain: "coffee-f4bc1.firebaseapp.com",
-        projectId: "coffee-f4bc1",
-        storageBucket: "coffee-f4bc1.firebasestorage.app",
-        messagingSenderId: "847730890494",
-        appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
-        measurementId: "G-3XN7LXDTJJ"
-      };
-      
-      console.log('Initializing Firebase for staff loading...');
-      const app = getApps().length > 0 ? getApp() : initializeApp(config);
+      const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
       const firestore = getFirestore(app);
 
-      console.log('Getting staff collection...');
       const staffSnapshot = await getDocs(collection(firestore, 'staff'));
-      console.log('Staff snapshot received, docs count:', staffSnapshot.docs.length);
-      
-      const staffData = staffSnapshot.docs.map(doc => {
-        const data = doc.data();
-        console.log('Staff document data:', data);
-        return { 
-          id: doc.id, 
-          ...data,
-          createdAt: data.createdAt
-        } as Staff;
-      });
-      
-      console.log('Staff data loaded:', staffData.length, 'employees');
-      console.log('Staff details:', staffData);
-      
+      const staffData = staffSnapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data()
+      } as Staff));
       setStaff(staffData);
-    } catch (error) {
-      console.error('Error loading staff:', error);
-      console.error('Error details:', error.message);
-      toast({ variant: 'destructive', title: 'Ошибка', description: `Не удалось загрузить персонал: ${error.message}` });
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Ошибка', description: error.message });
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    loadStaff();
-  }, []);
+  useEffect(() => { loadStaff(); }, []);
 
-  const handleAddStaff = async (e: React.FormEvent) => {
+  const handleAction = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    console.log('Adding staff:', formData);
-    
-    if (!formData.name.trim() || !formData.role.trim()) {
-      toast({ variant: 'destructive', title: 'Ошибка', description: 'Имя и должность обязательны' });
-      return;
-    }
-    
-    const newStaff = {
-      name: formData.name.trim(),
-      role: formData.role.trim(),
-      isActive: true,
-      createdAt: new Date()
-    };
+    if (!formData.name.trim() || !formData.role.trim()) return;
+    setIsSubmitting(true);
 
     try {
-      console.log('Starting staff addition process...');
-      console.log('Staff data to save:', newStaff);
-      
       const { initializeApp, getApps, getApp } = await import('firebase/app');
-      const { getFirestore, collection, addDoc } = await import('firebase/firestore');
+      const { getFirestore, collection, addDoc, doc, updateDoc } = await import('firebase/firestore');
+      const { firebaseConfig } = await import('@/firebase/config');
       
-      const config = {
-        apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
-        authDomain: "coffee-f4bc1.firebaseapp.com",
-        projectId: "coffee-f4bc1",
-        storageBucket: "coffee-f4bc1.firebasestorage.app",
-        messagingSenderId: "847730890494",
-        appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
-        measurementId: "G-3XN7LXDTJJ"
-      };
-      
-      console.log('Initializing Firebase app...');
-      const app = getApps().length > 0 ? getApp() : initializeApp(config);
+      const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
       const firestore = getFirestore(app);
-      console.log('Firebase initialized, getting staff collection...');
 
-      console.log('Adding document to staff collection...');
-      const docRef = await addDoc(collection(firestore, 'staff'), newStaff);
-      console.log('Staff added with ID:', docRef.id);
-      console.log('Document path:', docRef.path);
-
-      toast({ title: 'Сотрудник добавлен', description: `${newStaff.name} добавлен в систему` });
-      setShowAddForm(false);
+      if (editingStaff) {
+        await updateDoc(doc(firestore, 'staff', editingStaff.id), {
+          name: formData.name.trim(),
+          role: formData.role.trim(),
+        });
+        toast({ title: 'Обновлено' });
+      } else {
+        await addDoc(collection(firestore, 'staff'), {
+          name: formData.name.trim(),
+          role: formData.role.trim(),
+          isActive: true,
+          createdAt: new Date()
+        });
+        toast({ title: 'Добавлен новый сотрудник' });
+      }
+      
       setFormData({ name: '', role: '' });
-      
-      // Перезагружаем список персонала
-      loadStaff();
-    } catch (error) {
-      console.error('Error adding staff:', error);
-      console.error('Error details:', error.message);
-      console.error('Error stack:', error.stack);
-      toast({ variant: 'destructive', title: 'Ошибка', description: `Не удалось добавить сотрудника: ${error.message}` });
-    }
-  };
-
-  const handleEditStaff = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingStaff) return;
-    
-    console.log('Editing staff:', editingStaff);
-    
-    if (!editingStaff.name.trim() || !editingStaff.role.trim()) {
-      toast({ variant: 'destructive', title: 'Ошибка', description: 'Имя и должность обязательны' });
-      return;
-    }
-    
-    const updatedStaff = {
-      ...editingStaff,
-      name: editingStaff.name.trim(),
-      role: editingStaff.role.trim(),
-    };
-
-    try {
-      const { initializeApp, getApps, getApp } = await import('firebase/app');
-      const { getFirestore, doc, updateDoc } = await import('firebase/firestore');
-      
-      const config = {
-        apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
-        authDomain: "coffee-f4bc1.firebaseapp.com",
-        projectId: "coffee-f4bc1",
-        storageBucket: "coffee-f4bc1.firebasestorage.app",
-        messagingSenderId: "847730890494",
-        appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
-        measurementId: "G-3XN7LXDTJJ"
-      };
-      
-      const app = getApps().length > 0 ? getApp() : initializeApp(config);
-      const firestore = getFirestore(app);
-
-      await updateDoc(doc(firestore, 'staff', editingStaff.id), updatedStaff);
-
-      setStaff(prev => prev.map(s => 
-        s.id === editingStaff.id ? updatedStaff : s
-      ));
-
-      toast({ title: 'Сотрудник обновлен', description: `${updatedStaff.name} обновлен` });
       setEditingStaff(null);
-      (e.target as HTMLFormElement).reset();
-    } catch (error) {
-      console.error('Error updating staff:', error);
-      toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось обновить сотрудника' });
+      loadStaff();
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Ошибка', description: error.message });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDeleteStaff = async (staffId: string) => {
-    if (!confirm('Вы уверены, что хотите удалить этого сотрудника?')) {
-      return;
-    }
-
+  const handleDelete = async (id: string) => {
+    if (!confirm('Удалить сотрудника?')) return;
     try {
       const { initializeApp, getApps, getApp } = await import('firebase/app');
       const { getFirestore, doc, deleteDoc } = await import('firebase/firestore');
+      const { firebaseConfig } = await import('@/firebase/config');
       
-      const config = {
-        apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
-        authDomain: "coffee-f4bc1.firebaseapp.com",
-        projectId: "coffee-f4bc1",
-        storageBucket: "coffee-f4bc1.firebasestorage.app",
-        messagingSenderId: "847730890494",
-        appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
-        measurementId: "G-3XN7LXDTJJ"
-      };
-      
-      const app = getApps().length > 0 ? getApp() : initializeApp(config);
+      const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
       const firestore = getFirestore(app);
-
-      await deleteDoc(doc(firestore, 'staff', staffId));
-
-      setStaff(prev => prev.filter(s => s.id !== staffId));
-
-      toast({ title: 'Сотрудник удален', description: 'Сотрудник удален из системы' });
+      await deleteDoc(doc(firestore, 'staff', id));
+      loadStaff();
+      toast({ title: 'Удалено' });
     } catch (error) {
-      console.error('Error deleting staff:', error);
-      toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось удалить сотрудника' });
+      toast({ variant: 'destructive', title: 'Ошибка' });
     }
   };
 
-  const handleToggleStatus = async (staffId: string, currentStatus: boolean) => {
+  const toggleStatus = async (id: string, current: boolean) => {
     try {
       const { initializeApp, getApps, getApp } = await import('firebase/app');
       const { getFirestore, doc, updateDoc } = await import('firebase/firestore');
+      const { firebaseConfig } = await import('@/firebase/config');
       
-      const config = {
-        apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
-        authDomain: "coffee-f4bc1.firebaseapp.com",
-        projectId: "coffee-f4bc1",
-        storageBucket: "coffee-f4bc1.firebasestorage.app",
-        messagingSenderId: "847730890494",
-        appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
-        measurementId: "G-3XN7LXDTJJ"
-      };
-      
-      const app = getApps().length > 0 ? getApp() : initializeApp(config);
+      const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
       const firestore = getFirestore(app);
-
-      await updateDoc(doc(firestore, 'staff', staffId), {
-        isActive: !currentStatus
-      });
-
-      setStaff(prev => prev.map(s => 
-        s.id === staffId ? { ...s, isActive: !currentStatus } : s
-      ));
-
-      toast({ title: 'Статус изменен', description: `Статус сотрудника изменен` });
+      await updateDoc(doc(firestore, 'staff', id), { isActive: !current });
+      loadStaff();
     } catch (error) {
-      console.error('Error toggling staff status:', error);
-      toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось изменить статус' });
+      toast({ variant: 'destructive', title: 'Ошибка' });
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pb-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="mb-8">
-          <Link href="/admin" className="inline-flex items-center text-slate-600 hover:text-primary transition-colors">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Вернуться в админку
-          </Link>
-        </div>
+    <div className="min-h-screen bg-background pb-32">
+      <header className="bg-card/80 backdrop-blur-md border-b p-6 sticky top-0 z-50 flex items-center gap-4 px-6">
+        <Link href="/admin" className="p-2 hover:bg-muted rounded-full text-muted-foreground">
+          <ArrowLeft className="w-6 h-6" />
+        </Link>
+        <h1 className="font-black text-xl uppercase tracking-tighter">ШТАТ <span className="text-primary">СОТРУДНИКОВ</span></h1>
+      </header>
 
-        <div className="mb-8">
-          <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-2">
-            Управление персоналом
-          </h1>
-          <p className="text-slate-600">Добавляйте и управляйте сотрудниками вашего кафе</p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Форма добавления */}
-          <div className="lg:col-span-1">
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-3 text-xl">
-                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                    <User className="w-5 h-5 text-primary" />
-                  </div>
-                  {editingStaff ? 'Редактировать' : 'Добавить'} сотрудника
-                </CardTitle>
-                <p className="text-sm text-slate-600">
-                  {editingStaff ? 'Измените данные сотрудника' : 'Заполните данные для добавления нового сотрудника'}
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <form onSubmit={editingStaff ? handleEditStaff : handleAddStaff} className="space-y-5">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-sm font-medium text-slate-700">Имя *</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      value={editingStaff ? editingStaff.name : formData.name}
-                      onChange={(e) => editingStaff 
-                        ? setEditingStaff({...editingStaff, name: e.target.value})
-                        : setFormData({...formData, name: e.target.value})
-                      }
-                      placeholder="Введите имя сотрудника"
-                      required
-                      className="h-11 rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="role" className="text-sm font-medium text-slate-700">Должность *</Label>
-                    <Input
-                      id="role"
-                      type="text"
-                      value={editingStaff ? editingStaff.role : formData.role}
-                      onChange={(e) => editingStaff 
-                        ? setEditingStaff({...editingStaff, role: e.target.value})
-                        : setFormData({...formData, role: e.target.value})
-                      }
-                      placeholder="Официант, Бариста, Менеджер"
-                      required
-                      className="h-11 rounded-xl border-slate-200 focus:border-primary focus:ring-primary/20"
-                    />
-                  </div>
-
-                  <div className="flex gap-3 pt-2">
-                    <Button 
-                      type="submit" 
-                      className="flex-1 h-11 rounded-xl font-medium shadow-sm hover:shadow-md transition-shadow"
-                    >
-                      {editingStaff ? 'Обновить' : 'Добавить'}
-                    </Button>
-                    {editingStaff && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          setEditingStaff(null);
-                          setFormData({ name: '', role: '' });
-                        }}
-                        className="h-11 px-6 rounded-xl border-slate-200 hover:bg-slate-50"
-                      >
-                        Отмена
-                      </Button>
-                    )}
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
+      <main className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+        {/* Форма */}
+        <Card className="border-none shadow-xl rounded-[2.5rem] bg-card p-6 sm:p-10">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-black uppercase tracking-tighter">
+              {editingStaff ? 'РЕДАКТИРОВАНИЕ' : 'НОВЫЙ СОТРУДНИК'}
+            </h2>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mt-1">Добавьте профессионала в команду</p>
           </div>
+          <form onSubmit={handleAction} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-[0.2em] ml-1 opacity-50">Имя Фамилия</Label>
+                <Input
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="h-14 rounded-2xl bg-muted/50 border-none px-6 font-bold"
+                  placeholder="Иван Иванов"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-[0.2em] ml-1 opacity-50">Должность</Label>
+                <Input
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  className="h-14 rounded-2xl bg-muted/50 border-none px-6 font-bold"
+                  placeholder="Официант / Бариста"
+                  required
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button disabled={isSubmitting} className="flex-1 h-16 rounded-2xl font-black text-lg shadow-lg">
+                {isSubmitting ? <Loader2 className="animate-spin" /> : editingStaff ? 'ОБНОВИТЬ' : 'ДОБАВИТЬ'}
+              </Button>
+              {editingStaff && (
+                <Button variant="ghost" className="h-16 px-6 rounded-2xl text-muted-foreground" onClick={() => { setEditingStaff(null); setFormData({ name: '', role: '' }); }}>
+                  ОТМЕНА
+                </Button>
+              )}
+            </div>
+          </form>
+        </Card>
 
-          {/* Список сотрудников */}
-          <div className="lg:col-span-2">
-            <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">Список сотрудников</CardTitle>
-                  <div className="text-sm text-slate-600">
-                    {staff.length} {staff.length === 1 ? 'сотрудник' : staff.length < 5 ? 'сотрудника' : 'сотрудников'}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {staff.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <User className="w-8 h-8 text-slate-400" />
-                    </div>
-                    <h3 className="text-lg font-medium text-slate-900 mb-2">Нет сотрудников</h3>
-                    <p className="text-slate-600">Добавьте первого сотрудника, чтобы начать управление персоналом</p>
-                  </div>
-                ) : (
-                  <div className="grid gap-4">
-                    {staff.map((staffMember) => (
-                      <div key={staffMember.id} className="p-4 bg-white rounded-xl border border-slate-200">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4 flex-1">
-                            <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center">
-                              <User className="w-6 h-6 text-primary" />
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-slate-900 text-lg">{staffMember.name}</h4>
-                              <p className="text-slate-600">{staffMember.role}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <Badge 
-                              variant={staffMember.isActive ? "default" : "secondary"}
-                              className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                staffMember.isActive 
-                                  ? 'bg-emerald-100 text-emerald-800 border-emerald-200' 
-                                  : 'bg-slate-100 text-slate-600 border-slate-200'
-                              }`}
-                            >
-                              {staffMember.isActive ? 'Активен' : 'Неактивен'}
-                            </Badge>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setEditingStaff(staffMember)}
-                                className="h-8 w-8 p-0 rounded-lg border-slate-200"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleToggleStatus(staffMember.id, staffMember.isActive)}
-                                className="h-8 px-3 rounded-lg border-slate-200 text-xs"
-                              >
-                                {staffMember.isActive ? 'Деакт.' : 'Акт.'}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => handleDeleteStaff(staffMember.id)}
-                                className="h-8 w-8 p-0 rounded-lg"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
+        {/* Список */}
+        <div className="space-y-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-4">ТЕКУЩИЙ СОСТАВ ({staff.length})</p>
+          {loading ? (
+            <div className="flex justify-center py-10"><Loader2 className="animate-spin w-10 h-10 text-primary" /></div>
+          ) : staff.length === 0 ? (
+            <div className="text-center py-20 bg-card rounded-[2.5rem] opacity-30">Никого нет</div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {staff.map((s) => (
+                <Card key={s.id} className="border-none shadow-md rounded-[2rem] bg-card overflow-hidden transition-all active:scale-[0.98]">
+                  <CardContent className="p-6 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={cn(
+                        "w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg transition-colors",
+                        s.isActive ? "bg-primary" : "bg-muted-foreground/30"
+                      )}>
+                        <User className="w-6 h-6" />
                       </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                      <div>
+                        <h4 className="font-black text-sm uppercase tracking-tight">{s.name}</h4>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase">{s.role}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button size="icon" variant="ghost" className="rounded-xl h-10 w-10" onClick={() => toggleStatus(s.id, s.isActive)}>
+                        <Power className={cn("w-4 h-4", s.isActive ? "text-emerald-500" : "text-muted-foreground")} />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="rounded-xl h-10 w-10" onClick={() => { setEditingStaff(s); setFormData({ name: s.name, role: s.role }); }}>
+                        <Edit className="w-4 h-4 text-blue-500" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="rounded-xl h-10 w-10" onClick={() => handleDelete(s.id)}>
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

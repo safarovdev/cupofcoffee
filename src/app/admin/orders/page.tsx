@@ -4,12 +4,10 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, Clock, User, Phone, ArrowLeft } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, User, ArrowLeft, MoreVertical, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 interface Order {
   id: string;
@@ -31,7 +29,6 @@ interface Order {
   createdAt: any;
   acceptedBy?: string | null | undefined;
   acceptedAt?: any;
-  createdBy?: string;
 }
 
 interface Staff {
@@ -50,84 +47,42 @@ export default function OrdersPage() {
   const [activeTab, setActiveTab] = useState<'pending' | 'accepted' | 'rejected'>('pending');
   const [showStaffSelector, setShowStaffSelector] = useState(false);
 
-  // Загрузка заказов
   useEffect(() => {
-    const loadOrders = async () => {
-      console.log('Starting to load orders...'); // Debug log
+    const loadData = async () => {
       try {
         const { initializeApp, getApps, getApp } = await import('firebase/app');
-        const { getFirestore, collection, query, where, orderBy, getDocs, doc, updateDoc } = await import('firebase/firestore');
+        const { getFirestore, collection, query, orderBy, getDocs } = await import('firebase/firestore');
+        const { firebaseConfig } = await import('@/firebase/config');
         
-        const config = {
-          apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
-          authDomain: "coffee-f4bc1.firebaseapp.com",
-          projectId: "coffee-f4bc1",
-          storageBucket: "coffee-f4bc1.firebasestorage.app",
-          messagingSenderId: "847730890494",
-          appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
-          measurementId: "G-3XN7LXDTJJ"
-        };
-        
-        console.log('Initializing Firebase app...'); // Debug log
-        const app = getApps().length > 0 ? getApp() : initializeApp(config);
+        const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
         const firestore = getFirestore(app);
-        console.log('Firebase initialized, getting orders collection...'); // Debug log
 
-        // Загружаем заказы
-        const ordersQuery = query(
-          collection(firestore, 'orders'),
-          orderBy('createdAt', 'desc')
-        );
-        
-        console.log('Executing orders query...'); // Debug log
+        const ordersQuery = query(collection(firestore, 'orders'), orderBy('createdAt', 'desc'));
         const ordersSnapshot = await getDocs(ordersQuery);
-        console.log('Orders snapshot received, docs count:', ordersSnapshot.docs.length); // Debug log
         
         const ordersData = ordersSnapshot.docs.map(doc => {
           const data = doc.data();
-          console.log('Order data:', data); // Debug logging
-          
-          // Правильно обрабатываем createdAt
-          const createdAt = data.createdAt;
-          let formattedCreatedAt = createdAt;
-          
-          // Если это Firebase Timestamp, конвертируем в Date
+          let createdAt = data.createdAt;
           if (createdAt && typeof createdAt === 'object' && 'seconds' in createdAt) {
-            formattedCreatedAt = new Date(createdAt.seconds * 1000);
-          } else if (createdAt instanceof Date) {
-            formattedCreatedAt = createdAt;
-          } else if (typeof createdAt === 'string') {
-            formattedCreatedAt = new Date(createdAt);
+            createdAt = new Date(createdAt.seconds * 1000);
           }
-          
-          return { 
-            id: doc.id, 
-            ...data,
-            createdAt: formattedCreatedAt
-          } as Order;
+          return { id: doc.id, ...data, createdAt } as Order;
         });
         setOrders(ordersData);
-        console.log('Orders loaded:', ordersData.length); // Debug logging
-        console.log('Pending orders count:', ordersData.filter(o => o.status === 'pending').length); // Debug log
 
-        // Загружаем персонал
         const staffSnapshot = await getDocs(collection(firestore, 'staff'));
         const staffData = staffSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Staff));
         setStaff(staffData);
         
       } catch (error) {
-        console.error('Error loading orders:', error);
-        toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось загрузить заказы' });
+        console.error('Error loading data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadOrders();
-    
-    // Автообновление каждые 10 секунд
-    const interval = setInterval(loadOrders, 10000);
-
+    loadData();
+    const interval = setInterval(loadData, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -135,41 +90,23 @@ export default function OrdersPage() {
     try {
       const { initializeApp, getApps, getApp } = await import('firebase/app');
       const { getFirestore, doc, updateDoc } = await import('firebase/firestore');
+      const { firebaseConfig } = await import('@/firebase/config');
       
-      const config = {
-        apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
-        authDomain: "coffee-f4bc1.firebaseapp.com",
-        projectId: "coffee-f4bc1",
-        storageBucket: "coffee-f4bc1.firebasestorage.app",
-        messagingSenderId: "847730890494",
-        appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
-        measurementId: "G-3XN7LXDTJJ"
-      };
-      
-      const app = getApps().length > 0 ? getApp() : initializeApp(config);
+      const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
       const firestore = getFirestore(app);
 
-      const orderRef = doc(firestore, 'orders', orderId);
       const staffMember = staff.find(s => s.id === staffId);
-      
-      await updateDoc(orderRef, {
+      await updateDoc(doc(firestore, 'orders', orderId), {
         status: 'accepted',
         acceptedBy: staffMember?.name || staffId,
         acceptedAt: new Date()
       });
 
-      setOrders(prev => prev.map(order => 
-        order.id === orderId 
-          ? { ...order, status: 'accepted', acceptedBy: staffMember?.name || staffId, acceptedAt: new Date() }
-          : order
-      ));
-
-      toast({ title: 'Заказ принят', description: `Заказ #${orderId} принят официантом ${staffMember?.name}` });
+      toast({ title: 'Заказ принят' });
       setShowStaffSelector(false);
       setSelectedOrder(null);
     } catch (error) {
-      console.error('Error accepting order:', error);
-      toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось принять заказ' });
+      toast({ variant: 'destructive', title: 'Ошибка' });
     }
   };
 
@@ -177,223 +114,121 @@ export default function OrdersPage() {
     try {
       const { initializeApp, getApps, getApp } = await import('firebase/app');
       const { getFirestore, doc, updateDoc } = await import('firebase/firestore');
+      const { firebaseConfig } = await import('@/firebase/config');
       
-      const config = {
-        apiKey: "AIzaSyDf0eTnkygKjLGg5LBu8KZEJ-NPvJ42XMk",
-        authDomain: "coffee-f4bc1.firebaseapp.com",
-        projectId: "coffee-f4bc1",
-        storageBucket: "coffee-f4bc1.firebasestorage.app",
-        messagingSenderId: "847730890494",
-        appId: "1:847730890494:web:2a91d2cfb8bd674487b7af",
-        measurementId: "G-3XN7LXDTJJ"
-      };
-      
-      const app = getApps().length > 0 ? getApp() : initializeApp(config);
+      const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
       const firestore = getFirestore(app);
 
-      const orderRef = doc(firestore, 'orders', orderId);
-      
-      await updateDoc(orderRef, {
-        status: 'rejected',
-        acceptedBy: null,
-        acceptedAt: null
-      });
-
-      setOrders(prev => prev.map(order => 
-        order.id === orderId 
-          ? { ...order, status: 'rejected', acceptedBy: null, acceptedAt: null }
-          : order
-      ));
-
-      toast({ title: 'Заказ отклонен', description: `Заказ #${orderId} отклонен` });
-      setShowStaffSelector(false);
-      setSelectedOrder(null);
+      await updateDoc(doc(firestore, 'orders', orderId), { status: 'rejected' });
+      toast({ title: 'Заказ отклонен' });
     } catch (error) {
-      console.error('Error rejecting order:', error);
-      toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось отклонить заказ' });
+      toast({ variant: 'destructive', title: 'Ошибка' });
     }
   };
 
   const filteredOrders = orders.filter(order => order.status === activeTab);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'accepted': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'pending': return 'Ожидает';
-      case 'accepted': return 'Принят';
-      case 'rejected': return 'Отклонен';
-      default: return 'Неизвестно';
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-background pb-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="mb-6">
-          <Link href="/admin" className="inline-flex items-center text-muted-foreground hover:text-primary">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Вернуться в админку
-          </Link>
-        </div>
+    <div className="min-h-screen bg-background pb-32">
+      <header className="bg-card/80 backdrop-blur-md border-b p-6 sticky top-0 z-50 flex items-center gap-4 px-6">
+        <Link href="/admin" className="p-2 hover:bg-muted rounded-full text-muted-foreground">
+          <ArrowLeft className="w-6 h-6" />
+        </Link>
+        <h1 className="font-black text-xl uppercase tracking-tighter">УПРАВЛЕНИЕ <span className="text-primary">ЗАКАЗАМИ</span></h1>
+      </header>
 
-        <h1 className="text-3xl font-black font-headline text-primary uppercase tracking-tighter mb-8">
-          Управление заказами
-        </h1>
-
-        {/* Вкладки статусов */}
-        <div className="mb-6">
-          <div className="flex space-x-2 p-1 bg-muted rounded-xl">
-            {(['pending', 'accepted', 'rejected'] as const).map((status) => (
-              <Button
-                key={status}
-                variant={activeTab === status ? "default" : "ghost"}
-                onClick={() => setActiveTab(status as any)}
-                className="rounded-xl px-4"
-              >
-                {getStatusText(status)}
-                <Badge variant="secondary" className="ml-2">
+      <main className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        {/* Фильтры */}
+        <div className="flex bg-muted p-1.5 rounded-2xl sm:rounded-[2rem] gap-1">
+          {(['pending', 'accepted', 'rejected'] as const).map((status) => (
+            <button
+              key={status}
+              onClick={() => setActiveTab(status)}
+              className={cn(
+                "flex-1 py-3 px-2 rounded-xl sm:rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all",
+                activeTab === status 
+                  ? "bg-primary text-white shadow-lg scale-[1.02]" 
+                  : "text-muted-foreground hover:bg-black/5"
+              )}
+            >
+              <div className="flex flex-col items-center gap-1">
+                <span>{status === 'pending' ? 'Ожидает' : status === 'accepted' ? 'Принят' : 'Отказ'}</span>
+                <Badge variant={activeTab === status ? "secondary" : "outline"} className="px-1.5 h-4 text-[8px] border-none bg-white/20">
                   {orders.filter(o => o.status === status).length}
                 </Badge>
-              </Button>
-            ))}
-          </div>
+              </div>
+            </button>
+          ))}
         </div>
 
-        {/* Список заказов */}
+        {/* Список */}
         <div className="space-y-4">
           {loading ? (
-            <div className="text-center py-20">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <p className="mt-4 text-muted-foreground">Загрузка заказов...</p>
-              <p className="text-xs text-muted-foreground mt-2">Проверьте консоль для отладочной информации</p>
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <Loader2 className="animate-spin text-primary w-10 h-10" />
+              <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Синхронизация...</p>
             </div>
           ) : filteredOrders.length === 0 ? (
-            <Card>
-              <CardContent className="text-center py-12">
-                <p className="text-muted-foreground">Заказы со статусом "{getStatusText(activeTab)}" не найдены</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Всего заказов: {orders.length} | 
-                  Ожидают: {orders.filter(o => o.status === 'pending').length} | 
-                  Приняты: {orders.filter(o => o.status === 'accepted').length}
-                </p>
-                <Button 
-                  onClick={() => window.location.reload()} 
-                  variant="outline" 
-                  className="mt-4"
-                >
-                  Обновить страницу
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="text-center py-20 bg-card rounded-[2.5rem] border border-dashed border-muted-foreground/20">
+              <Clock className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
+              <p className="text-sm font-bold text-muted-foreground">Заказы не найдены</p>
+            </div>
           ) : (
             filteredOrders.map((order) => (
-              <Card key={order.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-lg">Заказ #{order.id}</CardTitle>
-                      <div className="flex items-center gap-2 mt-2">
-                        <Badge className={getStatusColor(order.status)}>
-                          {getStatusText(order.status)}
-                        </Badge>
-                        <span className="text-sm text-muted-foreground">
-                          {order.createdAt instanceof Date 
-                            ? order.createdAt.toLocaleString()
-                            : new Date(order.createdAt?.seconds * 1000).toLocaleString()
-                          }
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      {order.status === 'pending' && (
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            setSelectedOrder(order);
-                            setShowStaffSelector(true);
-                          }}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          Принять
+              <Card key={order.id} className="border-none shadow-md rounded-[2.5rem] overflow-hidden bg-card transition-all active:scale-[0.98]">
+                <CardHeader className="p-6 pb-0 flex flex-row justify-between items-start">
+                  <div>
+                    <h3 className="text-lg font-black uppercase tracking-tighter">ЗАКАЗ #{order.id.slice(-4)}</h3>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
+                      {order.createdAt instanceof Date ? order.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    {order.status === 'pending' && (
+                      <>
+                        <Button size="sm" variant="destructive" className="rounded-xl h-10 w-10 p-0" onClick={() => handleRejectOrder(order.id)}>
+                          <XCircle className="w-5 h-5" />
                         </Button>
-                      )}
-                      {order.status === 'pending' && (
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => handleRejectOrder(order.id)}
-                        >
-                          Отклонить
+                        <Button size="sm" className="rounded-xl h-10 px-4 bg-emerald-600 hover:bg-emerald-700" onClick={() => { setSelectedOrder(order); setShowStaffSelector(true); }}>
+                          <CheckCircle className="w-4 h-4 mr-2" /> ПРИНЯТЬ
                         </Button>
-                      )}
-                    </div>
+                      </>
+                    )}
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Информация о клиенте */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-semibold mb-2">Клиент</h4>
-                      <div className="space-y-1 text-sm">
-                        <p><span className="font-medium">Имя:</span> {order.customerName}</p>
-                        <p><span className="font-medium">Телефон:</span> {order.customerPhone}</p>
-                        {order.customerNotes && (
-                          <p><span className="font-medium">Примечания:</span> {order.customerNotes}</p>
-                        )}
-                      </div>
+                <CardContent className="p-6 pt-6 space-y-6">
+                  {/* Клиент */}
+                  <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-2xl">
+                    <div className="bg-primary/10 w-10 h-10 rounded-full flex items-center justify-center">
+                      <User className="w-5 h-5 text-primary" />
                     </div>
-                    <div>
-                      <h4 className="font-semibold mb-2">Информация о заказе</h4>
-                      <div className="space-y-1 text-sm">
-                        <p><span className="font-medium">Товаров:</span> {order.totalItems}</p>
-                        <p><span className="font-medium">Сумма:</span> {order.totalAmount} сум</p>
-                        {order.acceptedBy && (
-                          <p><span className="font-medium">Принял:</span> {order.acceptedBy}</p>
-                        )}
-                        {order.acceptedAt && (
-                          <p><span className="font-medium">Время принятия:</span> {
-                            order.acceptedAt instanceof Date 
-                              ? order.acceptedAt.toLocaleString()
-                              : new Date(order.acceptedAt?.seconds * 1000).toLocaleString()
-                          }</p>
-                        )}
-                      </div>
+                    <div className="flex-1">
+                      <p className="font-black text-sm uppercase tracking-tight">{order.customerName}</p>
+                      <p className="text-xs text-muted-foreground">{order.customerPhone || 'Номер не указан'}</p>
                     </div>
                   </div>
 
-                  {/* Состав заказа */}
-                  <div>
-                    <h4 className="font-semibold mb-2">Состав заказа</h4>
-                    <div className="space-y-2">
+                  {/* Состав */}
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">СОСТАВ ЗАКАЗА</p>
+                    <div className="grid gap-2">
                       {order.items.map((item, index) => (
-                        <div key={index} className="flex justify-between items-center p-3 bg-accent/50 rounded-lg">
-                          <div className="flex-1">
-                            <p className="font-medium">{item.name}</p>
-                            <p className="text-sm text-muted-foreground">{item.category}</p>
-                            {item.selectedSize && (
-                              <p className="text-sm text-primary">Размер: {item.selectedSize}</p>
-                            )}
+                        <div key={index} className="flex justify-between items-center text-sm">
+                          <div className="flex gap-2 items-baseline">
+                            <span className="font-black text-primary min-w-[1rem]">{item.quantity}×</span>
+                            <span className="font-bold">{item.name}</span>
+                            {item.selectedSize && <span className="text-[10px] font-black text-muted-foreground uppercase">({item.selectedSize})</span>}
                           </div>
-                          <div className="text-right">
-                            <p className="font-semibold">x{item.quantity}</p>
-                            <p className="text-primary">
-                              {item.selectedSize && item.sizePrice 
-                                ? `${item.sizePrice} сум` 
-                                : `${item.price} сум`
-                              }
-                            </p>
-                          </div>
+                          <span className="font-black">{(item.sizePrice || item.price) * item.quantity} сум</span>
                         </div>
                       ))}
                     </div>
+                  </div>
+
+                  {/* Подвал карточки */}
+                  <div className="border-t pt-4 flex justify-between items-center">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Итоговая сумма</div>
+                    <div className="text-xl font-black text-primary tracking-tighter">{order.totalAmount} сум</div>
                   </div>
                 </CardContent>
               </Card>
@@ -401,40 +236,43 @@ export default function OrdersPage() {
           )}
         </div>
 
-        {/* Модальное окно выбора официанта */}
+        {/* Модалка выбора персонала */}
         {showStaffSelector && selectedOrder && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-background rounded-xl p-6 max-w-md w-full">
-              <h3 className="text-lg font-bold mb-4">Выберите официанта</h3>
-              <div className="space-y-3">
-                {staff.filter(s => s.isActive).map((staffMember) => (
+          <div className="fixed inset-0 bg-background/95 backdrop-blur-md z-[100] flex items-end sm:items-center justify-center p-4 animate-in fade-in slide-in-from-bottom-10">
+            <Card className="w-full max-w-sm rounded-[2.5rem] border-none shadow-2xl p-6 space-y-6">
+              <div className="text-center space-y-1">
+                <h3 className="text-xl font-black uppercase tracking-tighter">ВЫБОР ОФИЦИАНТА</h3>
+                <p className="text-xs text-muted-foreground">Кто будет обслуживать заказ #{selectedOrder.id.slice(-4)}?</p>
+              </div>
+              <div className="grid gap-2 max-h-[40vh] overflow-y-auto no-scrollbar">
+                {staff.filter(s => s.isActive).map((s) => (
                   <Button
-                    key={staffMember.id}
+                    key={s.id}
                     variant="outline"
-                    onClick={() => handleAcceptOrder(selectedOrder.id, staffMember.id)}
-                    className="w-full justify-start"
+                    onClick={() => handleAcceptOrder(selectedOrder.id, s.id)}
+                    className="h-14 rounded-2xl justify-start px-6 font-bold hover:bg-primary hover:text-white transition-all border-none bg-muted/50"
                   >
-                    <User className="w-4 h-4 mr-2" />
-                    {staffMember.name}
+                    <User className="w-4 h-4 mr-3 opacity-50" />
+                    {s.name}
                   </Button>
                 ))}
               </div>
-              <div className="flex gap-3 mt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowStaffSelector(false);
-                    setSelectedOrder(null);
-                  }}
-                  className="flex-1"
-                >
-                  Отмена
-                </Button>
-              </div>
-            </div>
+              <Button variant="ghost" className="w-full h-14 rounded-2xl text-muted-foreground" onClick={() => { setShowStaffSelector(false); setSelectedOrder(null); }}>
+                ОТМЕНА
+              </Button>
+            </Card>
           </div>
         )}
-      </div>
+      </main>
     </div>
+  );
+}
+
+function Loader2({ className }: { className?: string }) {
+  return (
+    <svg className={cn("animate-spin", className)} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
   );
 }

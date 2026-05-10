@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -17,7 +16,8 @@ import {
   Clock, 
   Plus,
   RefreshCcw,
-  Coffee
+  Coffee,
+  LayoutDashboard
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
@@ -99,7 +99,7 @@ export default function AdminPage() {
       toast({ 
         variant: 'destructive', 
         title: 'Ошибка входа', 
-        description: error.message || 'Проверьте данные или права доступа.' 
+        description: error.message || 'Проверьте данные.' 
       });
     } finally {
       setIsSigningIn(false);
@@ -122,14 +122,10 @@ export default function AdminPage() {
         createdAt: new Date().toISOString()
       });
       setIsAdmin(true);
-      toast({ title: 'Права администратора получены!', description: 'Теперь у вас есть доступ к панели.' });
+      toast({ title: 'Права администратора получены!' });
       loadStats();
     } catch (error) {
-      toast({ 
-        variant: 'destructive', 
-        title: 'Ошибка', 
-        description: 'Не удалось назначить права. Проверьте правила доступа Firestore.' 
-      });
+      toast({ variant: 'destructive', title: 'Ошибка' });
     } finally {
       setIsInitializing(false);
     }
@@ -143,7 +139,6 @@ export default function AdminPage() {
       const demoItems = [
         { id: 'latte', name: 'Латте', category: 'coffee', price: 25000, description: 'Нежный кофе с молоком', ingredients: ['Эспрессо', 'Молоко'], rating: 5.0, time: '5 мин' },
         { id: 'cappuccino', name: 'Капучино', category: 'coffee', price: 22000, description: 'Классический кофейный напиток', ingredients: ['Эспрессо', 'Молоко'], rating: 4.8, time: '5 мин' },
-        { id: 'americano', name: 'Американо', category: 'coffee', price: 18000, description: 'Крепкий черный кофе', ingredients: ['Эспрессо', 'Вода'], rating: 4.7, time: '3 мин' },
         { id: 'croissant', name: 'Круассан', category: 'bakery', price: 15000, description: 'Свежая выпечка', ingredients: ['Тесто', 'Масло'], rating: 4.9, time: '2 мин' }
       ];
 
@@ -153,53 +148,54 @@ export default function AdminPage() {
       });
 
       await batch.commit();
-      toast({ title: 'База данных обновлена', description: 'Демо-товары добавлены.' });
+      toast({ title: 'База данных обновлена' });
       loadStats();
     } catch (e) {
-      toast({ variant: 'destructive', title: 'Ошибка', description: 'Не удалось обновить базу.' });
+      toast({ variant: 'destructive', title: 'Ошибка' });
     } finally {
       setIsInitializing(false);
     }
   };
 
-  if (authLoading) return <div className="h-screen flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>;
+  if (authLoading) return <div className="h-screen flex items-center justify-center bg-background"><Loader2 className="animate-spin text-primary w-10 h-10" /></div>;
 
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-6">
-        <Card className="w-full max-w-md p-8 rounded-[2.5rem] shadow-2xl border-none">
-          <CardHeader className="text-center space-y-2">
-            <div className="bg-primary/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <ShieldAlert className="w-8 h-8 text-primary" />
+        <Card className="w-full max-w-sm rounded-[2.5rem] shadow-2xl border-none p-2">
+          <CardHeader className="text-center pt-10 pb-6">
+            <div className="bg-primary w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+              <ShieldAlert className="w-8 h-8 text-white" />
             </div>
             <CardTitle className="text-2xl font-black uppercase tracking-tighter">Admin Login</CardTitle>
-            <p className="text-muted-foreground text-sm font-medium">Введите ваши данные для входа</p>
           </CardHeader>
-          <form onSubmit={handleLogin} className="space-y-4 mt-6">
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-widest ml-1">Email</Label>
-              <Input 
-                type="email" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                className="h-12 rounded-2xl bg-muted/50 border-none"
-                required 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-widest ml-1">Пароль</Label>
-              <Input 
-                type="password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                className="h-12 rounded-2xl bg-muted/50 border-none"
-                required 
-              />
-            </div>
-            <Button disabled={isSigningIn} className="w-full h-14 rounded-2xl font-bold text-lg shadow-lg">
-              {isSigningIn ? <Loader2 className="animate-spin" /> : "Войти"}
-            </Button>
-          </form>
+          <CardContent className="px-6 pb-10">
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Email</Label>
+                <Input 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  className="h-14 rounded-2xl bg-muted/50 border-none px-6"
+                  required 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Пароль</Label>
+                <Input 
+                  type="password" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  className="h-14 rounded-2xl bg-muted/50 border-none px-6"
+                  required 
+                />
+              </div>
+              <Button disabled={isSigningIn} className="w-full h-16 rounded-2xl font-black text-lg shadow-lg mt-4">
+                {isSigningIn ? <Loader2 className="animate-spin" /> : "ВОЙТИ В ПАНЕЛЬ"}
+              </Button>
+            </form>
+          </CardContent>
         </Card>
       </div>
     );
@@ -207,22 +203,24 @@ export default function AdminPage() {
 
   if (isAdmin === false) {
     return (
-      <div className="h-screen flex items-center justify-center p-6">
-        <Card className="max-w-md p-8 text-center space-y-6 rounded-[2.5rem] border-none shadow-2xl">
-          <ShieldAlert className="w-16 h-16 text-destructive mx-auto" />
-          <h2 className="text-2xl font-bold uppercase tracking-tighter">Доступ ограничен</h2>
-          <p className="text-muted-foreground">У вас нет прав администратора. Ваш UID:</p>
-          <div className="bg-muted p-4 rounded-2xl font-mono text-xs break-all">{user.uid}</div>
+      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
+        <Card className="max-w-sm w-full p-6 text-center rounded-[2.5rem] border-none shadow-2xl">
+          <div className="bg-destructive/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ShieldAlert className="w-10 h-10 text-destructive" />
+          </div>
+          <h2 className="text-2xl font-black uppercase tracking-tighter mb-4">Доступ ограничен</h2>
+          <p className="text-sm text-muted-foreground mb-6">У вашего аккаунта нет прав администратора.</p>
+          <div className="bg-muted p-4 rounded-2xl font-mono text-[10px] break-all mb-8 opacity-60">{user.uid}</div>
           
-          <div className="pt-4 space-y-3">
+          <div className="space-y-3">
             <Button 
               onClick={handleMakeMeAdmin} 
               disabled={isInitializing}
-              className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 font-bold"
+              className="w-full h-14 rounded-2xl bg-primary font-black"
             >
-              {isInitializing ? <Loader2 className="animate-spin mr-2" /> : "Сделать меня администратором"}
+              {isInitializing ? <Loader2 className="animate-spin mr-2" /> : "ПОЛУЧИТЬ ПРАВА"}
             </Button>
-            <Button onClick={handleLogout} variant="outline" className="w-full h-12 rounded-2xl">Выйти</Button>
+            <Button onClick={handleLogout} variant="ghost" className="w-full h-14 rounded-2xl text-muted-foreground">Выйти</Button>
           </div>
         </Card>
       </div>
@@ -231,104 +229,83 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-background pb-32">
-      <header className="bg-card/80 backdrop-blur-md border-b p-6 sticky top-0 z-50 flex justify-between items-center">
+      <header className="bg-card/80 backdrop-blur-md border-b p-6 sticky top-0 z-50 flex justify-between items-center px-6">
         <div className="flex items-center gap-3">
-          <div className="bg-primary w-10 h-10 rounded-xl flex items-center justify-center text-white">
-            <Coffee className="w-6 h-6" />
+          <div className="bg-primary w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg">
+            <LayoutDashboard className="w-6 h-6" />
           </div>
-          <h1 className="font-black text-xl uppercase tracking-tighter">AromaFlow <span className="text-primary">Admin</span></h1>
+          <h1 className="font-black text-xl uppercase tracking-tighter">ПАНЕЛЬ <span className="text-primary">УПРАВЛЕНИЯ</span></h1>
         </div>
-        <Button onClick={handleLogout} variant="ghost" className="rounded-full text-muted-foreground hover:text-destructive">
-          <LogOut className="w-5 h-5 mr-2" /> Выход
+        <Button onClick={handleLogout} variant="ghost" size="icon" className="rounded-full text-muted-foreground">
+          <LogOut className="w-5 h-5" />
         </Button>
       </header>
 
-      <main className="max-w-7xl mx-auto p-6 space-y-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        {/* Статистика */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {[
-            { label: 'Новые заказы', val: stats.newOrders, icon: Clock, color: 'text-orange-500', bg: 'bg-orange-100' },
-            { label: 'Всего заказов', val: stats.totalOrders, icon: ShoppingCart, color: 'text-blue-500', bg: 'bg-blue-100' },
-            { label: 'Персонал', val: stats.staffCount, icon: Users, color: 'text-purple-500', bg: 'bg-purple-100' },
-            { label: 'Товаров в меню', val: stats.menuItemsCount, icon: Coffee, color: 'text-green-500', bg: 'bg-green-100' },
+            { label: 'Новые', val: stats.newOrders, icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50' },
+            { label: 'Всего', val: stats.totalOrders, icon: ShoppingCart, color: 'text-blue-600', bg: 'bg-blue-50' },
+            { label: 'Штат', val: stats.staffCount, icon: Users, color: 'text-purple-600', bg: 'bg-purple-50' },
+            { label: 'Меню', val: stats.menuItemsCount, icon: Coffee, color: 'text-green-600', bg: 'bg-green-50' },
           ].map((item, i) => (
-            <Card key={i} className="border-none shadow-sm rounded-[2rem]">
-              <CardContent className="p-6 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{item.label}</p>
-                  <p className="text-3xl font-black mt-1">{statsLoading ? '...' : item.val}</p>
+            <Card key={i} className="border-none shadow-sm rounded-3xl bg-card overflow-hidden">
+              <CardContent className="p-4 sm:p-5 flex items-center gap-3">
+                <div className={`${item.bg} p-2.5 rounded-xl shrink-0`}>
+                  <item.icon className={`w-5 h-5 ${item.color}`} />
                 </div>
-                <div className={`${item.bg} p-3 rounded-2xl`}>
-                  <item.icon className={`w-6 h-6 ${item.color}`} />
+                <div>
+                  <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">{item.label}</p>
+                  <p className="text-xl font-black leading-none">{statsLoading ? '...' : item.val}</p>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Link href="/admin/menu">
-            <Card className="hover:shadow-xl transition-all cursor-pointer group border-none rounded-[2.5rem] bg-card">
-              <CardContent className="p-8 text-center space-y-4">
-                <div className="bg-primary/5 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                  <Home className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-bold uppercase tracking-tighter">Сделать заказ</h3>
-                <p className="text-sm text-muted-foreground">Интерфейс для официанта</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/admin/orders">
-            <Card className="hover:shadow-xl transition-all cursor-pointer group border-none rounded-[2.5rem] bg-card">
-              <CardContent className="p-8 text-center space-y-4">
-                <div className="bg-green-50 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                  <ShoppingCart className="w-8 h-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-bold uppercase tracking-tighter">Заказы</h3>
-                <p className="text-sm text-muted-foreground">Управление активными заказами</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/admin/staff">
-            <Card className="hover:shadow-xl transition-all cursor-pointer group border-none rounded-[2.5rem] bg-card">
-              <CardContent className="p-8 text-center space-y-4">
-                <div className="bg-purple-50 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                  <Users className="w-8 h-8 text-purple-600" />
-                </div>
-                <h3 className="text-xl font-bold uppercase tracking-tighter">Персонал</h3>
-                <p className="text-sm text-muted-foreground">Управление сотрудниками</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/admin/settings">
-            <Card className="hover:shadow-xl transition-all cursor-pointer group border-none rounded-[2.5rem] bg-card">
-              <CardContent className="p-8 text-center space-y-4">
-                <div className="bg-orange-50 w-16 h-16 rounded-3xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                  <Settings className="w-8 h-8 text-orange-600" />
-                </div>
-                <h3 className="text-xl font-bold uppercase tracking-tighter">Товары</h3>
-                <p className="text-sm text-muted-foreground">Редактирование меню</p>
-              </CardContent>
-            </Card>
-          </Link>
+        {/* Навигация */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { href: '/admin/menu', title: 'Принять заказ', desc: 'Интерфейс официанта', icon: Home, color: 'bg-primary' },
+            { href: '/admin/orders', title: 'Заказы', desc: 'Управление потоком', icon: ShoppingCart, color: 'bg-emerald-600' },
+            { href: '/admin/staff', title: 'Персонал', desc: 'Ваша команда', icon: Users, color: 'bg-purple-600' },
+            { href: '/admin/settings', title: 'Товары', desc: 'Редактор меню', icon: Settings, color: 'bg-orange-600' },
+          ].map((item, i) => (
+            <Link href={item.href} key={i}>
+              <Card className="hover:scale-[1.02] active:scale-95 transition-all border-none rounded-[2.5rem] bg-card shadow-md h-full">
+                <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
+                  <div className={`${item.color} w-16 h-16 rounded-[1.8rem] flex items-center justify-center text-white shadow-xl`}>
+                    <item.icon className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black uppercase tracking-tighter leading-none mb-2">{item.title}</h3>
+                    <p className="text-xs text-muted-foreground font-medium">{item.desc}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
         </div>
 
-        <Card className="border-none shadow-sm rounded-[2.5rem] bg-primary/5">
-          <CardHeader>
-            <CardTitle className="text-xl font-black uppercase tracking-tighter">Сервисные функции</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-4">
-            <Button onClick={seedDatabase} disabled={isInitializing} variant="outline" className="rounded-2xl h-14 px-8 border-primary/20 bg-white">
-              {isInitializing ? <Loader2 className="animate-spin mr-2" /> : <Plus className="mr-2" />}
-              Наполнить базу демо-товарами
-            </Button>
-            <Button onClick={loadStats} variant="outline" className="rounded-2xl h-14 px-8 border-primary/20 bg-white">
-              <RefreshCcw className="mr-2 w-4 h-4" />
-              Обновить данные
-            </Button>
-          </CardContent>
+        {/* Сервис */}
+        <Card className="border-none shadow-md rounded-[2.5rem] bg-primary/5 p-6 sm:p-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="space-y-1 text-center sm:text-left">
+              <h3 className="text-xl font-black uppercase tracking-tighter">СЕРВИСНЫЕ ФУНКЦИИ</h3>
+              <p className="text-sm text-muted-foreground">Настройка и обслуживание базы данных</p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <Button onClick={seedDatabase} disabled={isInitializing} variant="outline" className="rounded-2xl h-14 px-8 border-primary/20 bg-background font-bold text-xs uppercase tracking-widest">
+                {isInitializing ? <Loader2 className="animate-spin mr-2" /> : <Plus className="mr-2 w-4 h-4" />}
+                НАПОЛНИТЬ БАЗУ
+              </Button>
+              <Button onClick={loadStats} variant="outline" className="rounded-2xl h-14 px-8 border-primary/20 bg-background font-bold text-xs uppercase tracking-widest">
+                <RefreshCcw className="mr-2 w-4 h-4" />
+                ОБНОВИТЬ
+              </Button>
+            </div>
+          </div>
         </Card>
       </main>
     </div>
