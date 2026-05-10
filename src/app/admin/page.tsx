@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser, useFirestore, useCollection } from '@/firebase';
-import { doc, getDoc, collection, getDocs, setDoc, query, where, addDoc, updateDoc, serverTimestamp, orderBy, limit } from 'firebase/firestore';
+import { useUser, useFirestore } from '@/firebase';
+import { doc, getDoc, collection, getDocs, setDoc, query, where, addDoc, updateDoc, serverTimestamp, limit } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -26,6 +25,7 @@ import { useRouter } from 'next/navigation';
 import { getAuth, signOut, signInWithEmailAndPassword } from 'firebase/auth';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 export default function AdminPage() {
   const { user, loading: authLoading } = useUser();
@@ -39,7 +39,6 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
 
-  // Состояние смены
   const [activeShift, setActiveShift] = useState<any>(null);
   const [shiftDuration, setShiftDuration] = useState("00:00:00");
 
@@ -74,7 +73,6 @@ export default function AdminPage() {
     }
   };
 
-  // Проверка активной смены
   useEffect(() => {
     if (user && firestore) {
       const q = query(
@@ -96,10 +94,9 @@ export default function AdminPage() {
     }
   }, [user, firestore]);
 
-  // Таймер смены
   useEffect(() => {
     let interval: any;
-    if (activeShift) {
+    if (activeShift && activeShift.startTime) {
       interval = setInterval(() => {
         const start = activeShift.startTime.toDate();
         const now = new Date();
@@ -283,7 +280,6 @@ export default function AdminPage() {
       </header>
 
       <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-        {/* Управление сменой */}
         <Card className={cn(
           "border-none shadow-xl rounded-[2.5rem] overflow-hidden transition-all duration-500",
           activeShift ? "bg-emerald-50" : "bg-orange-50"
@@ -330,7 +326,6 @@ export default function AdminPage() {
           </CardContent>
         </Card>
 
-        {/* Статистика */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {[
             { label: 'Новые', val: stats.newOrders, icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50' },
@@ -352,7 +347,6 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Навигация */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
             { href: '/admin/menu', title: 'Принять заказ', desc: 'Интерфейс официанта', icon: Home, color: 'bg-primary' },
