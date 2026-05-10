@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Loader2, Coffee, AlertCircle, Sparkles, Flame } from "lucide-react";
+import { Loader2, Coffee, AlertCircle, Sparkles, Flame, ChevronRight } from "lucide-react";
 import { ProductCard } from "./ProductCard";
 import { Button } from "@/components/ui/button";
 import { useFirestore, useCollection } from "@/firebase";
@@ -44,13 +44,12 @@ export function Menu() {
     const dayKey = new Date().toISOString().split('T')[0];
     const seed = `${dayKey}-${hoursSlot}`;
     
-    // Простая детерминированная сортировка на основе сида
     const shuffled = [...items]
       .filter(i => i.id !== special.id)
       .sort((a, b) => {
         const hashA = (a.id + seed).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         const hashB = (b.id + seed).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        return hashA % 10 - hashB % 10;
+        return (hashA % 10) - (hashB % 10);
       })
       .slice(0, 4);
 
@@ -83,7 +82,7 @@ export function Menu() {
     return { 
       menuItems: items, 
       categories: categoriesArray, 
-      specialOffer: special, 
+      specialOffer: items.find(i => i.isSpecial) || null, 
       recommendedItems: shuffled 
     };
   }, [rawData]);
@@ -107,15 +106,6 @@ export function Menu() {
       <Button onClick={() => window.location.reload()} variant="outline" size="sm" className="rounded-full h-10 px-6 font-bold">
         Обновить
       </Button>
-    </div>
-  );
-
-  if (menuItems.length === 0) return (
-    <div className="text-center py-24 px-6 space-y-6">
-      <div className="w-20 h-20 bg-muted/50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-4 border border-black/[0.03]">
-        <Coffee className="w-10 h-10 text-primary/5" />
-      </div>
-      <p className="text-primary/40 font-black uppercase tracking-widest text-[10px]">Меню скоро появится</p>
     </div>
   );
 
@@ -180,7 +170,7 @@ export function Menu() {
               </section>
             )}
 
-            {/* Рекомендации */}
+            {/* Рекомендации - Горизонтальный скролл */}
             {recommendedItems.length > 0 && (
               <section className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
                 <div className="flex items-center justify-between mb-6">
@@ -189,17 +179,20 @@ export function Menu() {
                     <h2 className="text-2xl font-black uppercase tracking-tighter">Рекомендуем вам</h2>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {recommendedItems.map((item) => (
-                    <ProductCard key={item.id} item={item} />
-                  ))}
+                <div className="relative">
+                  <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 snap-x snap-mandatory -mx-6 px-6">
+                    {recommendedItems.map((item) => (
+                      <div key={item.id} className="min-w-[280px] sm:min-w-[320px] snap-center">
+                        <ProductCard item={item} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </section>
             )}
           </>
         )}
 
-        {/* Обычное меню по категориям */}
         <div className="space-y-16">
           {activeCategory ? (
             <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
