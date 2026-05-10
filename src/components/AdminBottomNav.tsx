@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, ShoppingCart, Users, Settings, ShoppingBag, ClipboardList } from "lucide-react";
+import { LayoutDashboard, Users, Settings, ShoppingBag, ClipboardList } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -8,9 +8,7 @@ import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 
 export function AdminBottomNav() {
-  const { totalItems } = useCart();
   const pathname = usePathname();
-  
   const [pendingOrders, setPendingOrders] = useState(0);
 
   useEffect(() => {
@@ -50,7 +48,7 @@ export function AdminBottomNav() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[100] px-4 pb-6 pt-2 pointer-events-none">
-      <nav className="max-w-xl mx-auto bg-black text-white/80 shadow-[0_20px_50px_rgba(0,0,0,0.3)] rounded-[2.5rem] flex justify-around items-center p-2 pointer-events-auto h-20">
+      <nav className="max-w-xl mx-auto bg-white/80 backdrop-blur-2xl border border-black/[0.05] shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-[2.5rem] flex justify-around items-center p-2 pointer-events-auto h-20">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -61,7 +59,7 @@ export function AdminBottomNav() {
               href={item.href}
               className={cn(
                 "flex flex-col items-center justify-center gap-1.5 transition-all active:scale-90 relative h-full flex-1 rounded-[2rem]",
-                isActive ? "text-white bg-white/10" : "text-white/40 hover:bg-white/5"
+                isActive ? "text-primary bg-primary/5" : "text-muted-foreground hover:bg-black/[0.02]"
               )}
             >
               <div className={cn(
@@ -79,11 +77,15 @@ export function AdminBottomNav() {
               
               {item.badge !== undefined && item.badge > 0 && (
                 <span className={cn(
-                  "absolute top-2 right-1/4 text-white text-[9px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full font-black border-2 border-black shadow-lg px-1",
+                  "absolute top-2 right-1/4 text-white text-[9px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full font-black border-2 border-white shadow-lg px-1",
                   item.badgeColor || "bg-primary"
                 )}>
                   {item.badge}
                 </span>
+              )}
+              
+              {isActive && (
+                <div className="absolute -bottom-1 w-6 h-1 bg-primary rounded-full" />
               )}
             </Link>
           );
