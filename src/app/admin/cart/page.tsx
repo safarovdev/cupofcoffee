@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -157,8 +156,7 @@ export default function AdminCartPage() {
               <div className="space-y-1">
                 <Input 
                   value={customItem.name}
-                  onChange={(e) => setCustomerName(customerName || "")} // Dummy to avoid unused, actually use the right state
-                  onInput={(e: any) => setCustomItem(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) => setCustomItem(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Название (напр. Доп. порция)"
                   className="rounded-xl border-none bg-background shadow-sm h-11 font-bold text-xs"
                 />
@@ -274,7 +272,7 @@ export default function AdminCartPage() {
                   </div>
                 )}
               </Button>
-            </div>
+            </Card>
           </div>
         )}
       </main>
