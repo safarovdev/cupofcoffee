@@ -40,7 +40,7 @@ export function AdminBottomNav() {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[100] px-4 pb-6 pt-2 pointer-events-none">
+    <div className="fixed bottom-0 left-0 right-0 z-[40] px-4 pb-6 pt-2 pointer-events-none">
       <nav className="max-w-md mx-auto bg-white/95 backdrop-blur-2xl border border-black/[0.05] shadow-[0_15px_40px_rgba(0,0,0,0.1)] rounded-[2rem] flex justify-around items-center p-1 pointer-events-auto h-16">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -71,7 +71,7 @@ export function AdminBottomNav() {
                 )}
               </div>
               <span className={cn(
-                "text-[7px] font-black uppercase tracking-[0.1em] transition-all",
+                "text-[7px] font-black uppercase text-center tracking-[0.1em] transition-all",
                 isActive || isNavigating ? "opacity-100" : "opacity-40"
               )}>
                 {item.label}

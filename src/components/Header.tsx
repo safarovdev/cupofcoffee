@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -88,7 +89,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-[100] w-full bg-background/80 backdrop-blur-xl border-b border-black/[0.02]">
+    <header className="sticky top-0 z-[30] w-full bg-background/80 backdrop-blur-xl border-b border-black/[0.02]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -97,7 +98,7 @@ export function Header() {
                 <MenuIcon className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[280px] p-0 border-none rounded-r-2xl">
+            <SheetContent side="left" className="w-[280px] p-0 border-none rounded-r-2xl z-[60]">
               <SheetHeader className="p-6 bg-primary text-white">
                 <SheetTitle className="text-white text-xl font-black uppercase tracking-tighter">
                   Каталог
