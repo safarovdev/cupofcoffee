@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Save, Loader2, Flame, Image as ImageIcon, X, Upload } from 'lucide-react';
+import { Plus, Save, Loader2, Flame, Image as ImageIcon, X, Upload, Trash2, Layers } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 
@@ -30,6 +30,11 @@ const CATEGORIES = [
 
 const IMGBB_API_KEY = '6e681c9c15fe63d6b40db8afc9230a41';
 
+interface SizeEntry {
+  label: string;
+  price: string;
+}
+
 export function AddProductForm({ onSave, initialData, buttonLabel }: ProductFormProps) {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -40,6 +45,9 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
     isSpecial: false,
     imageUrl: ''
   });
+  
+  const [sizes, setSizes] = useState<SizeEntry[]>([]);
+  const [useSizes, setUseSizes] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,6 +62,15 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
         isSpecial: initialData.isSpecial || false,
         imageUrl: initialData.imageUrl || ''
       });
+
+      if (initialData.sizes && Object.keys(initialData.sizes).length > 0) {
+        const initialSizes = Object.entries(initialData.sizes).map(([label, price]) => ({
+          label,
+          price: price?.toString() || ''
+        }));
+        setSizes(initialSizes);
+        setUseSizes(true);
+      }
     }
   }, [initialData]);
 
@@ -91,43 +108,91 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const addSize = () => {
+    setSizes([...sizes, { label: '', price: '' }]);
+  };
+
+  const removeSize = (index: number) => {
+    setSizes(sizes.filter((_, i) => i !== index));
+  };
+
+  const updateSize = (index: number, field: keyof SizeEntry, value: string) => {
+    const newSizes = [...sizes];
+    newSizes[index][field] = value;
+    setSizes(newSizes);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (isSaving || isUploading) return;
 
     const name = formData.name.trim();
-    const price = Number(formData.price);
     const category = formData.category;
 
     if (!name) {
       toast({ variant: 'destructive', title: 'Ошибка', description: 'Введите название товара' });
       return;
     }
-    if (!formData.price || isNaN(price) || price <= 0) {
-      toast({ variant: 'destructive', title: 'Ошибка', description: 'Введите корректную цену' });
-      return;
-    }
+    
     if (!category) {
       toast({ variant: 'destructive', title: 'Ошибка', description: 'Выберите категорию' });
       return;
+    }
+
+    let finalPrice = Number(formData.price);
+    let finalSizes: Record<string, number> | null = null;
+
+    if (useSizes) {
+      if (sizes.length === 0) {
+        toast({ variant: 'destructive', title: 'Ошибка', description: 'Добавьте хотя бы один размер или отключите выбор размеров' });
+        return;
+      }
+      
+      finalSizes = {};
+      let hasIncomplete = false;
+      
+      sizes.forEach(s => {
+        if (!s.label.trim() || !s.price) {
+          hasIncomplete = true;
+        } else {
+          finalSizes![s.label.trim()] = Number(s.price);
+        }
+      });
+
+      if (hasIncomplete) {
+        toast({ variant: 'destructive', title: 'Ошибка', description: 'Заполните все поля размеров или удалите лишние' });
+        return;
+      }
+
+      // Базовая цена товара при наличии размеров — цена первого размера
+      const firstPrice = Object.values(finalSizes)[0];
+      finalPrice = firstPrice;
+    } else {
+      if (!formData.price || isNaN(finalPrice) || finalPrice <= 0) {
+        toast({ variant: 'destructive', title: 'Ошибка', description: 'Введите корректную цену' });
+        return;
+      }
     }
 
     setIsSaving(true);
     try {
       const productData = {
         name: name,
-        price: price,
+        price: finalPrice,
         category: category,
         ingredients: formData.ingredients.split(',').map(i => i.trim()).filter(i => i),
         isSpecial: formData.isSpecial,
-        imageUrl: formData.imageUrl
+        imageUrl: formData.imageUrl,
+        sizes: useSizes ? finalSizes : null
       };
 
       await onSave(productData);
       
       if (!initialData) {
         setFormData({ name: '', price: '', category: '', ingredients: '', isSpecial: false, imageUrl: '' });
+        setSizes([]);
+        setUseSizes(false);
       }
     } catch (error: any) {
       console.error('Submit error:', error);
@@ -145,7 +210,7 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
           <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Фото товара</Label>
           <div 
             onClick={() => !isUploading && !isSaving && fileInputRef.current?.click()}
-            className="group relative flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/20 rounded-[2rem] min-h-[180px] bg-muted/5 cursor-pointer hover:bg-muted/10 transition-all overflow-hidden"
+            className="group relative flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/20 rounded-[2rem] min-h-[160px] bg-muted/5 cursor-pointer hover:bg-muted/10 transition-all overflow-hidden"
           >
             {formData.imageUrl ? (
               <div className="absolute inset-0 w-full h-full">
@@ -161,7 +226,7 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
                       type="button"
                       size="sm"
                       disabled={isSaving}
-                      className="rounded-full bg-white text-black hover:bg-white/90 font-bold"
+                      className="rounded-full bg-white text-black hover:bg-white/90 font-bold h-8 px-3 text-[10px]"
                       onClick={(e) => {
                         e.stopPropagation();
                         fileInputRef.current?.click();
@@ -183,15 +248,13 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-3 py-8">
-                <div className="bg-primary/5 p-4 rounded-2xl text-primary transition-transform group-hover:scale-110">
-                  {isUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <ImageIcon className="w-8 h-8" />}
+              <div className="flex flex-col items-center gap-2 py-6">
+                <div className="bg-primary/5 p-3 rounded-2xl text-primary transition-transform group-hover:scale-110">
+                  {isUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <ImageIcon className="w-6 h-6" />}
                 </div>
-                <div className="text-center">
-                  <p className="text-[10px] font-black uppercase tracking-widest opacity-60">
-                    {isUploading ? 'Загрузка...' : 'Нажмите для выбора'}
-                  </p>
-                </div>
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-60">
+                  {isUploading ? 'Загрузка...' : 'Добавить фото'}
+                </p>
               </div>
             )}
             <input 
@@ -204,32 +267,19 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
           </div>
         </div>
 
-        <div>
-          <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Название</Label>
-          <Input 
-            value={formData.name} 
-            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-            placeholder="Название товара"
-            required
-            className="rounded-xl h-11 bg-muted/50 border-none font-bold"
-            disabled={isSaving || isUploading}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Цена (сум)</Label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Название</Label>
             <Input 
-              type="number" 
-              value={formData.price} 
-              onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
-              placeholder="0"
+              value={formData.name} 
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="Напр. Капучино"
               required
-              className="rounded-xl h-11 bg-muted/50 border-none font-bold"
+              className="rounded-xl h-11 bg-muted/50 border-none font-bold text-sm"
               disabled={isSaving || isUploading}
             />
           </div>
-          <div>
+          <div className="space-y-1">
             <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Категория</Label>
             <Select 
               value={formData.category} 
@@ -237,7 +287,7 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
               required
               disabled={isSaving || isUploading}
             >
-              <SelectTrigger className="rounded-xl h-11 bg-muted/50 border-none font-bold">
+              <SelectTrigger className="rounded-xl h-11 bg-muted/50 border-none font-bold text-sm">
                 <SelectValue placeholder="Выбрать" />
               </SelectTrigger>
               <SelectContent>
@@ -251,24 +301,98 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
           </div>
         </div>
 
-        <div>
+        <div className="space-y-1">
           <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Ингредиенты</Label>
           <Input 
             value={formData.ingredients} 
             onChange={(e) => setFormData(prev => ({ ...prev, ingredients: e.target.value }))}
-            className="rounded-xl h-11 bg-muted/50 border-none font-bold"
+            className="rounded-xl h-11 bg-muted/50 border-none font-bold text-sm"
             placeholder="Кофе, Молоко, Сахар..."
             disabled={isSaving || isUploading}
           />
         </div>
 
-        <div className="flex items-center justify-between p-4 bg-orange-50/50 rounded-2xl border border-orange-100/50 mt-2">
+        {/* Секция цен и размеров */}
+        <div className="space-y-4 bg-muted/20 p-4 rounded-[2rem] border border-muted-foreground/5">
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2">
+              <Layers className="w-4 h-4 text-primary opacity-40" />
+              <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Размеры и цены</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[8px] font-bold uppercase tracking-widest opacity-40">Несколько размеров?</span>
+              <Switch 
+                checked={useSizes} 
+                onCheckedChange={setUseSizes} 
+                disabled={isSaving || isUploading}
+              />
+            </div>
+          </div>
+
+          {!useSizes ? (
+            <div className="space-y-1">
+              <Label className="text-[9px] font-black uppercase tracking-widest ml-1 opacity-40">Базовая цена (сум)</Label>
+              <Input 
+                type="number" 
+                value={formData.price} 
+                onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                placeholder="0"
+                className="rounded-xl h-11 bg-background border-none font-bold text-sm"
+                disabled={isSaving || isUploading}
+              />
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {sizes.map((size, index) => (
+                <div key={index} className="flex gap-2 animate-in fade-in slide-in-from-right-2">
+                  <Input 
+                    placeholder="Напр. 0.3л" 
+                    value={size.label}
+                    onChange={(e) => updateSize(index, 'label', e.target.value)}
+                    className="flex-1 rounded-xl h-10 bg-background border-none font-bold text-xs"
+                    disabled={isSaving}
+                  />
+                  <Input 
+                    type="number"
+                    placeholder="Цена" 
+                    value={size.price}
+                    onChange={(e) => updateSize(index, 'price', e.target.value)}
+                    className="w-24 sm:w-32 rounded-xl h-10 bg-background border-none font-bold text-xs"
+                    disabled={isSaving}
+                  />
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => removeSize(index)}
+                    className="h-10 w-10 rounded-xl text-destructive hover:bg-destructive/10"
+                    disabled={isSaving}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={addSize}
+                className="w-full h-10 rounded-xl border-dashed border-2 hover:bg-background/50 font-bold text-[10px] uppercase tracking-widest gap-2"
+                disabled={isSaving}
+              >
+                <Plus className="w-3 h-3" /> Добавить размер
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between p-4 bg-orange-50/30 rounded-2xl border border-orange-100/50">
           <div className="flex items-center gap-3">
             <div className="bg-orange-500 p-2 rounded-xl text-white shadow-lg shadow-orange-200">
-              <Flame className="w-4 h-4" />
+              <Flame className="w-3 h-3" />
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-tight text-orange-900 leading-none mb-1">Спецпредложение</p>
+              <p className="text-[8px] font-bold text-orange-700/60 uppercase">Будет на главном баннере</p>
             </div>
           </div>
           <Switch 
@@ -279,8 +403,16 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
         </div>
       </div>
 
-      <Button type="submit" disabled={isSaving || isUploading} className="w-full rounded-2xl h-14 font-black gap-2 shadow-xl uppercase text-xs tracking-widest mt-4">
-        {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : (initialData ? <Save className="w-4 h-4" /> : <Plus className="w-4 h-4" />)}
+      <Button 
+        type="submit" 
+        disabled={isSaving || isUploading} 
+        className="w-full rounded-2xl h-14 font-black gap-2 shadow-xl uppercase text-xs tracking-widest mt-2"
+      >
+        {isSaving ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          initialData ? <Save className="w-4 h-4" /> : <Plus className="w-4 h-4" />
+        )}
         {isSaving ? 'СОХРАНЕНИЕ...' : (buttonLabel || (initialData ? 'Сохранить изменения' : 'Создать товар'))}
       </Button>
     </form>
