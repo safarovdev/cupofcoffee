@@ -24,34 +24,37 @@ export function EditableProductCard({ item, onEdit, onDelete }: EditableProductC
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
+    console.log("EditableCard: Edit requested for ID:", item.id);
     onEdit(item);
   };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
+    // Останавливаем любые события, чтобы клик не "провалился"
     e.stopPropagation();
     e.preventDefault();
     
-    // Проверяем наличие ID
     const docId = item.id;
+    console.log("EditableCard: Delete button clicked for ID:", docId);
+
     if (!docId) {
-      console.error("EditableProductCard: ID missing in item", item);
+      console.error("EditableCard: ID IS MISSING IN ITEM DATA!", item);
+      alert("Ошибка: ID товара не найден в данных");
       return;
     }
 
-    console.log("EditableProductCard: Attempting to delete ID:", docId);
-
-    if (window.confirm(`Вы уверены, что хотите удалить товар "${item.name}"?`)) {
-      console.log("EditableProductCard: User confirmed deletion");
+    if (window.confirm(`Вы уверены, что хотите полностью удалить товар "${item.name}"?`)) {
+      console.log("EditableCard: Confirmed. Calling onDelete for:", docId);
       onDelete(docId);
     }
   };
 
   return (
     <Card className={cn(
-      "group overflow-hidden rounded-2xl border-none shadow-sm transition-all active:scale-[0.99] hover:shadow-md",
-      item.isSpecial ? "bg-orange-50/30" : "bg-card"
+      "group overflow-hidden rounded-2xl border-none shadow-sm transition-all bg-card relative",
+      item.isSpecial && "bg-orange-50/30 border border-orange-100/50"
     )}>
-      <CardContent className="p-0 flex h-28">
+      <CardContent className="p-0 flex h-28 relative">
+        {/* Фото */}
         <div className="w-28 bg-muted relative flex items-center justify-center shrink-0 overflow-hidden">
           {item.imageUrl ? (
             <Image 
@@ -72,36 +75,39 @@ export function EditableProductCard({ item, onEdit, onDelete }: EditableProductC
             </div>
           )}
         </div>
-        <div className="flex-1 p-3 flex flex-col justify-between">
+
+        {/* Инфо и Кнопки */}
+        <div className="flex-1 p-3 flex flex-col justify-between relative">
           <div className="flex justify-between items-start">
-            <div className="max-w-[140px]">
+            <div className="max-w-[120px] sm:max-w-[160px]">
               <h3 className="font-black text-[13px] uppercase tracking-tight leading-none line-clamp-1">{item.name}</h3>
               <p className="text-[9px] text-muted-foreground mt-1 line-clamp-1 opacity-60">
                 {item.ingredients?.length > 0 ? item.ingredients.join(', ') : 'Без состава'}
               </p>
             </div>
-            <div className="flex gap-1 relative z-20">
-              <Button 
-                variant="ghost" 
-                size="icon" 
+            
+            {/* Слой кнопок с высоким z-index */}
+            <div className="flex gap-1 relative z-[100] pointer-events-auto">
+              <button 
                 type="button"
-                className="h-8 w-8 rounded-full hover:bg-primary/5 text-muted-foreground hover:text-primary transition-colors" 
+                className="h-8 w-8 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" 
                 onClick={handleEditClick}
+                title="Редактировать"
               >
                 <Edit className="w-3.5 h-3.5" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              </button>
+              <button 
                 type="button"
-                className="h-8 w-8 rounded-full hover:bg-destructive/5 text-muted-foreground hover:text-destructive transition-colors" 
+                className="h-8 w-8 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" 
                 onClick={handleDeleteClick}
+                title="Удалить"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-              </Button>
+              </button>
             </div>
           </div>
-          <div className="flex justify-between items-center">
+
+          <div className="flex justify-between items-center mt-auto">
             <p className={cn(
               "text-base font-black tracking-tighter",
               item.isSpecial ? "text-orange-600" : "text-primary"

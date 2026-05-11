@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Plus, Loader2, Package, Search } from 'lucide-react';
-import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { AddProductForm } from '@/components/AddProductForm';
 import { EditableProductCard } from '@/components/EditableProductCard';
@@ -36,7 +35,7 @@ export default function AdminProductsPage() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const items = snapshot.docs.map(docSnapshot => {
         const data = docSnapshot.data();
-        // ГАРАНТИРУЕМ, что id документа ВСЕГДА берется из doc.id и перезаписывает любые id в данных
+        // ГАРАНТИРУЕМ, что id документа берется ТОЛЬКО из doc.id
         return {
           ...data,
           id: docSnapshot.id
@@ -68,23 +67,20 @@ export default function AdminProductsPage() {
     }
     
     if (!id) {
-      console.error("Delete aborted: ID is missing");
-      toast({ variant: 'destructive', title: 'Ошибка', description: 'ID товара не определен' });
+      console.error("SettingsPage: Delete aborted, ID is missing");
       return;
     }
     
     try {
-      console.log("Deleting document from 'menu' collection with ID:", id);
-      const docRef = doc(firestore, 'menu', id);
-      await deleteDoc(docRef);
-      console.log("Deletion successful");
-      toast({ title: 'Товар удален' });
+      console.log("SettingsPage: Deleting document ID:", id);
+      await deleteDoc(doc(firestore, 'menu', id));
+      toast({ title: 'Товар успешно удален' });
     } catch (error: any) {
-      console.error("Delete process error:", error);
+      console.error("SettingsPage: Delete error:", error);
       toast({ 
         variant: 'destructive', 
         title: 'Ошибка удаления', 
-        description: error.message || 'Проверьте соединение'
+        description: error.message
       });
     }
   };
@@ -99,14 +95,9 @@ export default function AdminProductsPage() {
     try {
       await setDoc(doc(firestore, 'menu', itemId), data, { merge: true });
       setEditingItem(null);
-      toast({ title: 'Товар успешно обновлен' });
+      toast({ title: 'Товар обновлен' });
     } catch (error: any) {
-      console.error('Update error:', error);
-      toast({ 
-        variant: 'destructive', 
-        title: 'Ошибка обновления', 
-        description: error.message
-      });
+      toast({ variant: 'destructive', title: 'Ошибка обновления', description: error.message });
     }
   };
 
@@ -188,7 +179,7 @@ export default function AdminProductsPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <Loader2 className="animate-spin text-primary w-8 h-8 opacity-20" />
-            <p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-30">Загрузка склада...</p>
+            <p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-30">Загрузка...</p>
           </div>
         ) : filteredItems.length === 0 ? (
           <Card className="border-none shadow-none rounded-2xl bg-card/50 py-16 text-center">
