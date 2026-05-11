@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -17,10 +16,8 @@ import {
   Clock, 
   Play,
   Square,
-  History,
   Coffee,
   LayoutDashboard,
-  Wallet,
   BarChart3
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -184,7 +181,6 @@ export default function AdminPage() {
       const end = new Date();
       const durationMin = Math.round((end.getTime() - start.getTime()) / 60000);
       
-      // Подсчет статистики за смену - получаем все заказы и фильтруем по времени
       const ordersSnap = await getDocs(collection(firestore, 'orders'));
       let totalEarnings = 0;
       let ordersCount = 0;
@@ -201,7 +197,6 @@ export default function AdminPage() {
           orderCreated = new Date(orderData.createdAt);
         }
 
-        // Если заказ был создан во время смены и принят
         if (orderCreated >= start && orderData.status === 'accepted') {
           totalEarnings += Number(orderData.totalAmount) || 0;
           ordersCount++;
@@ -267,29 +262,29 @@ export default function AdminPage() {
     }
   };
 
-  if (authLoading) return <div className="h-screen flex items-center justify-center bg-background"><Loader2 className="animate-spin text-primary w-10 h-10" /></div>;
+  if (authLoading) return <div className="h-screen flex items-center justify-center bg-background"><Loader2 className="animate-spin text-primary w-8 h-8" /></div>;
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-6">
-        <Card className="w-full max-w-sm rounded-[2.5rem] shadow-2xl border-none p-2">
-          <CardHeader className="text-center pt-10 pb-6">
-            <div className="bg-primary w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl">
-              <ShieldAlert className="w-8 h-8 text-white" />
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-sm rounded-2xl shadow-xl border-none">
+          <CardHeader className="text-center pt-8 pb-4">
+            <div className="bg-primary w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+              <ShieldAlert className="w-7 h-7 text-white" />
             </div>
-            <CardTitle className="text-2xl font-black uppercase tracking-tighter">Admin Login</CardTitle>
+            <CardTitle className="text-xl font-black uppercase tracking-tighter">Admin Login</CardTitle>
           </CardHeader>
-          <CardContent className="px-6 pb-10">
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Email</Label>
-                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="h-14 rounded-2xl bg-muted/50 border-none px-6" required />
+          <CardContent className="px-6 pb-8">
+            <form onSubmit={handleLogin} className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-[9px] font-black uppercase tracking-widest ml-1 opacity-50">Email</Label>
+                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="h-11 rounded-xl bg-muted/50 border-none px-4" required />
               </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Пароль</Label>
-                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="h-14 rounded-2xl bg-muted/50 border-none px-6" required />
+              <div className="space-y-1">
+                <Label className="text-[9px] font-black uppercase tracking-widest ml-1 opacity-50">Пароль</Label>
+                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="h-11 rounded-xl bg-muted/50 border-none px-4" required />
               </div>
-              <Button disabled={isSigningIn} className="w-full h-16 rounded-2xl font-black text-lg shadow-lg mt-4">
+              <Button disabled={isSigningIn} className="w-full h-13 rounded-xl font-black text-sm shadow-lg mt-3">
                 {isSigningIn ? <Loader2 className="animate-spin" /> : "ВОЙТИ В ПАНЕЛЬ"}
               </Button>
             </form>
@@ -301,56 +296,56 @@ export default function AdminPage() {
 
   if (isAdmin === false) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
-        <Card className="max-w-sm w-full p-6 text-center rounded-[2.5rem] border-none shadow-2xl">
-          <div className="bg-destructive/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <ShieldAlert className="w-10 h-10 text-destructive" />
+      <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+        <Card className="max-w-xs w-full p-6 text-center rounded-2xl border-none shadow-xl">
+          <div className="bg-destructive/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <ShieldAlert className="w-8 h-8 text-destructive" />
           </div>
-          <h2 className="text-2xl font-black uppercase tracking-tighter mb-4">Доступ ограничен</h2>
-          <p className="text-sm text-muted-foreground mb-6">UID: {user.uid}</p>
-          <Button onClick={handleMakeMeAdmin} disabled={isInitializing} className="w-full h-14 rounded-2xl bg-primary font-black">
+          <h2 className="text-lg font-black uppercase tracking-tighter mb-2">Доступ ограничен</h2>
+          <p className="text-xs text-muted-foreground mb-6 break-all">UID: {user.uid}</p>
+          <Button onClick={handleMakeMeAdmin} disabled={isInitializing} className="w-full h-11 rounded-xl bg-primary font-black text-xs">
             {isInitializing ? <Loader2 className="animate-spin mr-2" /> : "ПОЛУЧИТЬ ПРАВА"}
           </Button>
-          <Button onClick={handleLogout} variant="ghost" className="w-full mt-2 h-14 rounded-2xl text-muted-foreground">Выйти</Button>
+          <Button onClick={handleLogout} variant="ghost" className="w-full mt-2 h-11 rounded-xl text-muted-foreground text-xs">Выйти</Button>
         </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-32">
-      <header className="bg-card/80 backdrop-blur-md border-b p-6 sticky top-0 z-50 flex justify-between items-center px-6">
-        <div className="flex items-center gap-3">
-          <div className="bg-primary w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg">
-            <LayoutDashboard className="w-6 h-6" />
+    <div className="min-h-screen bg-background pb-24">
+      <header className="bg-card/80 backdrop-blur-md border-b p-4 sticky top-0 z-50 flex justify-between items-center px-4 sm:px-6">
+        <div className="flex items-center gap-2">
+          <div className="bg-primary w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-md">
+            <LayoutDashboard className="w-5 h-5" />
           </div>
-          <h1 className="font-black text-xl uppercase tracking-tighter">ПАНЕЛЬ <span className="text-primary">УПРАВЛЕНИЯ</span></h1>
+          <h1 className="font-black text-lg uppercase tracking-tighter">ПАНЕЛЬ <span className="text-primary">УПРАВЛЕНИЯ</span></h1>
         </div>
-        <Button onClick={handleLogout} variant="ghost" size="icon" className="rounded-full text-muted-foreground">
-          <LogOut className="w-5 h-5" />
+        <Button onClick={handleLogout} variant="ghost" size="icon" className="rounded-full h-8 w-8 text-muted-foreground">
+          <LogOut className="w-4 h-4" />
         </Button>
       </header>
 
-      <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      <main className="max-w-5xl mx-auto p-4 sm:p-6 space-y-4">
         <Card className={cn(
-          "border-none shadow-xl rounded-[2.5rem] overflow-hidden transition-all duration-500",
+          "border-none shadow-md rounded-2xl overflow-hidden transition-all duration-300",
           activeShift ? "bg-emerald-50" : "bg-orange-50"
         )}>
-          <CardContent className="p-8">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-6">
+          <CardContent className="p-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
                 <div className={cn(
-                  "w-20 h-20 rounded-[1.8rem] flex items-center justify-center shadow-xl",
+                  "w-14 h-14 rounded-xl flex items-center justify-center shadow-lg",
                   activeShift ? "bg-emerald-500 text-white" : "bg-orange-500 text-white"
                 )}>
-                  {activeShift ? <Clock className="w-10 h-10" /> : <Play className="w-10 h-10 ml-1" />}
+                  {activeShift ? <Clock className="w-7 h-7" /> : <Play className="w-7 h-7 ml-0.5" />}
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black uppercase tracking-tighter leading-none mb-2">
+                  <h2 className="text-lg font-black uppercase tracking-tighter leading-none mb-1">
                     {activeShift ? "Смена открыта" : "Смена закрыта"}
                   </h2>
                   <p className={cn(
-                    "text-xl font-mono font-bold tracking-tighter",
+                    "text-base font-mono font-bold tracking-tight",
                     activeShift ? "text-emerald-600" : "text-orange-600"
                   )}>
                     {shiftDuration}
@@ -361,15 +356,15 @@ export default function AdminPage() {
               <Button 
                 onClick={activeShift ? handleFinishShift : handleStartShift}
                 disabled={isInitializing}
-                size="lg"
+                size="sm"
                 className={cn(
-                  "h-16 px-10 rounded-2xl font-black text-lg shadow-lg min-w-[200px] uppercase tracking-tighter transition-all active:scale-95",
+                  "h-12 px-8 rounded-xl font-black text-sm shadow-md w-full sm:w-auto uppercase tracking-tight",
                   activeShift ? "bg-destructive hover:bg-destructive/90" : "bg-emerald-600 hover:bg-emerald-700"
                 )}
               >
                 {isInitializing ? <Loader2 className="animate-spin" /> : (
-                  <div className="flex items-center gap-3">
-                    {activeShift ? <Square className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
+                  <div className="flex items-center gap-2">
+                    {activeShift ? <Square className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
                     {activeShift ? "Завершить смену" : "Начать смену"}
                   </div>
                 )}
@@ -385,37 +380,37 @@ export default function AdminPage() {
             { label: 'Штат', val: stats.staffCount, icon: Users, color: 'text-purple-600', bg: 'bg-purple-50' },
             { label: 'Меню', val: stats.menuItemsCount, icon: Coffee, color: 'text-green-600', bg: 'bg-green-50' },
           ].map((item, i) => (
-            <Card key={i} className="border-none shadow-sm rounded-3xl bg-card overflow-hidden">
-              <CardContent className="p-4 sm:p-5 flex items-center gap-3">
-                <div className={`${item.bg} p-2.5 rounded-xl shrink-0`}>
-                  <item.icon className={`w-5 h-5 ${item.color}`} />
+            <Card key={i} className="border-none shadow-sm rounded-xl bg-card">
+              <CardContent className="p-3 flex items-center gap-2">
+                <div className={`${item.bg} p-2 rounded-lg shrink-0`}>
+                  <item.icon className={`w-4 h-4 ${item.color}`} />
                 </div>
                 <div>
-                  <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">{item.label}</p>
-                  <p className="text-xl font-black leading-none">{statsLoading ? '...' : item.val}</p>
+                  <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-0.5">{item.label}</p>
+                  <p className="text-base font-black leading-none">{statsLoading ? '...' : item.val}</p>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {[
-            { href: '/admin/menu', title: 'Принять заказ', desc: 'Интерфейс официанта', icon: Home, color: 'bg-primary' },
-            { href: '/admin/orders', title: 'Заказы', desc: 'Управление потоком', icon: ShoppingCart, color: 'bg-emerald-600' },
-            { href: '/admin/shifts', title: 'Статистика', desc: 'История и итоги', icon: BarChart3, color: 'bg-blue-600' },
-            { href: '/admin/staff', title: 'Персонал', desc: 'Ваша команда', icon: Users, color: 'bg-purple-600' },
-            { href: '/admin/settings', title: 'Товары', desc: 'Редактор меню', icon: Settings, color: 'bg-orange-600' },
+            { href: '/admin/menu', title: 'Официант', desc: 'Принять заказ', icon: Home, color: 'bg-primary' },
+            { href: '/admin/orders', title: 'Заказы', desc: 'Управление', icon: ShoppingCart, color: 'bg-emerald-600' },
+            { href: '/admin/shifts', title: 'Финансы', desc: 'Статистика', icon: BarChart3, color: 'bg-blue-600' },
+            { href: '/admin/staff', title: 'Персонал', desc: 'Команда', icon: Users, color: 'bg-purple-600' },
+            { href: '/admin/settings', title: 'Меню', desc: 'Редактор', icon: Settings, color: 'bg-orange-600' },
           ].map((item, i) => (
             <Link href={item.href} key={i}>
-              <Card className="hover:scale-[1.02] active:scale-95 transition-all border-none rounded-[2.5rem] bg-card shadow-md h-full">
-                <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                  <div className={`${item.color} w-16 h-16 rounded-[1.8rem] flex items-center justify-center text-white shadow-xl`}>
-                    <item.icon className="w-8 h-8" />
+              <Card className="hover:scale-[1.02] active:scale-95 transition-all border-none rounded-2xl bg-card shadow-sm h-full">
+                <CardContent className="p-4 flex flex-col items-center text-center space-y-2">
+                  <div className={`${item.color} w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md`}>
+                    <item.icon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-black uppercase tracking-tighter leading-none mb-2">{item.title}</h3>
-                    <p className="text-xs text-muted-foreground font-medium">{item.desc}</p>
+                    <h3 className="text-xs font-black uppercase tracking-tight leading-none mb-1">{item.title}</h3>
+                    <p className="text-[9px] text-muted-foreground font-medium">{item.desc}</p>
                   </div>
                 </CardContent>
               </Card>
