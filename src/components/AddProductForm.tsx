@@ -5,9 +5,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Save, Loader2, Flame, Image as ImageIcon, X, Upload, Trash2, Layers } from 'lucide-react';
+import { Plus, Save, Loader2, Flame, Image as ImageIcon, X, Upload, Trash2, Layers, AlignLeft } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 
@@ -39,6 +40,7 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
+    description: '',
     price: '',
     category: '',
     ingredients: '',
@@ -56,6 +58,7 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
     if (initialData) {
       setFormData({
         name: initialData.name || '',
+        description: initialData.description || '',
         price: initialData.price?.toString() || '',
         category: initialData.category || '',
         ingredients: initialData.ingredients ? initialData.ingredients.join(', ') : '',
@@ -165,7 +168,6 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
         return;
       }
 
-      // Базовая цена товара при наличии размеров — цена первого размера
       const firstPrice = Object.values(finalSizes)[0];
       finalPrice = firstPrice;
     } else {
@@ -179,6 +181,7 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
     try {
       const productData = {
         name: name,
+        description: formData.description.trim(),
         price: finalPrice,
         category: category,
         ingredients: formData.ingredients.split(',').map(i => i.trim()).filter(i => i),
@@ -190,7 +193,7 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
       await onSave(productData);
       
       if (!initialData) {
-        setFormData({ name: '', price: '', category: '', ingredients: '', isSpecial: false, imageUrl: '' });
+        setFormData({ name: '', description: '', price: '', category: '', ingredients: '', isSpecial: false, imageUrl: '' });
         setSizes([]);
         setUseSizes(false);
       }
@@ -205,7 +208,6 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 gap-4">
-        {/* Блок загрузки изображения */}
         <div className="space-y-2">
           <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Фото товара</Label>
           <div 
@@ -302,6 +304,19 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
         </div>
 
         <div className="space-y-1">
+          <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50 flex items-center gap-2">
+            <AlignLeft className="w-3 h-3" /> Описание
+          </Label>
+          <Textarea 
+            value={formData.description} 
+            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+            className="rounded-xl bg-muted/50 border-none font-bold text-sm min-h-[80px]"
+            placeholder="Опишите вкус, аромат или способ подачи..."
+            disabled={isSaving || isUploading}
+          />
+        </div>
+
+        <div className="space-y-1">
           <Label className="text-[10px] font-black uppercase tracking-widest ml-1 opacity-50">Ингредиенты</Label>
           <Input 
             value={formData.ingredients} 
@@ -312,7 +327,6 @@ export function AddProductForm({ onSave, initialData, buttonLabel }: ProductForm
           />
         </div>
 
-        {/* Секция цен и размеров */}
         <div className="space-y-4 bg-muted/20 p-4 rounded-[2rem] border border-muted-foreground/5">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2">
