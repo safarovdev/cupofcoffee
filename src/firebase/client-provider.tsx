@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -15,16 +14,16 @@ export const FirebaseClientProvider: React.FC<{ children: React.ReactNode }> = (
   useEffect(() => {
     try {
       // Используем конфиг из центрального файла
-      console.log("AromaFlow Debug: Initializing Firebase App with Project ID:", firebaseConfig.projectId);
+      console.log("CupOfCoffee Debug: Initializing Firebase App with Project ID:", firebaseConfig.projectId);
       
       const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
       const db = getFirestore(app);
       const auth = getAuth(app);
       
       setServices({ app, db, auth });
-      console.log("AromaFlow Debug: Firebase initialized successfully");
+      console.log("CupOfCoffee Debug: Firebase initialized successfully");
     } catch (err: any) {
-      console.error("AromaFlow Debug: Firebase initialization failed:", err);
+      console.error("CupOfCoffee Debug: Firebase initialization failed:", err);
       setError(err.message);
     }
   }, []);
@@ -44,7 +43,7 @@ export const FirebaseClientProvider: React.FC<{ children: React.ReactNode }> = (
   }
 
   if (!services) {
-    return <div className="h-screen flex items-center justify-center font-bold text-primary animate-pulse">Запуск AromaFlow...</div>;
+    return <div className="h-screen flex items-center justify-center font-bold text-primary animate-pulse">Запуск CupOfCoffee...</div>;
   }
 
   return (

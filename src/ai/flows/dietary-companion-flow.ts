@@ -36,7 +36,7 @@ const dietaryCompanionPrompt = ai.definePrompt({
   name: 'dietaryCompanionPrompt',
   input: { schema: DietaryCompanionInputSchema },
   output: { schema: DietaryCompanionOutputSchema },
-  prompt: `You are an AI-powered Dietary Companion for a cafe named AromaFlow. Your goal is to help customers with dietary restrictions make informed choices from the menu.
+  prompt: `You are an AI-powered Dietary Companion for a cafe named CupOfCoffee. Your goal is to help customers with dietary restrictions make informed choices from the menu.
 Analyze the provided selected menu items and the customer's dietary restrictions.
 Identify any potential conflicts, issues, or important considerations.
 Provide a clear analysis and actionable suggestions for alternatives or modifications to ensure the customer's dietary needs are met.

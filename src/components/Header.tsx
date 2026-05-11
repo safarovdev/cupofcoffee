@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -146,7 +145,7 @@ export function Header() {
 
           <Link href="/" className="flex flex-col items-center group">
             <h1 className="text-xl font-black font-headline tracking-[-0.04em] text-primary uppercase leading-none">
-              AromaFlow
+              CupOfCoffee
             </h1>
             <span className="text-[8px] font-bold text-primary/20 uppercase tracking-[0.5em] mt-1 group-hover:text-primary/60 transition-colors">
               Coffee Studio
