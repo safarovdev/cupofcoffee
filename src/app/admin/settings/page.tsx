@@ -35,7 +35,6 @@ export default function AdminProductsPage() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const items = snapshot.docs.map(docSnapshot => {
         const data = docSnapshot.data();
-        // ГАРАНТИРУЕМ, что id документа берется ТОЛЬКО из doc.id
         return {
           ...data,
           id: docSnapshot.id
@@ -67,16 +66,13 @@ export default function AdminProductsPage() {
     }
     
     if (!id) {
-      console.error("SettingsPage: Delete aborted, ID is missing");
       return;
     }
     
     try {
-      console.log("SettingsPage: Deleting document ID:", id);
       await deleteDoc(doc(firestore, 'menu', id));
       toast({ title: 'Товар успешно удален' });
     } catch (error: any) {
-      console.error("SettingsPage: Delete error:", error);
       toast({ 
         variant: 'destructive', 
         title: 'Ошибка удаления', 
@@ -200,15 +196,17 @@ export default function AdminProductsPage() {
         )}
       </main>
 
-      <div className="fixed bottom-24 right-4 z-[60] animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <Button 
-          onClick={() => setShowAddDialog(true)}
-          className="rounded-full h-12 px-5 shadow-xl bg-primary hover:bg-primary/90 text-white font-black flex items-center gap-2 active:scale-95 border-none"
-        >
-          <Plus className="w-4 h-4 stroke-[3]" />
-          <span className="text-[10px] uppercase tracking-widest">Добавить</span>
-        </Button>
-      </div>
+      {!showAddDialog && !editingItem && (
+        <div className="fixed bottom-24 right-4 z-[60] animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <Button 
+            onClick={() => setShowAddDialog(true)}
+            className="rounded-full h-12 px-5 shadow-xl bg-primary hover:bg-primary/90 text-white font-black flex items-center gap-2 active:scale-95 border-none"
+          >
+            <Plus className="w-4 h-4 stroke-[3]" />
+            <span className="text-[10px] uppercase tracking-widest">Добавить</span>
+          </Button>
+        </div>
+      )}
 
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-xl rounded-[2rem] p-0 overflow-hidden border-none bg-background">
