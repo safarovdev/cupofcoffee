@@ -41,7 +41,7 @@ export function AdminBottomNav() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[100] px-4 pb-6 pt-2 pointer-events-none">
-      <nav className="max-w-xl mx-auto bg-white/90 backdrop-blur-2xl border border-black/[0.05] shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-[2.5rem] flex justify-around items-center p-2 pointer-events-auto h-20">
+      <nav className="max-w-md mx-auto bg-white/95 backdrop-blur-2xl border border-black/[0.05] shadow-[0_15px_40px_rgba(0,0,0,0.1)] rounded-[2rem] flex justify-around items-center p-1 pointer-events-auto h-16">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -55,23 +55,23 @@ export function AdminBottomNav() {
                 if (!isActive) setNavigatingTo(item.href);
               }}
               className={cn(
-                "flex flex-col items-center justify-center gap-1.5 transition-all active:scale-90 relative h-full flex-1 rounded-[2rem] outline-none",
-                isActive ? "text-primary bg-primary/5" : "text-muted-foreground hover:bg-black/[0.02]",
+                "flex flex-col items-center justify-center gap-1 transition-all active:scale-95 relative h-full flex-1 rounded-[1.5rem] outline-none",
+                isActive ? "text-primary bg-primary/5" : "text-muted-foreground hover:bg-black/[0.01]",
                 isNavigating && "animate-pulse"
               )}
             >
               <div className={cn(
                 "transition-all duration-300",
-                isActive || isNavigating ? "scale-110" : "scale-100"
+                isActive || isNavigating ? "scale-105" : "scale-100"
               )}>
                 {isNavigating ? (
-                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  <Loader2 className="w-5 h-5 animate-spin text-primary" />
                 ) : (
-                  <Icon className={cn("w-6 h-6", isActive ? "stroke-[2.5]" : "stroke-[2]")} />
+                  <Icon className={cn("w-5 h-5", isActive ? "stroke-[2.5]" : "stroke-[2]")} />
                 )}
               </div>
               <span className={cn(
-                "text-[7px] xs:text-[8px] font-black uppercase tracking-[0.1em] transition-all",
+                "text-[7px] font-black uppercase tracking-[0.1em] transition-all",
                 isActive || isNavigating ? "opacity-100" : "opacity-40"
               )}>
                 {item.label}
@@ -79,7 +79,7 @@ export function AdminBottomNav() {
               
               {item.badge !== undefined && item.badge > 0 && !isNavigating && (
                 <span className={cn(
-                  "absolute top-2 right-1/4 text-white text-[9px] min-w-[18px] h-[18px] flex items-center justify-center rounded-full font-black border-2 border-white shadow-lg px-1 animate-in zoom-in duration-300",
+                  "absolute top-1.5 right-1/4 text-white text-[8px] min-w-[15px] h-[15px] flex items-center justify-center rounded-full font-black border-2 border-white shadow-md px-1 animate-in zoom-in duration-300",
                   item.badgeColor || "bg-primary"
                 )}>
                   {item.badge}
@@ -87,7 +87,7 @@ export function AdminBottomNav() {
               )}
               
               {isActive && (
-                <div className="absolute -bottom-1 w-6 h-1 bg-primary rounded-full animate-in fade-in zoom-in duration-300" />
+                <div className="absolute -bottom-0.5 w-4 h-0.5 bg-primary rounded-full" />
               )}
             </Link>
           );
