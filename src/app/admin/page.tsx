@@ -54,7 +54,6 @@ export default function AdminPage() {
   const [statsLoading, setStatsLoading] = useState(true);
 
   useEffect(() => {
-    // Сбрасываем состояние навигации при возврате на страницу или смене пути
     setNavigatingTo(null);
   }, [pathname]);
 
@@ -279,7 +278,7 @@ export default function AdminPage() {
             <div className="bg-primary w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
               <ShieldAlert className="w-7 h-7 text-white" />
             </div>
-            <CardTitle className="text-xl font-black uppercase tracking-tighter">Admin Login</CardTitle>
+            <CardTitle className="text-xl font-black uppercase tracking-tighter">CupOfCoffee Admin</CardTitle>
           </CardHeader>
           <CardContent className="px-6 pb-8">
             <form onSubmit={handleLogin} className="space-y-3">
@@ -342,26 +341,27 @@ export default function AdminPage() {
       </header>
 
       <main className="max-w-5xl mx-auto p-4 sm:p-6 space-y-4">
+        {/* Minimalist Shift Block */}
         <Card className={cn(
-          "border-none shadow-md rounded-2xl overflow-hidden transition-all duration-300",
-          activeShift ? "bg-emerald-50" : "bg-orange-50"
+          "border-border/40 rounded-2xl overflow-hidden transition-all duration-300 border",
+          activeShift ? "bg-emerald-50/40" : "bg-orange-50/40"
         )}>
-          <CardContent className="p-4 sm:p-6">
+          <CardContent className="p-4 sm:p-5">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className={cn(
-                  "w-12 h-12 rounded-xl flex items-center justify-center shadow-lg",
-                  activeShift ? "bg-emerald-500 text-white" : "bg-orange-500 text-white"
+                  "w-11 h-11 rounded-xl flex items-center justify-center transition-colors",
+                  activeShift ? "bg-emerald-500/10 text-emerald-600" : "bg-orange-500/10 text-orange-600"
                 )}>
-                  {activeShift ? <Clock className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
+                  {activeShift ? <Clock className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
                 </div>
                 <div>
-                  <h2 className="text-base font-black uppercase tracking-tighter leading-none mb-1">
-                    {activeShift ? "Смена открыта" : "Смена закрыта"}
+                  <h2 className="text-[10px] font-black uppercase tracking-widest leading-none mb-1 opacity-60">
+                    {activeShift ? "Текущая смена" : "Смена закрыта"}
                   </h2>
                   <p className={cn(
-                    "text-sm font-mono font-bold tracking-tight",
-                    activeShift ? "text-emerald-600" : "text-orange-600"
+                    "text-xl font-mono font-black tracking-tighter",
+                    activeShift ? "text-emerald-700" : "text-orange-700"
                   )}>
                     {shiftDuration}
                   </p>
@@ -371,16 +371,18 @@ export default function AdminPage() {
               <Button 
                 onClick={activeShift ? handleFinishShift : handleStartShift}
                 disabled={isInitializing}
-                size="sm"
+                variant={activeShift ? "outline" : "default"}
                 className={cn(
-                  "h-10 px-6 rounded-xl font-black text-xs shadow-md w-full sm:w-auto uppercase tracking-tight",
-                  activeShift ? "bg-destructive hover:bg-destructive/90" : "bg-emerald-600 hover:bg-emerald-700"
+                  "h-11 px-6 rounded-xl font-black text-[10px] w-full sm:w-auto uppercase tracking-widest border-2",
+                  activeShift 
+                    ? "border-destructive/20 text-destructive hover:bg-destructive hover:text-white" 
+                    : "bg-emerald-600 hover:bg-emerald-700 border-transparent"
                 )}
               >
-                {isInitializing ? <Loader2 className="animate-spin" /> : (
+                {isInitializing ? <Loader2 className="animate-spin w-4 h-4" /> : (
                   <div className="flex items-center gap-2">
                     {activeShift ? <Square className="w-3 h-3 fill-current" /> : <Play className="w-3 h-3 fill-current" />}
-                    {activeShift ? "Завершить смену" : "Начать смену"}
+                    {activeShift ? "Завершить" : "Открыть смену"}
                   </div>
                 )}
               </Button>
@@ -388,21 +390,21 @@ export default function AdminPage() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { label: 'Новые', val: stats.newOrders, icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50' },
-            { label: 'Всего', val: stats.totalOrders, icon: ShoppingCart, color: 'text-blue-600', bg: 'bg-blue-50' },
-            { label: 'Штат', val: stats.staffCount, icon: Users, color: 'text-purple-600', bg: 'bg-purple-50' },
-            { label: 'Меню', val: stats.menuItemsCount, icon: Coffee, color: 'text-green-600', bg: 'bg-green-50' },
+            { label: 'Новые', val: stats.newOrders, icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50/50' },
+            { label: 'Всего', val: stats.totalOrders, icon: ShoppingCart, color: 'text-blue-600', bg: 'bg-blue-50/50' },
+            { label: 'Штат', val: stats.staffCount, icon: Users, color: 'text-purple-600', bg: 'bg-purple-50/50' },
+            { label: 'Меню', val: stats.menuItemsCount, icon: Coffee, color: 'text-green-600', bg: 'bg-green-50/50' },
           ].map((item, i) => (
-            <Card key={i} className="border-none shadow-sm rounded-xl bg-card">
+            <Card key={i} className="border-none shadow-none bg-muted/30 rounded-xl">
               <CardContent className="p-3 flex items-center gap-2">
                 <div className={`${item.bg} p-2 rounded-lg shrink-0`}>
-                  <item.icon className={`w-4 h-4 ${item.color}`} />
+                  <item.icon className={`w-3.5 h-3.5 ${item.color}`} />
                 </div>
                 <div>
-                  <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-0.5">{item.label}</p>
-                  <p className="text-base font-black leading-none">{statsLoading ? '...' : item.val}</p>
+                  <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest leading-none mb-1">{item.label}</p>
+                  <p className="text-sm font-black leading-none">{statsLoading ? '...' : item.val}</p>
                 </div>
               </CardContent>
             </Card>
@@ -417,25 +419,26 @@ export default function AdminPage() {
                 href={item.href} 
                 key={i}
                 onClick={() => setNavigatingTo(item.href)}
+                className="block h-full"
               >
                 <Card className={cn(
-                  "hover:scale-[1.02] active:scale-95 transition-all border-none rounded-2xl bg-card shadow-sm h-full",
+                  "hover:bg-muted/50 transition-all border-none rounded-2xl bg-card shadow-none h-full border border-border/20",
                   isNavigating && "animate-pulse opacity-80"
                 )}>
                   <CardContent className="p-4 flex flex-col items-center text-center space-y-2">
                     <div className={cn(
                       item.color, 
-                      "w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md"
+                      "w-9 h-9 rounded-xl flex items-center justify-center text-white"
                     )}>
                       {isNavigating ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
-                        <item.icon className="w-5 h-5" />
+                        <item.icon className="w-4 h-4" />
                       )}
                     </div>
                     <div>
-                      <h3 className="text-xs font-black uppercase tracking-tight leading-none mb-1">{item.title}</h3>
-                      <p className="text-[9px] text-muted-foreground font-medium">{item.desc}</p>
+                      <h3 className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">{item.title}</h3>
+                      <p className="text-[8px] text-muted-foreground font-medium uppercase opacity-50">{item.desc}</p>
                     </div>
                   </CardContent>
                 </Card>
