@@ -28,8 +28,15 @@ export function EditableProductCard({ item, onEdit, onDelete }: EditableProductC
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Используем стандартный confirm, но с перехватом события
-    if (window.confirm(`Удалить товар "${item.name}"?`)) {
+    e.preventDefault();
+    
+    if (!item.id) {
+      console.error("EditableProductCard: item.id is missing", item);
+      return;
+    }
+
+    if (window.confirm(`Вы уверены, что хотите удалить товар "${item.name}"?`)) {
+      console.log("EditableProductCard: user confirmed deletion for ID:", item.id);
       onDelete(item.id);
     }
   };
@@ -72,6 +79,7 @@ export function EditableProductCard({ item, onEdit, onDelete }: EditableProductC
               <Button 
                 variant="ghost" 
                 size="icon" 
+                type="button"
                 className="h-8 w-8 rounded-full hover:bg-primary/5 text-muted-foreground hover:text-primary transition-colors" 
                 onClick={handleEditClick}
               >
@@ -80,6 +88,7 @@ export function EditableProductCard({ item, onEdit, onDelete }: EditableProductC
               <Button 
                 variant="ghost" 
                 size="icon" 
+                type="button"
                 className="h-8 w-8 rounded-full hover:bg-destructive/5 text-muted-foreground hover:text-destructive transition-colors" 
                 onClick={handleDeleteClick}
               >
@@ -92,7 +101,7 @@ export function EditableProductCard({ item, onEdit, onDelete }: EditableProductC
               "text-base font-black tracking-tighter",
               item.isSpecial ? "text-orange-600" : "text-primary"
             )}>
-              {item.price.toLocaleString()} <span className="text-[8px] opacity-40">СУМ</span>
+              {item.price?.toLocaleString() || 0} <span className="text-[8px] opacity-40">СУМ</span>
             </p>
           </div>
         </div>

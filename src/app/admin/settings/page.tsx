@@ -34,13 +34,17 @@ export default function AdminProductsPage() {
 
     const q = query(collection(firestore, 'menu'), orderBy('name', 'asc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: id: doc.id должен быть ПОСЛЕ ...doc.data(), 
-      // чтобы системный ID документа не перезаписывался полем id из данных документа
-      const items = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+      const items = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          ...data,
+          id: doc.id // Гарантируем, что id берется именно из doc.id
+        };
+      });
       setMenuItems(items);
       setLoading(false);
     }, (error) => {
-      console.error("Error fetching menu:", error);
+      console.error("Firestore onSnapshot error:", error);
       toast({ variant: 'destructive', title: 'Ошибка загрузки' });
       setLoading(false);
     });
@@ -56,26 +60,27 @@ export default function AdminProductsPage() {
     return matchesCategory && matchesSearch;
   });
 
-  const handleDeleteItem = (id: string) => {
+  const handleDeleteItem = async (id: string) => {
     if (!firestore || !id) {
+      console.error("Delete failed: Firestore or ID is missing", { firestore: !!firestore, id });
       toast({ variant: 'destructive', title: 'Ошибка', description: 'ID товара не определен' });
       return;
     }
     
-    const docRef = doc(firestore, 'menu', id);
-    
-    deleteDoc(docRef)
-      .then(() => {
-        toast({ title: 'Товар удален' });
-      })
-      .catch((error) => {
-        console.error("Delete error:", error);
-        toast({ 
-          variant: 'destructive', 
-          title: 'Ошибка удаления', 
-          description: error.message || 'Проверьте права доступа'
-        });
+    try {
+      console.log("Attempting to delete document:", id);
+      const docRef = doc(firestore, 'menu', id);
+      await deleteDoc(docRef);
+      console.log("Document deleted successfully:", id);
+      toast({ title: 'Товар удален' });
+    } catch (error: any) {
+      console.error("Delete error details:", error);
+      toast({ 
+        variant: 'destructive', 
+        title: 'Ошибка удаления', 
+        description: error.message || 'Проверьте права доступа или соединение'
       });
+    }
   };
 
   const handleUpdateItem = async (data: any) => {
@@ -94,7 +99,7 @@ export default function AdminProductsPage() {
       toast({ 
         variant: 'destructive', 
         title: 'Ошибка обновления', 
-        description: error.message || 'Проверьте соединение с интернетом'
+        description: error.message
       });
     }
   };
