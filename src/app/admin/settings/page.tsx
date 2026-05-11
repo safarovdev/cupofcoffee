@@ -34,11 +34,12 @@ export default function AdminProductsPage() {
 
     const q = query(collection(firestore, 'menu'), orderBy('name', 'asc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const items = snapshot.docs.map(doc => {
-        const data = doc.data();
+      const items = snapshot.docs.map(docSnapshot => {
+        const data = docSnapshot.data();
+        // ГАРАНТИРУЕМ, что id документа ВСЕГДА берется из doc.id и перезаписывает любые id в данных
         return {
           ...data,
-          id: doc.id // Гарантируем, что id берется именно из doc.id
+          id: docSnapshot.id
         };
       });
       setMenuItems(items);
@@ -61,24 +62,29 @@ export default function AdminProductsPage() {
   });
 
   const handleDeleteItem = async (id: string) => {
-    if (!firestore || !id) {
-      console.error("Delete failed: Firestore or ID is missing", { firestore: !!firestore, id });
+    if (!firestore) {
+      toast({ variant: 'destructive', title: 'Ошибка', description: 'База данных не подключена' });
+      return;
+    }
+    
+    if (!id) {
+      console.error("Delete aborted: ID is missing");
       toast({ variant: 'destructive', title: 'Ошибка', description: 'ID товара не определен' });
       return;
     }
     
     try {
-      console.log("Attempting to delete document:", id);
+      console.log("Deleting document from 'menu' collection with ID:", id);
       const docRef = doc(firestore, 'menu', id);
       await deleteDoc(docRef);
-      console.log("Document deleted successfully:", id);
+      console.log("Deletion successful");
       toast({ title: 'Товар удален' });
     } catch (error: any) {
-      console.error("Delete error details:", error);
+      console.error("Delete process error:", error);
       toast({ 
         variant: 'destructive', 
         title: 'Ошибка удаления', 
-        description: error.message || 'Проверьте права доступа или соединение'
+        description: error.message || 'Проверьте соединение'
       });
     }
   };

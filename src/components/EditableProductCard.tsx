@@ -23,6 +23,7 @@ export function EditableProductCard({ item, onEdit, onDelete }: EditableProductC
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     onEdit(item);
   };
 
@@ -30,14 +31,18 @@ export function EditableProductCard({ item, onEdit, onDelete }: EditableProductC
     e.stopPropagation();
     e.preventDefault();
     
-    if (!item.id) {
-      console.error("EditableProductCard: item.id is missing", item);
+    // Проверяем наличие ID
+    const docId = item.id;
+    if (!docId) {
+      console.error("EditableProductCard: ID missing in item", item);
       return;
     }
 
+    console.log("EditableProductCard: Attempting to delete ID:", docId);
+
     if (window.confirm(`Вы уверены, что хотите удалить товар "${item.name}"?`)) {
-      console.log("EditableProductCard: user confirmed deletion for ID:", item.id);
-      onDelete(item.id);
+      console.log("EditableProductCard: User confirmed deletion");
+      onDelete(docId);
     }
   };
 
@@ -75,7 +80,7 @@ export function EditableProductCard({ item, onEdit, onDelete }: EditableProductC
                 {item.ingredients?.length > 0 ? item.ingredients.join(', ') : 'Без состава'}
               </p>
             </div>
-            <div className="flex gap-0.5">
+            <div className="flex gap-1 relative z-20">
               <Button 
                 variant="ghost" 
                 size="icon" 
