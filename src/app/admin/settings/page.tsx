@@ -54,14 +54,22 @@ export default function AdminProductsPage() {
     return matchesCategory && matchesSearch;
   });
 
-  const handleDeleteItem = async (id: string) => {
-    if (!firestore) return;
-    try {
-      await deleteDoc(doc(firestore, 'menu', id));
-      toast({ title: 'Товар удален' });
-    } catch (error) {
-      toast({ variant: 'destructive', title: 'Ошибка удаления' });
-    }
+  const handleDeleteItem = (id: string) => {
+    if (!firestore || !id) return;
+    
+    // Не блокируем поток выполнения через await
+    deleteDoc(doc(firestore, 'menu', id))
+      .then(() => {
+        toast({ title: 'Товар удален' });
+      })
+      .catch((error) => {
+        console.error("Delete error:", error);
+        toast({ 
+          variant: 'destructive', 
+          title: 'Ошибка удаления', 
+          description: 'Проверьте права доступа или соединение'
+        });
+      });
   };
 
   const handleUpdateItem = async (data: any) => {
@@ -114,44 +122,44 @@ export default function AdminProductsPage() {
 
   return (
     <div className="min-h-screen bg-background pb-40">
-      <header className="bg-card/80 backdrop-blur-md border-b p-6 sticky top-0 z-50 flex items-center justify-between px-6">
-        <div className="flex items-center gap-4">
+      <header className="bg-card/80 backdrop-blur-md border-b p-4 sticky top-0 z-50 flex items-center justify-between px-4 sm:px-6">
+        <div className="flex items-center gap-3">
           <button 
             onClick={handleBack}
             disabled={isNavigatingBack}
-            className="p-2 hover:bg-muted rounded-full text-muted-foreground transition-colors flex items-center justify-center min-w-[40px] min-h-[40px]"
+            className="p-2 hover:bg-muted rounded-full text-muted-foreground transition-colors flex items-center justify-center min-w-[36px] min-h-[36px]"
           >
-            {isNavigatingBack ? <Loader2 className="w-6 h-6 animate-spin text-primary" /> : <ArrowLeft className="w-6 h-6" />}
+            {isNavigatingBack ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <ArrowLeft className="w-5 h-5" />}
           </button>
-          <h1 className="font-black text-xl uppercase tracking-tighter">РЕДАКТОР <span className="text-primary">МЕНЮ</span></h1>
+          <h1 className="font-black text-lg uppercase tracking-tight">СКЛАД</h1>
         </div>
-        <Badge variant="secondary" className="rounded-full h-8 px-4 font-black bg-primary/10 text-primary border-none">
-          {menuItems.length}
+        <Badge variant="secondary" className="rounded-full h-7 px-3 font-black bg-primary/10 text-primary border-none text-[10px]">
+          {menuItems.length} ПОЗ.
         </Badge>
       </header>
 
-      <main className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-        <div className="space-y-4">
+      <main className="max-w-7xl mx-auto p-4 sm:p-6 space-y-4">
+        <div className="space-y-3">
           <div className="relative">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/30" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/30" />
             <Input
-              placeholder="Поиск по названию..."
+              placeholder="Поиск..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-14 rounded-[1.5rem] bg-card border-none px-14 shadow-sm font-bold"
+              className="h-11 rounded-xl bg-card border-none px-11 shadow-sm font-bold text-sm"
             />
           </div>
           
-          <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar px-1">
+          <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 className={cn(
-                  "whitespace-nowrap h-10 px-5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                  "whitespace-nowrap h-8 px-4 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
                   selectedCategory === cat 
-                    ? "bg-primary text-white shadow-md scale-105" 
-                    : "bg-card text-muted-foreground hover:bg-muted shadow-sm"
+                    ? "bg-primary text-white shadow-sm" 
+                    : "bg-card text-muted-foreground hover:bg-muted"
                 )}
               >
                 {categoryNames[cat] || cat}
@@ -161,17 +169,17 @@ export default function AdminProductsPage() {
         </div>
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="animate-spin text-primary w-10 h-10" />
-            <p className="text-[10px] font-black uppercase tracking-widest opacity-40">Синхронизация...</p>
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <Loader2 className="animate-spin text-primary w-8 h-8 opacity-20" />
+            <p className="text-[8px] font-black uppercase tracking-[0.2em] opacity-30">Загрузка склада...</p>
           </div>
         ) : filteredItems.length === 0 ? (
-          <Card className="border-none shadow-sm rounded-[2rem] bg-card/50 py-20 text-center">
-            <Package className="w-16 h-16 text-muted-foreground/10 mx-auto mb-4" />
-            <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Ничего не найдено</p>
+          <Card className="border-none shadow-none rounded-2xl bg-card/50 py-16 text-center">
+            <Package className="w-12 h-12 text-muted-foreground/10 mx-auto mb-3" />
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Ничего не найдено</p>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {filteredItems.map(item => (
               <EditableProductCard 
                 key={item.id} 
@@ -184,33 +192,33 @@ export default function AdminProductsPage() {
         )}
       </main>
 
-      <div className="fixed bottom-28 right-6 z-[60] animate-in fade-in slide-in-from-bottom-4 duration-300">
+      <div className="fixed bottom-24 right-4 z-[60] animate-in fade-in slide-in-from-bottom-4 duration-300">
         <Button 
           onClick={() => setShowAddDialog(true)}
-          className="rounded-full h-14 px-6 shadow-2xl bg-primary hover:bg-primary/90 text-white font-black flex items-center gap-3 transition-transform active:scale-95 border-2 border-white/10"
+          className="rounded-full h-12 px-5 shadow-xl bg-primary hover:bg-primary/90 text-white font-black flex items-center gap-2 active:scale-95 border-none"
         >
-          <Plus className="w-5 h-5 stroke-[3]" />
-          <span className="text-xs uppercase tracking-[0.2em]">Добавить</span>
+          <Plus className="w-4 h-4 stroke-[3]" />
+          <span className="text-[10px] uppercase tracking-widest">Добавить</span>
         </Button>
       </div>
 
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none bg-background">
-          <DialogHeader className="p-8 bg-primary text-white">
-            <DialogTitle className="text-2xl font-black uppercase tracking-tighter">НОВАЯ ПОЗИЦИЯ</DialogTitle>
+        <DialogContent className="max-w-xl rounded-[2rem] p-0 overflow-hidden border-none bg-background">
+          <DialogHeader className="p-6 bg-primary text-white">
+            <DialogTitle className="text-xl font-black uppercase tracking-tight">Новая позиция</DialogTitle>
           </DialogHeader>
-          <div className="p-6 sm:p-10 max-h-[80vh] overflow-y-auto no-scrollbar">
+          <div className="p-6 max-h-[80vh] overflow-y-auto no-scrollbar">
             <AddProductForm onSave={handleAddItem} />
           </div>
         </DialogContent>
       </Dialog>
 
       <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
-        <DialogContent className="max-w-xl rounded-[2.5rem] p-0 overflow-hidden border-none bg-background">
-          <DialogHeader className="p-8 bg-primary text-white">
-            <DialogTitle className="text-2xl font-black uppercase tracking-tighter">ИЗМЕНЕНИЕ ТОВАРА</DialogTitle>
+        <DialogContent className="max-w-xl rounded-[2rem] p-0 overflow-hidden border-none bg-background">
+          <DialogHeader className="p-6 bg-primary text-white">
+            <DialogTitle className="text-xl font-black uppercase tracking-tight">Изменение товара</DialogTitle>
           </DialogHeader>
-          <div className="p-6 sm:p-10 max-h-[80vh] overflow-y-auto no-scrollbar">
+          <div className="p-6 max-h-[80vh] overflow-y-auto no-scrollbar">
             {editingItem && (
               <AddProductForm 
                 onSave={handleUpdateItem} 

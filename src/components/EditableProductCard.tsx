@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -22,13 +21,26 @@ export function EditableProductCard({ item, onEdit, onDelete }: EditableProductC
     'ice-cream': 'Мороженое', 'desserts': 'Десерты', 'bakery': 'Выпечка'
   };
 
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit(item);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Используем стандартный confirm, но с перехватом события
+    if (window.confirm(`Удалить товар "${item.name}"?`)) {
+      onDelete(item.id);
+    }
+  };
+
   return (
     <Card className={cn(
-      "group overflow-hidden rounded-[2rem] border-none shadow-md transition-all active:scale-[0.98] hover:shadow-lg",
-      item.isSpecial ? "bg-orange-50/50" : "bg-card"
+      "group overflow-hidden rounded-2xl border-none shadow-sm transition-all active:scale-[0.99] hover:shadow-md",
+      item.isSpecial ? "bg-orange-50/30" : "bg-card"
     )}>
-      <CardContent className="p-0 flex h-32">
-        <div className="w-32 bg-muted relative flex items-center justify-center shrink-0 overflow-hidden">
+      <CardContent className="p-0 flex h-28">
+        <div className="w-28 bg-muted relative flex items-center justify-center shrink-0 overflow-hidden">
           {item.imageUrl ? (
             <Image 
               src={item.imageUrl} 
@@ -37,52 +49,50 @@ export function EditableProductCard({ item, onEdit, onDelete }: EditableProductC
               className="object-cover"
             />
           ) : (
-            <Coffee className="w-8 h-8 text-primary/10" />
+            <Coffee className="w-6 h-6 text-primary/10" />
           )}
-          <Badge className="absolute top-2 left-2 text-[8px] font-black bg-white/90 text-primary border-none shadow-sm">
+          <Badge className="absolute top-1.5 left-1.5 text-[7px] font-black bg-white/90 text-primary border-none shadow-sm px-1.5 py-0">
             {categoryNames[item.category] || item.category}
           </Badge>
           {item.isSpecial && (
-            <div className="absolute bottom-2 left-2 bg-orange-500 text-white p-1 rounded-lg shadow-lg">
-              <Flame className="w-3 h-3" />
+            <div className="absolute bottom-1.5 left-1.5 bg-orange-500 text-white p-1 rounded-md shadow-lg">
+              <Flame className="w-2.5 h-2.5" />
             </div>
           )}
         </div>
-        <div className="flex-1 p-5 flex flex-col justify-between">
+        <div className="flex-1 p-3 flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <div className="max-w-[150px]">
-              <h3 className="font-black text-sm uppercase tracking-tight leading-none line-clamp-1">{item.name}</h3>
-              <p className="text-[10px] text-muted-foreground mt-1 line-clamp-1">{item.ingredients?.join(', ')}</p>
+            <div className="max-w-[140px]">
+              <h3 className="font-black text-[13px] uppercase tracking-tight leading-none line-clamp-1">{item.name}</h3>
+              <p className="text-[9px] text-muted-foreground mt-1 line-clamp-1 opacity-60">
+                {item.ingredients?.length > 0 ? item.ingredients.join(', ') : 'Без состава'}
+              </p>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-0.5">
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-8 w-8 rounded-full hover:bg-primary/5 text-muted-foreground hover:text-primary" 
-                onClick={() => onEdit(item)}
+                className="h-8 w-8 rounded-full hover:bg-primary/5 text-muted-foreground hover:text-primary transition-colors" 
+                onClick={handleEditClick}
               >
-                <Edit className="w-4 h-4" />
+                <Edit className="w-3.5 h-3.5" />
               </Button>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-8 w-8 rounded-full hover:bg-destructive/5 text-muted-foreground hover:text-destructive" 
-                onClick={() => {
-                  if (confirm('Удалить этот товар?')) {
-                    onDelete(item.id);
-                  }
-                }}
+                className="h-8 w-8 rounded-full hover:bg-destructive/5 text-muted-foreground hover:text-destructive transition-colors" 
+                onClick={handleDeleteClick}
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3.5 h-3.5" />
               </Button>
             </div>
           </div>
-          <div className="flex justify-between items-center pt-2">
+          <div className="flex justify-between items-center">
             <p className={cn(
-              "text-lg font-black tracking-tighter",
+              "text-base font-black tracking-tighter",
               item.isSpecial ? "text-orange-600" : "text-primary"
             )}>
-              {item.price.toLocaleString()} сум
+              {item.price.toLocaleString()} <span className="text-[8px] opacity-40">СУМ</span>
             </p>
           </div>
         </div>
