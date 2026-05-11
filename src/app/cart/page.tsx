@@ -150,9 +150,7 @@ export default function CartPage() {
                           <span className="font-black text-sm sm:text-base whitespace-nowrap text-primary">{item.priceAtSelection * item.quantity} сум</span>
                         </div>
                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                          {item.size && `Объем: ${item.size}`}
-                          {item.size && item.milk && " • "}
-                          {item.milk && `Молоко: ${item.milk}`}
+                          {item.size ? `Объем: ${item.size}` : 'Стандарт'}
                         </p>
                       </div>
                       

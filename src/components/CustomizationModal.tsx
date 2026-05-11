@@ -105,8 +105,8 @@ export function CustomizationModal({ isOpen, onClose, item }: CustomizationModal
             <div className="space-y-4">
               <div className="space-y-1.5">
                 <h4 className="text-[9px] font-black uppercase tracking-widest text-primary/40">Описание</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-4">
-                  {item.description}
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {item.description || "Изысканный вкус в каждом глотке. Насладитесь качеством нашего продукта."}
                 </p>
                 {item.ingredients && item.ingredients.length > 0 && (
                   <p className="text-[9px] text-muted-foreground/40 italic">

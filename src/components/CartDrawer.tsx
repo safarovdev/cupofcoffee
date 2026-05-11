@@ -92,9 +92,7 @@ export function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () =
                         <span className="font-bold text-sm whitespace-nowrap">{item.priceAtSelection * item.quantity} сум</span>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {item.size && `Объем: ${item.size}`}
-                        {item.size && item.milk && " • "}
-                        {item.milk && `Молоко: ${item.milk === 'regular' ? 'Обычное' : item.milk === 'oat' ? 'Овсяное' : item.milk === 'coconut' ? 'Кокосовое' : 'Миндальное'}`}
+                        {item.size ? `Объем: ${item.size}` : 'Стандарт'}
                       </p>
                       <div className="flex items-center justify-between pt-2">
                         <div className="flex items-center border rounded-lg bg-muted/30">
