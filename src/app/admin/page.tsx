@@ -21,7 +21,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { getAuth, signOut, signInWithEmailAndPassword } from 'firebase/auth';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -33,12 +33,14 @@ export default function AdminPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const router = useRouter();
+  const pathname = usePathname();
   
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [navigatingTo, setNavigatingTo] = useState<string | null>(null);
 
   const [activeShift, setActiveShift] = useState<any>(null);
   const [shiftDuration, setShiftDuration] = useState("00:00:00");
@@ -50,6 +52,11 @@ export default function AdminPage() {
     menuItemsCount: 0
   });
   const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    // Сбрасываем состояние навигации при возврате на страницу или смене пути
+    setNavigatingTo(null);
+  }, [pathname]);
 
   const loadStats = async () => {
     if (!firestore) return;
@@ -312,6 +319,14 @@ export default function AdminPage() {
     );
   }
 
+  const navItems = [
+    { href: '/admin/menu', title: 'Официант', desc: 'Принять заказ', icon: Home, color: 'bg-primary' },
+    { href: '/admin/orders', title: 'Заказы', desc: 'Управление', icon: ShoppingCart, color: 'bg-emerald-600' },
+    { href: '/admin/shifts', title: 'Статистика', desc: 'Финансы', icon: BarChart3, color: 'bg-blue-600' },
+    { href: '/admin/staff', title: 'Персонал', desc: 'Команда', icon: Users, color: 'bg-purple-600' },
+    { href: '/admin/settings', title: 'Товары', desc: 'Меню', icon: Settings, color: 'bg-orange-600' },
+  ];
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <header className="bg-card/80 backdrop-blur-md border-b p-4 sticky top-0 z-50 flex justify-between items-center px-4 sm:px-6">
@@ -395,27 +410,38 @@ export default function AdminPage() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          {[
-            { href: '/admin/menu', title: 'Официант', desc: 'Принять заказ', icon: Home, color: 'bg-primary' },
-            { href: '/admin/orders', title: 'Заказы', desc: 'Управление', icon: ShoppingCart, color: 'bg-emerald-600' },
-            { href: '/admin/shifts', title: 'Финансы', desc: 'Статистика', icon: BarChart3, color: 'bg-blue-600' },
-            { href: '/admin/staff', title: 'Персонал', desc: 'Команда', icon: Users, color: 'bg-purple-600' },
-            { href: '/admin/settings', title: 'Меню', desc: 'Редактор', icon: Settings, color: 'bg-orange-600' },
-          ].map((item, i) => (
-            <Link href={item.href} key={i}>
-              <Card className="hover:scale-[1.02] active:scale-95 transition-all border-none rounded-2xl bg-card shadow-sm h-full">
-                <CardContent className="p-4 flex flex-col items-center text-center space-y-2">
-                  <div className={`${item.color} w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md`}>
-                    <item.icon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-black uppercase tracking-tight leading-none mb-1">{item.title}</h3>
-                    <p className="text-[9px] text-muted-foreground font-medium">{item.desc}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+          {navItems.map((item, i) => {
+            const isNavigating = navigatingTo === item.href;
+            return (
+              <Link 
+                href={item.href} 
+                key={i}
+                onClick={() => setNavigatingTo(item.href)}
+              >
+                <Card className={cn(
+                  "hover:scale-[1.02] active:scale-95 transition-all border-none rounded-2xl bg-card shadow-sm h-full",
+                  isNavigating && "animate-pulse opacity-80"
+                )}>
+                  <CardContent className="p-4 flex flex-col items-center text-center space-y-2">
+                    <div className={cn(
+                      item.color, 
+                      "w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md"
+                    )}>
+                      {isNavigating ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <item.icon className="w-5 h-5" />
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-black uppercase tracking-tight leading-none mb-1">{item.title}</h3>
+                      <p className="text-[9px] text-muted-foreground font-medium">{item.desc}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
         </div>
       </main>
     </div>
