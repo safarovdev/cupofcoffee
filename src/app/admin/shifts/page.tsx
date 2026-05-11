@@ -28,6 +28,7 @@ interface Order {
   status: string;
   createdAt: any;
   items: any[];
+  acceptedBy?: string;
 }
 
 export default function StatisticsPage() {
@@ -219,6 +220,14 @@ export default function StatisticsPage() {
                         <div>
                           <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">ЗАКАЗ #{order.id.slice(-4)}</p>
                           <h4 className="font-black text-sm uppercase tracking-tight">{order.customerName}</h4>
+                          {order.acceptedBy && (
+                            <div className="flex items-center gap-1.5 mt-1.5">
+                              <User className="w-3 h-3 text-primary/40" />
+                              <span className="text-[9px] font-black uppercase tracking-widest text-primary/60">
+                                Принял: {order.acceptedBy}
+                              </span>
+                            </div>
+                          )}
                         </div>
                         <Badge variant={order.status === 'accepted' ? 'default' : order.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[8px] font-black tracking-widest uppercase">
                           {order.status === 'accepted' ? 'ПРИНЯТ' : order.status === 'rejected' ? 'ОТКЛОНЕН' : 'ОЖИДАЕТ'}
