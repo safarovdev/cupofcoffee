@@ -331,21 +331,21 @@ export default function AdminPage() {
           "border-none shadow-md rounded-2xl overflow-hidden transition-all duration-300",
           activeShift ? "bg-emerald-50" : "bg-orange-50"
         )}>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className={cn(
-                  "w-14 h-14 rounded-xl flex items-center justify-center shadow-lg",
+                  "w-12 h-12 rounded-xl flex items-center justify-center shadow-lg",
                   activeShift ? "bg-emerald-500 text-white" : "bg-orange-500 text-white"
                 )}>
-                  {activeShift ? <Clock className="w-7 h-7" /> : <Play className="w-7 h-7 ml-0.5" />}
+                  {activeShift ? <Clock className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
                 </div>
                 <div>
-                  <h2 className="text-lg font-black uppercase tracking-tighter leading-none mb-1">
+                  <h2 className="text-base font-black uppercase tracking-tighter leading-none mb-1">
                     {activeShift ? "Смена открыта" : "Смена закрыта"}
                   </h2>
                   <p className={cn(
-                    "text-base font-mono font-bold tracking-tight",
+                    "text-sm font-mono font-bold tracking-tight",
                     activeShift ? "text-emerald-600" : "text-orange-600"
                   )}>
                     {shiftDuration}
@@ -358,13 +358,13 @@ export default function AdminPage() {
                 disabled={isInitializing}
                 size="sm"
                 className={cn(
-                  "h-12 px-8 rounded-xl font-black text-sm shadow-md w-full sm:w-auto uppercase tracking-tight",
+                  "h-10 px-6 rounded-xl font-black text-xs shadow-md w-full sm:w-auto uppercase tracking-tight",
                   activeShift ? "bg-destructive hover:bg-destructive/90" : "bg-emerald-600 hover:bg-emerald-700"
                 )}
               >
                 {isInitializing ? <Loader2 className="animate-spin" /> : (
                   <div className="flex items-center gap-2">
-                    {activeShift ? <Square className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
+                    {activeShift ? <Square className="w-3 h-3 fill-current" /> : <Play className="w-3 h-3 fill-current" />}
                     {activeShift ? "Завершить смену" : "Начать смену"}
                   </div>
                 )}
