@@ -1,21 +1,22 @@
 
 "use client";
 
-import { LayoutDashboard, Users, Settings, ClipboardList, Loader2, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Users, Settings, ClipboardList, Loader2, BarChart3, ShoppingCart } from "lucide-react";
 import { useFirestore, useCollection } from "@/firebase";
 import { collection, query, where } from "firebase/firestore";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useMemo } from "react";
+import { useCart } from "@/context/CartContext";
 
 export function AdminBottomNav() {
   const pathname = usePathname();
   const firestore = useFirestore();
+  const { totalItems } = useCart();
   const [navigatingTo, setNavigatingTo] = useState<string | null>(null);
 
   useEffect(() => {
-    // Сбрасываем индикатор загрузки, когда путь изменился
     setNavigatingTo(null);
   }, [pathname]);
 
@@ -33,10 +34,10 @@ export function AdminBottomNav() {
 
   const navItems = [
     { href: "/admin", icon: LayoutDashboard, label: "Панель" },
+    { href: "/admin/menu", icon: Users, label: "Меню" },
+    { href: "/admin/cart", icon: ShoppingCart, label: "Чек", badge: totalItems, badgeColor: 'bg-primary' },
     { href: "/admin/orders", icon: ClipboardList, label: "Заказы", badge: pendingCount, badgeColor: 'bg-orange-500' },
-    { href: "/admin/shifts", icon: BarChart3, label: "Статистика" },
-    { href: "/admin/settings", icon: Settings, label: "Товары" },
-    { href: "/admin/staff", icon: Users, label: "Штат" },
+    { href: "/admin/shifts", icon: BarChart3, label: "Финансы" },
   ];
 
   return (
@@ -65,9 +66,9 @@ export function AdminBottomNav() {
                 isActive || isNavigating ? "scale-105" : "scale-100"
               )}>
                 {isNavigating ? (
-                  <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
                 ) : (
-                  <Icon className={cn("w-5 h-5", isActive ? "stroke-[2.5]" : "stroke-[2]")} />
+                  <Icon className={cn("w-4 h-4", isActive ? "stroke-[2.5]" : "stroke-[2]")} />
                 )}
               </div>
               <span className={cn(
@@ -79,15 +80,11 @@ export function AdminBottomNav() {
               
               {item.badge !== undefined && item.badge > 0 && !isNavigating && (
                 <span className={cn(
-                  "absolute top-1.5 right-1/4 text-white text-[8px] min-w-[15px] h-[15px] flex items-center justify-center rounded-full font-black border-2 border-white shadow-md px-1 animate-in zoom-in duration-300",
+                  "absolute top-1.5 right-1/4 text-white text-[7px] min-w-[14px] h-[14px] flex items-center justify-center rounded-full font-black border border-white shadow-sm px-1 animate-in zoom-in duration-300",
                   item.badgeColor || "bg-primary"
                 )}>
                   {item.badge}
                 </span>
-              )}
-              
-              {isActive && (
-                <div className="absolute -bottom-0.5 w-4 h-0.5 bg-primary rounded-full" />
               )}
             </Link>
           );
