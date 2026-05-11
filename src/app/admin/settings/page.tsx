@@ -34,7 +34,9 @@ export default function AdminProductsPage() {
 
     const q = query(collection(firestore, 'menu'), orderBy('name', 'asc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: id: doc.id должен быть ПОСЛЕ ...doc.data(), 
+      // чтобы системный ID документа не перезаписывался полем id из данных документа
+      const items = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
       setMenuItems(items);
       setLoading(false);
     }, (error) => {
@@ -55,10 +57,14 @@ export default function AdminProductsPage() {
   });
 
   const handleDeleteItem = (id: string) => {
-    if (!firestore || !id) return;
+    if (!firestore || !id) {
+      toast({ variant: 'destructive', title: 'Ошибка', description: 'ID товара не определен' });
+      return;
+    }
     
-    // Не блокируем поток выполнения через await
-    deleteDoc(doc(firestore, 'menu', id))
+    const docRef = doc(firestore, 'menu', id);
+    
+    deleteDoc(docRef)
       .then(() => {
         toast({ title: 'Товар удален' });
       })
@@ -67,7 +73,7 @@ export default function AdminProductsPage() {
         toast({ 
           variant: 'destructive', 
           title: 'Ошибка удаления', 
-          description: 'Проверьте права доступа или соединение'
+          description: error.message || 'Проверьте права доступа'
         });
       });
   };
