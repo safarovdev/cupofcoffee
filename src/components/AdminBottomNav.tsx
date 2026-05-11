@@ -1,7 +1,6 @@
-
 "use client";
 
-import { LayoutDashboard, Users, Settings, ClipboardList, Loader2, BarChart3, ShoppingCart } from "lucide-react";
+import { LayoutDashboard, Users, Settings, ClipboardList, Loader2, BarChart3, ShoppingCart, Package } from "lucide-react";
 import { useFirestore, useCollection } from "@/firebase";
 import { collection, query, where } from "firebase/firestore";
 import Link from "next/link";
@@ -37,7 +36,7 @@ export function AdminBottomNav() {
     { href: "/admin/menu", icon: Users, label: "Меню" },
     { href: "/admin/cart", icon: ShoppingCart, label: "Чек", badge: totalItems, badgeColor: 'bg-primary' },
     { href: "/admin/orders", icon: ClipboardList, label: "Заказы", badge: pendingCount, badgeColor: 'bg-orange-500' },
-    { href: "/admin/shifts", icon: BarChart3, label: "Финансы" },
+    { href: "/admin/settings", icon: Package, label: "Склад" },
   ];
 
   return (

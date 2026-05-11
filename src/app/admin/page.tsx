@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useUser, useFirestore } from '@/firebase';
 import { doc, getDoc, collection, getDocs, setDoc, query, where, addDoc, updateDoc, serverTimestamp, limit, Timestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { 
   ShieldAlert, 
   LogOut, 
@@ -16,9 +16,10 @@ import {
   Clock, 
   Play,
   Square,
-  Coffee,
   LayoutDashboard,
-  BarChart3
+  BarChart3,
+  Coffee,
+  Package
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, usePathname } from 'next/navigation';
@@ -274,13 +275,13 @@ export default function AdminPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-sm rounded-2xl shadow-xl border-none">
-          <CardHeader className="text-center pt-8 pb-4">
-            <div className="bg-primary w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-              <ShieldAlert className="w-7 h-7 text-white" />
+          <CardContent className="px-6 py-8">
+            <div className="text-center mb-6">
+              <div className="bg-primary w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                <ShieldAlert className="w-7 h-7 text-white" />
+              </div>
+              <h1 className="text-xl font-black uppercase tracking-tighter">CupOfCoffee Admin</h1>
             </div>
-            <CardTitle className="text-xl font-black uppercase tracking-tighter">CupOfCoffee Admin</CardTitle>
-          </CardHeader>
-          <CardContent className="px-6 pb-8">
             <form onSubmit={handleLogin} className="space-y-3">
               <div className="space-y-1">
                 <Label className="text-[9px] font-black uppercase tracking-widest ml-1 opacity-50">Email</Label>
@@ -319,11 +320,11 @@ export default function AdminPage() {
   }
 
   const navItems = [
-    { href: '/admin/menu', title: 'Официант', desc: 'Принять заказ', icon: Home, color: 'bg-primary' },
-    { href: '/admin/orders', title: 'Заказы', desc: 'Управление', icon: ShoppingCart, color: 'bg-emerald-600' },
-    { href: '/admin/shifts', title: 'Статистика', desc: 'Финансы', icon: BarChart3, color: 'bg-blue-600' },
-    { href: '/admin/staff', title: 'Персонал', desc: 'Команда', icon: Users, color: 'bg-purple-600' },
-    { href: '/admin/settings', title: 'Товары', desc: 'Меню', icon: Settings, color: 'bg-orange-600' },
+    { href: '/admin/menu', title: 'Официант', desc: 'Меню', icon: Home, color: 'bg-primary' },
+    { href: '/admin/orders', title: 'Заказы', desc: 'Активные', icon: ShoppingCart, color: 'bg-emerald-600' },
+    { href: '/admin/settings', title: 'Склад', desc: 'Товары', icon: Package, color: 'bg-orange-600' },
+    { href: '/admin/shifts', title: 'Финансы', desc: 'История', icon: BarChart3, color: 'bg-blue-600' },
+    { href: '/admin/staff', title: 'Штат', desc: 'Команда', icon: Users, color: 'bg-purple-600' },
   ];
 
   return (
@@ -343,7 +344,7 @@ export default function AdminPage() {
       <main className="max-w-5xl mx-auto p-4 sm:p-6 space-y-4">
         {/* Minimalist Shift Block */}
         <Card className={cn(
-          "border-border/40 rounded-2xl overflow-hidden transition-all duration-300 border",
+          "border-border/40 rounded-2xl overflow-hidden transition-all duration-300 border shadow-none",
           activeShift ? "bg-emerald-50/40" : "bg-orange-50/40"
         )}>
           <CardContent className="p-4 sm:p-5">
