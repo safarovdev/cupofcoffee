@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -15,10 +14,12 @@ import { useToast } from '@/hooks/use-toast';
 import { AddProductForm } from '@/components/AddProductForm';
 import { EditableProductCard } from '@/components/EditableProductCard';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 export default function AdminProductsPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
+  const router = useRouter();
   
   const [menuItems, setMenuItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +27,7 @@ export default function AdminProductsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<any | null>(null);
+  const [isNavigatingBack, setIsNavigatingBack] = useState(false);
 
   useEffect(() => {
     if (!firestore) return;
@@ -99,6 +101,11 @@ export default function AdminProductsPage() {
     }
   };
 
+  const handleBack = () => {
+    setIsNavigatingBack(true);
+    router.push('/admin');
+  };
+
   const categoryNames: Record<string, string> = {
     'Все': 'Все', 'coffee': 'Кофе', 'tea': 'Чай', 'mojito': 'Мохито',
     'mojito-carafe': 'Графины', 'milkshakes': 'Шейки',
@@ -109,9 +116,13 @@ export default function AdminProductsPage() {
     <div className="min-h-screen bg-background pb-40">
       <header className="bg-card/80 backdrop-blur-md border-b p-6 sticky top-0 z-50 flex items-center justify-between px-6">
         <div className="flex items-center gap-4">
-          <Link href="/admin" className="p-2 hover:bg-muted rounded-full text-muted-foreground transition-colors">
-            <ArrowLeft className="w-6 h-6" />
-          </Link>
+          <button 
+            onClick={handleBack}
+            disabled={isNavigatingBack}
+            className="p-2 hover:bg-muted rounded-full text-muted-foreground transition-colors flex items-center justify-center min-w-[40px] min-h-[40px]"
+          >
+            {isNavigatingBack ? <Loader2 className="w-6 h-6 animate-spin text-primary" /> : <ArrowLeft className="w-6 h-6" />}
+          </button>
           <h1 className="font-black text-xl uppercase tracking-tighter">РЕДАКТОР <span className="text-primary">МЕНЮ</span></h1>
         </div>
         <Badge variant="secondary" className="rounded-full h-8 px-4 font-black bg-primary/10 text-primary border-none">

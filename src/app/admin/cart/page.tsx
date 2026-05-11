@@ -18,6 +18,7 @@ export default function AdminCartPage() {
   
   const [customerName, setCustomerName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isNavigatingBack, setIsNavigatingBack] = useState(false);
 
   // Состояние для быстрого добавления произвольного товара
   const [customItem, setCustomItem] = useState({ name: '', price: '' });
@@ -130,12 +131,21 @@ export default function AdminCartPage() {
     }
   };
 
+  const handleBack = () => {
+    setIsNavigatingBack(true);
+    router.push('/admin/menu');
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background pb-40">
       <header className="bg-card/80 backdrop-blur-md border-b p-4 sticky top-0 z-50 flex items-center gap-4 px-6">
-        <Link href="/admin/menu" className="p-2 -ml-2 hover:bg-muted rounded-full transition-colors">
-          <ArrowLeft className="w-6 h-6 text-primary" />
-        </Link>
+        <button 
+          onClick={handleBack}
+          disabled={isNavigatingBack}
+          className="p-2 -ml-2 hover:bg-muted rounded-full transition-colors flex items-center justify-center min-w-[40px] min-h-[40px]"
+        >
+          {isNavigatingBack ? <Loader2 className="w-6 h-6 animate-spin text-primary" /> : <ArrowLeft className="w-6 h-6 text-primary" />}
+        </button>
         <div className="flex items-center gap-2">
           <ShieldAlert className="w-5 h-5 text-primary" />
           <h1 className="font-black text-lg uppercase tracking-tight">Оформление <span className="text-primary">Чека</span></h1>
@@ -183,9 +193,15 @@ export default function AdminCartPage() {
               <ShoppingCart className="w-8 h-8 text-muted-foreground/40" />
             </div>
             <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest mb-6">Список пуст. Используйте ручной ввод выше</p>
-            <Link href="/admin/menu">
-              <Button variant="outline" className="rounded-xl h-10 font-bold px-6 text-[10px] uppercase tracking-widest">Перейти к меню</Button>
-            </Link>
+            <Button 
+              variant="outline" 
+              onClick={handleBack}
+              disabled={isNavigatingBack}
+              className="rounded-xl h-10 font-bold px-6 text-[10px] uppercase tracking-widest"
+            >
+              {isNavigatingBack ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : null}
+              Перейти к меню
+            </Button>
           </div>
         ) : (
           <div className="space-y-4">

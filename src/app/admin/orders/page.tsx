@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -53,6 +52,7 @@ export default function OrdersPage() {
   const [showStaffSelector, setShowStaffSelector] = useState(false);
   const [hasActiveShift, setHasActiveShift] = useState<boolean | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [isNavigatingBack, setIsNavigatingBack] = useState(false);
 
   useEffect(() => {
     if (user && firestore) {
@@ -129,14 +129,23 @@ export default function OrdersPage() {
     }
   };
 
+  const handleBack = () => {
+    setIsNavigatingBack(true);
+    router.push('/admin');
+  };
+
   const filteredOrders = orders.filter(order => order.status === activeTab);
 
   return (
     <div className="min-h-screen bg-background pb-32 animate-in fade-in duration-500">
       <header className="bg-card/80 backdrop-blur-md border-b p-6 sticky top-0 z-50 flex items-center gap-4 px-6">
-        <Link href="/admin" className="p-2 hover:bg-muted rounded-full text-muted-foreground transition-colors">
-          <ArrowLeft className="w-6 h-6" />
-        </Link>
+        <button 
+          onClick={handleBack}
+          disabled={isNavigatingBack}
+          className="p-2 hover:bg-muted rounded-full text-muted-foreground transition-colors flex items-center justify-center min-w-[40px] min-h-[40px]"
+        >
+          {isNavigatingBack ? <Loader2 className="w-6 h-6 animate-spin text-primary" /> : <ArrowLeft className="w-6 h-6" />}
+        </button>
         <h1 className="font-black text-xl uppercase tracking-tighter">УПРАВЛЕНИЕ <span className="text-primary">ЗАКАЗАМИ</span></h1>
       </header>
 
